@@ -1,7 +1,21 @@
 name = "GeoStatsProcesses"
 uuid = "aa102bde-5a27-4b0c-b2c1-e7a7dcc4c3e7"
 authors = ["Elias Carvalho <eliascarvdev@gmail.com> and contributors"]
-version = "1.0.0-DEV"
+version = "0.1.0"
+
+[deps]
+CpuId = "adafc99b-e345-5852-983c-f28acb93d879"
+Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+GeoStatsBase = "323cb8eb-fbf6-51c0-afd0-f8fba70507b2"
+GeoTables = "e502b557-6362-48c1-8219-d30d308dcdb0"
+Meshes = "eacbb407-ea5a-433e-ab97-5258b1ca43fa"
+ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [compat]
+CpuId = "0.3"
+GeoStatsBase = "0.39"
+GeoTables = "1.9"
+Meshes = "0.35"
+ProgressMeter = "1.9"
 julia = "1.9"
