@@ -6,24 +6,37 @@ TODO
 abstract type GeoStatsProcess end
 
 """
-    randsingle(rng::AbstractRNG, process::GeoStatsProcess, domain::Domain, varnames, vartypes, prep; threads=cpucores())
+    randsingle(rng::AbstractRNG, process::GeoStatsProcess, setup::RandSetup, prep)
 
 TODO
 """
 function randsingle end
 
 """
-    randprep(rng::AbstractRNG, process::GeoStatsProcess, domain::Domain, varnames, vartypes; threads=cpucores())
+    randprep(rng::AbstractRNG, process::GeoStatsProcess, setup::RandSetup)
 
 TODO
 """
 function randprep end
 
+struct RandSetup{D<:Domain,T}
+  domain::D
+  geotable::T
+  varnames::Vector{Symbol}
+  vartypes::Vector{DataType}
+  threads::Int
+end
+
+function randsetup(domain::Domain, data, threads)
+  geotable, names, types = _extract(data)
+  RandSetup(domain, geotable, collect(names), collect(types), threads)
+end
+
 function Base.rand(rng::AbstractRNG, process::GeoStatsProcess, domain::Domain, data; threads=cpucores())
-  varnames, vartypes = _names_and_types(data)
-  prep = randprep(rng, process, domain, varnames, vartypes; threads)
-  real = randsingle(rng, process, domain, varnames, vartypes, prep; threads)
-  table = (; (real[var] for var in varnames)...)
+  setup = randsetup(domain, data, threads)
+  prep = randprep(rng, process, setup)
+  real = randsingle(rng, process, setup, prep)
+  table = (; (real[var] for var in setup.varnames)...)
   georef(table, domain)
 end
 
@@ -34,11 +47,11 @@ function Base.rand(
   data,
   n::Integer;
   pool=[myid()],
-  progress=true,
-  threads=cpucores()
+  threads=cpucores(),
+  progress=true
 )
-  varnames, vartypes = _names_and_types(data)
-  prep = randprep(rng, process, domain, varnames, vartypes; threads)
+  setup = randsetup(domain, data, threads)
+  prep = randprep(rng, process, setup; threads)
 
   # pool of worker processes
   pool = CachingPool(pool)
@@ -47,15 +60,16 @@ function Base.rand(
   reals = if progress
     message = "Simulating $(join(covars.names, " ,", " and ")):"
     @showprogress desc = message pmap(pool, 1:n) do _
-      randsingle(rng, process, domain, varnames, vartypes, prep; threads)
+      randsingle(rng, process, setup, prep)
     end
   else
     pmap(pool, 1:n) do _
-      randsingle(rng, process, domain, varnames, vartypes, prep; threads)
+      randsingle(rng, process, setup, prep)
     end
   end
 
   # rearrange realizations
+  (; varnames, vartypes) = setup
   varvects = [Vector{V}[] for V in vartypes]
   varreals = (; zip(varnames, varvects)...)
   for real in reals
@@ -67,10 +81,19 @@ function Base.rand(
   Ensemble(domain, varreals)
 end
 
-function _names_and_types(gtb::AbstractGeoTable)
+#-----------
+# UTILITIES
+#-----------
+
+function _extract(gtb::AbstractGeoTable)
   table = values(gtb)
   sch = Tables.schema(table)
-  sch.names, sch.types
+  gtb, sch.names, sch.types
 end
 
-_names_and_types(pairs) = first.(pairs), last.(pairs)
+function _extract(pairs)
+  if !(eltype(pairs) <: Pair{Symbol,DataType})
+    throw(ArgumentError("the data argument must be a geotable or an iterable of pairs"))
+  end
+  nothing, first.(pairs), last.(pairs)
+end
