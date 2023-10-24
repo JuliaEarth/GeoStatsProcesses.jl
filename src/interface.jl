@@ -32,6 +32,9 @@ function randsetup(domain::Domain, data, threads)
   RandSetup(domain, geotable, collect(names), collect(types), threads)
 end
 
+Base.rand(process::GeoStatsProcess, domain::Domain, data; kwargs...) =
+  rand(Random.default_rng(), process, domain, data; kwargs...)
+
 function Base.rand(rng::AbstractRNG, process::GeoStatsProcess, domain::Domain, data; threads=cpucores())
   setup = randsetup(domain, data, threads)
   prep = randprep(rng, process, setup)
@@ -39,6 +42,9 @@ function Base.rand(rng::AbstractRNG, process::GeoStatsProcess, domain::Domain, d
   table = (; (real[var] for var in setup.varnames)...)
   georef(table, domain)
 end
+
+Base.rand(process::GeoStatsProcess, domain::Domain, data, n::Integer; kwargs...) =
+  rand(Random.default_rng(), process, domain, data, n; kwargs...)
 
 function Base.rand(
   rng::AbstractRNG,
