@@ -17,7 +17,7 @@ function randprep(::AbstractRNG, process::SPDEGP, setup::RandSetup)
   @assert σ > 0 "sill must be positive"
   @assert 𝓁 > 0 "range must be positive"
 
-  # retrieve problem info
+  # retrieve domain info
   𝒟 = setup.domain
   d = paramdim(𝒟)
 

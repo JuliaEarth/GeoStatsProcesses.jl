@@ -43,7 +43,7 @@ function Base.rand(rng::AbstractRNG, process::GeoStatsProcess, domain::Domain, d
   setup = randsetup(domain, data, threads)
   prep = randprep(rng, process, setup)
   real = randsingle(rng, process, setup, prep)
-  table = (; (real[var] for var in setup.varnames)...)
+  table = (; (var => real[var] for var in setup.varnames)...)
   georef(table, domain)
 end
 
