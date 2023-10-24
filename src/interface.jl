@@ -85,10 +85,10 @@ end
 # UTILITIES
 #-----------
 
-function _extract(gtb::AbstractGeoTable)
-  table = values(gtb)
+function _extract(geotable::AbstractGeoTable)
+  table = values(geotable)
   sch = Tables.schema(table)
-  gtb, sch.names, sch.types
+  geotable, sch.names, sch.types
 end
 
 function _extract(pairs)
