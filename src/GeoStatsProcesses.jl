@@ -1,15 +1,26 @@
+# ------------------------------------------------------------------
+# Licensed under the MIT License. See LICENSE in the project root.
+# ------------------------------------------------------------------
+
 module GeoStatsProcesses
 
-using GeoTables
 using Meshes
-using Random
+using GeoTables
 
-using ProgressMeter
-using Distributed
 using CpuId
+using Tables
+using ProgressMeter
 
-using GeoStatsBase: Ensemble
+using Random
+using Distributed
+using LinearAlgebra
+
+using GeoStatsBase: Ensemble, integrate
+using Bessels: gamma
 
 include("interface.jl")
+include("spde.jl")
+
+export SPDEGP
 
 end
