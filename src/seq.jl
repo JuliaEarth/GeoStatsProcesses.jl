@@ -2,21 +2,21 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
-@kwdef struct SEQ{E,D,P,N,M,I} <: GeoStatsProcess
-  estimator::E
+@kwdef struct SEQ{M,D,P,N,DT,I} <: GeoStatsProcess
+  probmodel::M
   marginal::D
   path::P = LinearPath()
   minneighbors::Int = 1
   maxneighbors::Int = 10
   neighborhood::N = nothing
-  distance::M = Euclidean()
+  distance::DT = Euclidean()
   init::I = NearestInit()
 end
 
 function SGS(; variogram=GaussianVariogram(), mean=0.0, kwargs...)
-  estimator = GeoStatsModels.SimpleKriging(variogram, mean)
+  probmodel = GeoStatsprobmodels.SimpleKriging(variogram, mean)
   marginal = Normal(mean, √sill(variogram))
-  SEQ(; estimator, marginal, kwargs...)
+  SEQ(; probmodel, marginal, kwargs...)
 end
 
 function randprep(::AbstractRNG, process::SEQ, setup::RandSetup)
@@ -50,7 +50,7 @@ end
 
 function randsingle(rng::AbstractRNG, process::SEQ, setup::RandSetup, prep)
   # retrieve parameters
-  (; estimator, marginal, path, init) = process
+  (; probmodel, marginal, path, init) = process
   (; domain, geotable, varnames, vartypes) = setup
   (; minneighbors, maxneighbors, searcher) = prep
 
@@ -89,8 +89,8 @@ function randsingle(rng::AbstractRNG, process::SEQ, setup::RandSetup, prep)
             georef(tab, dom)
           end
 
-          # fit distribution estimator
-          fitted = fit(estimator, neigh)
+          # fit distribution probmodel
+          fitted = fit(probmodel, neigh)
 
           # draw from conditional or marginal
           distribution = if status(fitted)
