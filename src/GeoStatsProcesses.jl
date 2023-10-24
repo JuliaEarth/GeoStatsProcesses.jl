@@ -20,7 +20,7 @@ using Distributed
 using LinearAlgebra
 
 using GeoStatsBase: Ensemble, integrate
-using GeoStatsBase: InitMethod, NearestInit, initbuff
+using GeoStatsBase: NearestInit, initbuff
 using Bessels: gamma
 
 include("interface.jl")
