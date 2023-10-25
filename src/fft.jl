@@ -2,9 +2,9 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
-@kwdef struct FFTGP{V,N,D} <: GeoStatsProcess
+@kwdef struct FFTGP{V,T,N,D} <: GeoStatsProcess
   variogram::V = GaussianVariogram()
-  mean::Float64 = 0.0
+  mean::T = 0.0
   minneighbors::Int = 1
   maxneighbors::Int = 10
   neighborhood::N = nothing
@@ -108,7 +108,7 @@ function randsingle(rng::AbstractRNG, process::FFTGP, setup::RandSetup, prep)
       # perform Kriging prediction
       krig = Kriging(γ, μ)
       (; minneighbors, maxneighbors, neighborhood, distance) = process
-      pred = fitpredict(krig, kdata, kdom; minneighbors, maxneighbors, neighborhood, distance)
+      pred = fitpredict(krig, kdata, dom; minneighbors, maxneighbors, neighborhood, distance)
       z̄ᵤ = pred[:, var]
 
       # add residual field

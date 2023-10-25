@@ -1,2 +1,6 @@
 [deps]
+GeoTables = "e502b557-6362-48c1-8219-d30d308dcdb0"
+Meshes = "eacbb407-ea5a-433e-ab97-5258b1ca43fa"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Variography = "04a0146e-e6df-5636-8d7f-62fa9eb0b20c"
