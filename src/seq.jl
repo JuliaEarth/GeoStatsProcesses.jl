@@ -14,7 +14,7 @@
 end
 
 function SGP(; variogram=GaussianVariogram(), mean=0.0, kwargs...)
-  probmodel = GeoStatsprobmodels.SimpleKriging(variogram, mean)
+  probmodel = GeoStatsModels.SimpleKriging(variogram, mean)
   marginal = Normal(mean, √sill(variogram))
   SEQ(; probmodel, marginal, kwargs...)
 end
