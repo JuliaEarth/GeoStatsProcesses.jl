@@ -32,11 +32,11 @@ function randprep(::AbstractRNG, process::FFTGP, setup::RandSetup)
   FFTW.set_num_threads(setup.threads)
 
   # perform Kriging in case of conditional simulation
-  pred = nothing
-  if !isnothing(data)
-    krig = Kriging(γ, μ)
+  pred = if isnothing(data)
+    nothing
+  else
     (; minneighbors, maxneighbors, neighborhood, distance) = process
-    pred = fitpredict(krig, data, dom; minneighbors, maxneighbors, neighborhood, distance)
+    pred = fitpredict(Kriging(γ, μ), data, dom; minneighbors, maxneighbors, neighborhood, distance)
   end
 
   pairs = map(setup.vartypes, setup.varnames) do V, var
@@ -106,9 +106,8 @@ function randsingle(rng::AbstractRNG, process::FFTGP, setup::RandSetup, prep)
       kdata = georef(ktab, kdom)
 
       # perform Kriging prediction
-      krig = Kriging(γ, μ)
       (; minneighbors, maxneighbors, neighborhood, distance) = process
-      pred = fitpredict(krig, kdata, dom; minneighbors, maxneighbors, neighborhood, distance)
+      pred = fitpredict(Kriging(γ, μ), kdata, dom; minneighbors, maxneighbors, neighborhood, distance)
       z̄ᵤ = pred[:, var]
 
       # add residual field
