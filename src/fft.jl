@@ -50,11 +50,11 @@ function randprep(::AbstractRNG, process::FFTGP, setup::RandSetup)
     F = sqrt.(abs.(fft(fftshift(C))))
     F[1] = zero(V) # set reference level
 
-    # get variable prediction in case of conditional simulation
+    # get variable prediction and data locations if necessary
     z̄, dinds = nothing, nothing
     if !isnothing(pred)
       z̄ = pred[:, var]
-      # find data locations in problem domain
+      # find data locations in target domain
       ddom = domain(data)
       searcher = KNearestSearch(dom, 1)
       found = [search(centroid(ddom, i), searcher) for i in 1:nelements(ddom)]
@@ -105,7 +105,7 @@ function randsingle(rng::AbstractRNG, process::FFTGP, setup::RandSetup, prep)
       kdom = view(dom, dinds)
       kdata = georef(ktab, kdom)
 
-      # solve estimation problem
+      # perform Kriging prediction
       krig = Kriging(γ, μ)
       (; minneighbors, maxneighbors, neighborhood, distance) = process
       pred = fitpredict(krig, kdata, kdom; minneighbors, maxneighbors, neighborhood, distance)
