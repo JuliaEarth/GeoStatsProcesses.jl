@@ -13,7 +13,7 @@
   init::I = NearestInit()
 end
 
-function SGS(; variogram=GaussianVariogram(), mean=0.0, kwargs...)
+function SGP(; variogram=GaussianVariogram(), mean=0.0, kwargs...)
   probmodel = GeoStatsprobmodels.SimpleKriging(variogram, mean)
   marginal = Normal(mean, √sill(variogram))
   SEQ(; probmodel, marginal, kwargs...)
