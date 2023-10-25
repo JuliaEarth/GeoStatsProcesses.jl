@@ -56,8 +56,8 @@ function randprep(::AbstractRNG, process::FFTGP, setup::RandSetup)
       # determine search method
       searcher = getsearcher(ddom, maxneighbors, distance, neighborhood)
 
-      pset = PointSet(centroid(ddom, i) for i in 1:nelements(ddom))
-      kdata = georef(values(data), pset)
+      kdom = PointSet(centroid(ddom, i) for i in 1:nelements(ddom))
+      kdata = georef(values(data), kdom)
 
       # estimate conditional mean
       krig = Kriging(γ, μ)
