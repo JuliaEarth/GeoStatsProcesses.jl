@@ -21,6 +21,7 @@ using LinearAlgebra
 
 using GeoStatsBase: Ensemble, integrate
 using GeoStatsBase: NearestInit, initbuff
+using GeoStatsModels: fitpredict
 using Bessels: gamma
 
 include("interface.jl")
