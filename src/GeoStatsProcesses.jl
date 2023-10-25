@@ -9,6 +9,7 @@ using GeoTables
 using Variography
 using GeoStatsModels
 
+using FFTW
 using CpuId
 using Tables
 using Distances
@@ -16,6 +17,7 @@ using Distributions
 using ProgressMeter
 
 using Random
+using Statistics
 using Distributed
 using LinearAlgebra
 
