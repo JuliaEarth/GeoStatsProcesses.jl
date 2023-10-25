@@ -68,7 +68,7 @@ function randprep(::AbstractRNG, process::FFTGP, setup::RandSetup)
   Dict(pairs)
 end
 
-function randsingle(rng::AbstractRNG, process::SEQ, setup::RandSetup, prep)
+function randsingle(rng::AbstractRNG, process::FFTGP, setup::RandSetup, prep)
   # retrieve domain info
   dom = setup.domain
   data = setup.geotable

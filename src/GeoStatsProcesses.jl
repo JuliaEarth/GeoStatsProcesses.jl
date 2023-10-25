@@ -29,6 +29,6 @@ include("spde.jl")
 include("seq.jl")
 include("fft.jl")
 
-export SPDEGP, SEQ, SGS
+export SPDEGP, SEQ, SGS, FFTGP
 
 end
