@@ -4,7 +4,7 @@
 
 @kwdef struct FFTGP{V,T,N,D} <: GeoStatsProcess
   variogram::V = GaussianVariogram()
-  mean::T = 0.0
+  mean::T = zero(T)
   minneighbors::Int = 1
   maxneighbors::Int = 10
   neighborhood::N = nothing
