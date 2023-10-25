@@ -13,8 +13,8 @@
   init::I = NearestInit()
 end
 
-function SGS(; variogram=GaussianVariogram(), mean=0.0, kwargs...)
-  probmodel = GeoStatsprobmodels.SimpleKriging(variogram, mean)
+function SGP(; variogram=GaussianVariogram(), mean=0.0, kwargs...)
+  probmodel = GeoStatsModels.SimpleKriging(variogram, mean)
   marginal = Normal(mean, √sill(variogram))
   SEQ(; probmodel, marginal, kwargs...)
 end
@@ -90,11 +90,11 @@ function randsingle(rng::AbstractRNG, process::SEQ, setup::RandSetup, prep)
           end
 
           # fit distribution probmodel
-          fitted = fit(probmodel, neigh)
+          fitted = GeoStatsModels.fit(probmodel, neigh)
 
           # draw from conditional or marginal
-          distribution = if status(fitted)
-            predictprob(fitted, var, center)
+          distribution = if GeoStatsModels.status(fitted)
+            GeoStatsModels.predictprob(fitted, var, center)
           else
             marginal
           end

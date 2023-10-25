@@ -61,14 +61,14 @@ function Base.rand(
   progress=true
 )
   setup = randsetup(domain, data, threads)
-  prep = randprep(rng, process, setup; threads)
+  prep = randprep(rng, process, setup)
 
   # pool of worker processes
   pool = CachingPool(pool)
 
   # simulation loop
   reals = if progress
-    message = "Simulating $(join(covars.names, " ,", " and ")):"
+    message = "Simulating $(join(setup.varnames, " ,", " and ")):"
     @showprogress desc = message pmap(pool, 1:n) do _
       randsingle(rng, process, setup, prep)
     end
