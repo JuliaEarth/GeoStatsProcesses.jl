@@ -9,6 +9,7 @@ using Test
 
 import ImageQuilting
 import TuringPatterns
+using StratiGraphics: SmoothingProcess, Environment, ExponentialDuration
 
 @testset "GeoStatsProcesses.jl" begin
   @testset "FFTGP" begin
@@ -143,5 +144,17 @@ import TuringPatterns
     Random.seed!(2019)
     sdomain = CartesianGrid(200, 200)
     sims = rand(TP(), sdomain, [:z => Float64], 3)
+    @test length(sims) == 3
+    @test size(domain(sims[1])) == (200, 200)
+  end
+
+  @testset "SP" begin
+    rng = MersenneTwister(2019)
+    proc = SmoothingProcess()
+    env = Environment(rng, [proc, proc], [0.5 0.5; 0.5 0.5], ExponentialDuration(rng, 1.0))
+    sdomain = CartesianGrid(50, 50, 20)
+    sims = rand(SP(environment=env), sdomain, [:z => Float64], 3)
+    @test length(sims) == 3
+    @test size(domain(sims[1])) == (50, 50, 20)
   end
 end
