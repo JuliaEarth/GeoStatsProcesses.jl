@@ -1,10 +1,13 @@
 using GeoStatsProcesses
+using GeoStatsImages
 using Variography
 using GeoTables
 using Meshes
 using LinearAlgebra
 using Random
 using Test
+
+import ImageQuilting
 
 @testset "GeoStatsProcesses.jl" begin
   @testset "FFTGP" begin
@@ -119,5 +122,19 @@ using Test
     process = LUGP(variogram=(GaussianVariogram(range=10.0),))
     # the number of parameters must be equal to the number of variables
     @test_throws AssertionError rand(process, 𝒟, [:a => Float64, :b => Float64])
+  end
+
+  @testset "IQ" begin
+    sdata = georef((; facies=[1.0, 0.0, 1.0]), [25.0 50.0 75.0; 25.0 75.0 50.0])
+    sdomain = CartesianGrid(100, 100)
+  
+    rng = MersenneTwister(2017)
+    trainimg = geostatsimage("Strebelle")
+    inactive = [CartesianIndex(i, j) for i in 1:30 for j in 1:30]
+    process = IQ(trainimg=trainimg, tilesize=(30, 30), inactive=inactive)
+  
+    sims = rand(rng, process, sdomain, sdata, 3)
+    @test length(sims) == 3
+    @test size(domain(sims[1])) == (100, 100)
   end
 end
