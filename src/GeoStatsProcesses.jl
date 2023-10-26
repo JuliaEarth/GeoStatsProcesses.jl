@@ -31,7 +31,8 @@ include("spde.jl")
 include("seq.jl")
 include("fft.jl")
 include("lu.jl")
+include("iq.jl")
 
-export SPDEGP, SEQ, SGP, FFTGP, LUGP
+export SPDEGP, SEQ, SGP, FFTGP, LUGP, IQ
 
 end
