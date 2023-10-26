@@ -23,9 +23,11 @@ Variography = "04a0146e-e6df-5636-8d7f-62fa9eb0b20c"
 
 [weakdeps]
 ImageQuilting = "e8712464-036d-575c-85ac-952ae31322ab"
+TuringPatterns = "fde5428d-3bf0-5ade-b94a-d334303c4d77"
 
 [extensions]
 GeoStatsProcessesImageQuiltingExt = "ImageQuilting"
+GeoStatsProcessesTuringPatternsExt = "TuringPatterns"
 
 [compat]
 Bessels = "0.2"
@@ -41,5 +43,6 @@ Meshes = "0.35"
 ProgressMeter = "1.9"
 Statistics = "1.9"
 Tables = "1.11"
+TuringPatterns = "0.6"
 Variography = "0.19"
 julia = "1.9"

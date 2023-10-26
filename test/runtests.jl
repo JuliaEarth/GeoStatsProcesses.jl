@@ -8,6 +8,7 @@ using Random
 using Test
 
 import ImageQuilting
+import TuringPatterns
 
 @testset "GeoStatsProcesses.jl" begin
   @testset "FFTGP" begin
@@ -136,5 +137,11 @@ import ImageQuilting
     sims = rand(rng, process, sdomain, sdata, 3)
     @test length(sims) == 3
     @test size(domain(sims[1])) == (100, 100)
+  end
+
+  @testset "TP" begin
+    Random.seed!(2019)
+    sdomain = CartesianGrid(200, 200)
+    sims = rand(TP(), sdomain, [:z => Float64], 3)
   end
 end
