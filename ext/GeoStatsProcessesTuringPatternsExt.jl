@@ -10,11 +10,11 @@ using Meshes
 using TuringPatterns: BoxBlur, Clamp, SimplePattern, Sim
 using TuringPatterns: PARAMS1, step!, scale01
 
-using GeoStatsProcesses: TPS, RandSetup
+using GeoStatsProcesses: TP, RandSetup
 
 import GeoStatsProcesses: randprep, randsingle
 
-function randprep(::AbstractRNG, process::TPS, setup::RandSetup)
+function randprep(::AbstractRNG, process::TP, setup::RandSetup)
   # retrieve domain of simulation
   domain = setup.domain
   topo = topology(domain)
@@ -37,7 +37,7 @@ function randprep(::AbstractRNG, process::TPS, setup::RandSetup)
   Dict(pairs)
 end
 
-function randsingle(::AbstractRNG, process::TPS, setup::RandSetup, prep)
+function randsingle(::AbstractRNG, process::TP, setup::RandSetup, prep)
   # retrieve domain size
   sz = size(topology(setup.domain))
 

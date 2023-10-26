@@ -139,9 +139,9 @@ import TuringPatterns
     @test size(domain(sims[1])) == (100, 100)
   end
 
-  @testset "TPS" begin
+  @testset "TP" begin
     Random.seed!(2019)
     sdomain = CartesianGrid(200, 200)
-    sims = rand(TPS(), sdomain, [:z => Float64], 3)
+    sims = rand(TP(), sdomain, [:z => Float64], 3)
   end
 end
