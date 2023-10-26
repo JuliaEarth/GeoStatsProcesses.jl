@@ -15,22 +15,30 @@ function randprep(::AbstractRNG, process::LUGP, setup::RandSetup)
   (; domain, geotable, varnames, vartypes) = setup
 
   # check the number of variables
-  @assert length(varnames) ∈ (1, 2) "only 1 or 2 variables can be simulated simultaneously"
+  nvars = length(varnames)
+  @assert nvars ∈ (1, 2) "only 1 or 2 variables can be simulated simultaneously"
+
+  # check process paramaters
+  _checkparam(process.variogram, nvars)
+  _checkparam(process.mean, nvars)
 
   # retrieve process parameters
-  γ = process.variogram
   fact = process.factorization
   init = process.init
-
-  # check stationarity
-  @assert isstationary(γ) "variogram model must be stationary"
 
   # initialize buffers for realizations and simulation mask
   vars = Dict(zip(varnames, vartypes))
   buff, mask = initbuff(domain, vars, init, data=geotable)
 
   # preprocess parameters for individual variables
-  pairs = map(varnames) do var
+  pairs = map(enumerate(varnames)) do (i, var)
+    # get variable specific parameters
+    γ = _getparam(process.variogram, i)
+    vmean = _getparam(process.mean, i)
+
+    # check stationarity
+    @assert isstationary(γ) "variogram model must be stationary"
+
     # retrieve data locations and data values in domain
     dlocs = findall(mask[var])
     z₁ = view(buff[var], dlocs)
@@ -61,12 +69,12 @@ function randprep(::AbstractRNG, process::LUGP, setup::RandSetup)
       L₂₂ = fact(Symmetric(C₂₂ - A₂₁ * B₁₂)).L
     end
 
-    if !isnothing(process.mean) && !isempty(dlocs)
+    if !isnothing(vmean) && !isempty(dlocs)
       @warn "mean can only be specified in unconditional simulation"
     end
 
     # mean for unconditional simulation
-    μ = isnothing(process.mean) ? zero(eltype(z₁)) : process.mean
+    μ = isnothing(vmean) ? zero(eltype(z₁)) : vmean
 
     # save preprocessed parameters for variable
     var => (z₁, d₂, L₂₂, μ, dlocs, slocs)
@@ -94,6 +102,19 @@ function randsingle(rng::AbstractRNG, process::LUGP, setup::RandSetup, prep)
 
   varreal
 end
+
+#-----------
+# UTILITIES
+#-----------
+
+function _checkparam(param, nvars)
+  if param isa Tuple
+    @assert length(param) == nvars "the number of parameters must be equal to the number of variables"
+  end
+end
+
+_getparam(param, i) = param
+_getparam(params::Tuple, i) = params[i]
 
 function _lusim(rng, params, ρ=nothing, w₁=nothing)
   # unpack parameters
