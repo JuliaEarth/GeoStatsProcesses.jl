@@ -126,14 +126,14 @@ using StratiGraphics: SmoothingProcess, Environment, ExponentialDuration
     @test_throws AssertionError rand(process, 𝒟, [:a => Float64, :b => Float64])
   end
 
-  @testset "IQ" begin
+  @testset "IQP" begin
     sdata = georef((; facies=[1.0, 0.0, 1.0]), [25.0 50.0 75.0; 25.0 75.0 50.0])
     sdomain = CartesianGrid(100, 100)
   
     rng = MersenneTwister(2017)
     trainimg = geostatsimage("Strebelle")
     inactive = [CartesianIndex(i, j) for i in 1:30 for j in 1:30]
-    process = IQ(trainimg=trainimg, tilesize=(30, 30), inactive=inactive)
+    process = IQP(trainimg=trainimg, tilesize=(30, 30), inactive=inactive)
   
     sims = rand(rng, process, sdomain, sdata, 3)
     @test length(sims) == 3
