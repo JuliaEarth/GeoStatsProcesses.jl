@@ -33,7 +33,8 @@ include("fft.jl")
 include("lu.jl")
 include("iq.jl")
 include("tp.jl")
+include("sp.jl")
 
-export SPDEGP, SEQ, SGP, FFTGP, LUGP, IQ, TP
+export SPDEGP, SEQ, SGP, FFTGP, LUGP, IQ, TP, SP
 
 end
