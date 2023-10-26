@@ -30,7 +30,8 @@ include("interface.jl")
 include("spde.jl")
 include("seq.jl")
 include("fft.jl")
+include("lu.jl")
 
-export SPDEGP, SEQ, SGP, FFTGP
+export SPDEGP, SEQ, SGP, FFTGP, LUGP
 
 end
