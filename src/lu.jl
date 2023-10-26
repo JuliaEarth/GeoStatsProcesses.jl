@@ -2,6 +2,40 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
+"""
+    LUGP([paramaters])
+
+The LU Gaussian simulation solver introduced by Alabert 1987.
+The full covariance matrix is built to include all locations
+of the simulation domain, and samples from the multivariate
+Gaussian are drawn via LU factorization.
+
+## Parameters
+
+* `variogram`     - Theoretical variogram (default to `GaussianVariogram()`)
+* `mean`          - Mean of unconditional simulation (default to `0`)
+* `factorization` - Factorization method (default to `cholesky`)
+* `correlation`   - Correlation coefficient between two covariates (default to `0`)
+* `init`          - Data initialization method (default to `NearestInit()`)
+
+### References
+
+* Alabert 1987. [The practice of fast conditional simulations
+  through the LU decomposition of the covariance matrix]
+  (https://link.springer.com/article/10.1007/BF00897191)
+
+* Oliver 2003. [Gaussian cosimulation: modeling of the cross-covariance]
+  (https://link.springer.com/article/10.1023%2FB%3AMATG.0000002984.56637.ef)
+
+### Notes
+
+* The solver is only adequate for domains with relatively small
+  number of elements (e.g. 100x100 grids) where it is feasible to
+  factorize the full covariance.
+
+* For larger domains (e.g. 3D grids), other solvers are preferred
+  such as [`SGP`](@ref) and [`FFTGP`](@ref).
+"""
 @kwdef struct LUGP{V,T,F,C,I} <: FieldProcess
   variogram::V = GaussianVariogram()
   mean::T = nothing

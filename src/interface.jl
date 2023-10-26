@@ -5,28 +5,29 @@
 """
     GeoStatsProcess
 
-TODO
+Parent type of all geostatistical processes.
 """
 abstract type GeoStatsProcess end
 
 """
-    FieldProcess
+    FieldProcess <: GeoStatsProcess
 
-TODO
+Parent type of all field processes.
 """
 abstract type FieldProcess <: GeoStatsProcess end
 
 """
     randprep(rng::AbstractRNG, process::FieldProcess, setup::RandSetup)
 
-TODO
+Preprocessing step that is run before the generation of realizations of the `process`
+for the given `setup`.
 """
 function randprep end
 
 """
     randsingle(rng::AbstractRNG, process::FieldProcess, setup::RandSetup, prep)
 
-TODO
+Generate a single realization of the `process` for the given `setup` and `prep` data.
 """
 function randsingle end
 
@@ -43,6 +44,24 @@ function randsetup(domain::Domain, data, threads)
   RandSetup(domain, geotable, collect(names), collect(types), threads)
 end
 
+"""
+    rand([rng], process, domain, data; paramaters...)
+    rand([rng], process, domain, data, nreals; paramaters...)
+
+Generate one or `nreals` realizations of the field `process` over the `domain`
+with `data` and optional `paramaters`.
+
+The `data` can be a geotable or an iterable of pairs of the form `var => T`,
+where `var` is a symbol or string with the variable name and `T` is the corresponding
+data type.
+
+# Examples
+
+```julia
+julia> rand(process, domain, [:z => Float64])
+julia> rand(process, domain, geotable, 3)
+```
+"""
 Base.rand(process::FieldProcess, domain::Domain, data; kwargs...) =
   rand(Random.default_rng(), process, domain, data; kwargs...)
 

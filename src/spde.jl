@@ -2,6 +2,24 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
+"""
+    SPDEGP([paramaters])
+
+The SPDE Gaussian simulation solver introduced by Lindgren 2011.
+It relies on a discretization of the Laplace-Beltrami operator on
+meshes and is adequate for highly curved domains (e.g. surfaces).
+
+## Parameters
+
+* `sill`  - Sill or total variance (default to `1.0`)
+* `range` - Range or correlation length (default to `1.0`)
+
+### References
+
+* Lindgren et al. 2011. [An explicit link between Gaussian fields and
+  Gaussian Markov random fields: the stochastic partial differential
+  equation approach](https://rss.onlinelibrary.wiley.com/doi/10.1111/j.1467-9868.2011.00777.x)
+"""
 @kwdef struct SPDEGP <: FieldProcess
   sill::Float64 = 1.0
   range::Float64 = 1.0
