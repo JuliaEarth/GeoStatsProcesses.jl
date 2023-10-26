@@ -40,7 +40,7 @@ using StratiGraphics: SmoothingProcess, Environment, ExponentialDuration
     coords = [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)]
     samples = georef(table, coords)
     sdomain = CartesianGrid(100, 100)
-    process = FFTGP(variogram=GaussianVariogram(range=10.0))
+    process = FFTGP(variogram=GaussianVariogram(range=10.0), maxneighbors=3)
     sim = rand(process, sdomain, samples)
   end
 
@@ -49,7 +49,7 @@ using StratiGraphics: SmoothingProcess, Environment, ExponentialDuration
     𝒟 = CartesianGrid((100, 100), (0.5, 0.5), (1.0, 1.0))
     N = 3
 
-    process = SGP(variogram=SphericalVariogram(range=35.0), neighborhood=MetricBall(30.0))
+    process = SGP(variogram=SphericalVariogram(range=35.0), neighborhood=MetricBall(30.0), maxneighbors=3)
 
     Random.seed!(2017)
     sims₁ = rand(process, 𝒟, 𝒮, 3)

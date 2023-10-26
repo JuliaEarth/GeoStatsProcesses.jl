@@ -2,7 +2,7 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
-@kwdef struct FFTGP{V,T,N,D} <: GeoStatsProcess
+@kwdef struct FFTGP{V,T,N,D} <: FieldProcess
   variogram::V = GaussianVariogram()
   mean::T = 0.0
   minneighbors::Int = 1

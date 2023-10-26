@@ -2,7 +2,7 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
-@kwdef struct SP{E,S,ST,N,FB,FT} <: GeoStatsProcess
+@kwdef struct SP{E,S,ST,N,FB,FT} <: FieldProcess
   environment::E
   state::S = nothing
   stack::ST = :erosional

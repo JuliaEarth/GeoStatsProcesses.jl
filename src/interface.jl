@@ -10,18 +10,25 @@ TODO
 abstract type GeoStatsProcess end
 
 """
-    randsingle(rng::AbstractRNG, process::GeoStatsProcess, setup::RandSetup, prep)
+    FieldProcess
 
 TODO
 """
-function randsingle end
+abstract type FieldProcess <: GeoStatsProcess end
 
 """
-    randprep(rng::AbstractRNG, process::GeoStatsProcess, setup::RandSetup)
+    randprep(rng::AbstractRNG, process::FieldProcess, setup::RandSetup)
 
 TODO
 """
 function randprep end
+
+"""
+    randsingle(rng::AbstractRNG, process::FieldProcess, setup::RandSetup, prep)
+
+TODO
+"""
+function randsingle end
 
 struct RandSetup{D<:Domain,T}
   domain::D
@@ -36,10 +43,10 @@ function randsetup(domain::Domain, data, threads)
   RandSetup(domain, geotable, collect(names), collect(types), threads)
 end
 
-Base.rand(process::GeoStatsProcess, domain::Domain, data; kwargs...) =
+Base.rand(process::FieldProcess, domain::Domain, data; kwargs...) =
   rand(Random.default_rng(), process, domain, data; kwargs...)
 
-function Base.rand(rng::AbstractRNG, process::GeoStatsProcess, domain::Domain, data; threads=cpucores())
+function Base.rand(rng::AbstractRNG, process::FieldProcess, domain::Domain, data; threads=cpucores())
   setup = randsetup(domain, data, threads)
   prep = randprep(rng, process, setup)
   real = randsingle(rng, process, setup, prep)
@@ -47,12 +54,12 @@ function Base.rand(rng::AbstractRNG, process::GeoStatsProcess, domain::Domain, d
   georef(table, domain)
 end
 
-Base.rand(process::GeoStatsProcess, domain::Domain, data, n::Integer; kwargs...) =
+Base.rand(process::FieldProcess, domain::Domain, data, n::Integer; kwargs...) =
   rand(Random.default_rng(), process, domain, data, n; kwargs...)
 
 function Base.rand(
   rng::AbstractRNG,
-  process::GeoStatsProcess,
+  process::FieldProcess,
   domain::Domain,
   data,
   n::Integer;

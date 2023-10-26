@@ -2,7 +2,7 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
-@kwdef struct LUGP{V,T,F,C,I} <: GeoStatsProcess
+@kwdef struct LUGP{V,T,F,C,I} <: FieldProcess
   variogram::V = GaussianVariogram()
   mean::T = nothing
   factorization::F = cholesky

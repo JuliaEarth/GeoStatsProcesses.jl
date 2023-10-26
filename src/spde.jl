@@ -2,7 +2,7 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
-@kwdef struct SPDEGP <: GeoStatsProcess
+@kwdef struct SPDEGP <: FieldProcess
   sill::Float64 = 1.0
   range::Float64 = 1.0
 end

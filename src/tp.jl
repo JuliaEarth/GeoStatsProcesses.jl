@@ -2,7 +2,7 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
-@kwdef struct TP{P,B,E,I} <: GeoStatsProcess
+@kwdef struct TP{P,B,E,I} <: FieldProcess
   params::P = nothing
   blur::B = nothing
   edge::E = nothing

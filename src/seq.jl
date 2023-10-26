@@ -2,7 +2,7 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
-@kwdef struct SEQ{M,D,P,N,DT,I} <: GeoStatsProcess
+@kwdef struct SEQ{M,D,P,N,DT,I} <: FieldProcess
   probmodel::M
   marginal::D
   path::P = LinearPath()

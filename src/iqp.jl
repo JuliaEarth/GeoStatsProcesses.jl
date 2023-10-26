@@ -2,7 +2,7 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
-@kwdef struct IQP{TR,TS,O,P,IN,S,T,I} <: GeoStatsProcess
+@kwdef struct IQP{TR,TS,O,P,IN,S,T,I} <: FieldProcess
   trainimg::TR
   tilesize::TS
   overlap::O = nothing
