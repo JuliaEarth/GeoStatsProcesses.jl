@@ -10,7 +10,8 @@ using Meshes
 using GeoTables
 
 using GeoStatsBase: initbuff
-using ImageQuilting: iqsim, lin2cart
+using ImageQuilting: iqsim
+
 using GeoStatsProcesses: IQ, RandSetup
 
 import GeoStatsProcesses: randprep, randsingle
@@ -19,6 +20,7 @@ function randprep(::AbstractRNG, process::IQ, setup::RandSetup)
   # retrieve domain info
   sdomain = setup.domain
   simsize = size(sdomain)
+  lin2cart = CartesianIndices(simsize)
   Dim = embeddim(sdomain)
 
   # retrieve process paramaters
@@ -52,7 +54,7 @@ function randprep(::AbstractRNG, process::IQ, setup::RandSetup)
 
     # create hard data object
     linds = findall(mask[var])
-    cinds = [lin2cart(simsize, ind) for ind in linds]
+    cinds = [lin2cart[ind] for ind in linds]
     hvals = view(buff[var], linds)
     hard = Dict{CartesianIndex{Dim},Real}()
     for (ind, val) in zip(cinds, hvals)
