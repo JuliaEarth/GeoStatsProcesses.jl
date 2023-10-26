@@ -8,11 +8,10 @@ using Tables
 using Random
 using Meshes
 using GeoTables
-using GeoStatsProcesses
 
 using GeoStatsBase: initbuff
 using ImageQuilting: iqsim, lin2cart
-using GeoStatsProcesses: RandSetup
+using GeoStatsProcesses: IQ, RandSetup
 
 import GeoStatsProcesses: randprep, randsingle
 
