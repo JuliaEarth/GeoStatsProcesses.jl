@@ -26,15 +26,29 @@ using GeoStatsBase: NearestInit, initbuff
 using GeoStatsModels: fitpredict
 using Bessels: gamma
 
-include("interface.jl")
-include("spde.jl")
-include("seq.jl")
-include("fft.jl")
-include("lu.jl")
-include("iqp.jl")
-include("tp.jl")
-include("sp.jl")
+include("processes.jl")
+include("operations.jl")
 
-export SPDEGP, SEQ, SGP, FFTGP, LUGP, IQP, TP, SP
+export
+  # field processes
+  SPDEGP, 
+  SEQ, 
+  SGP, 
+  FFTGP, 
+  LUGP, 
+  IQP, 
+  TP, 
+  SP,
+
+  # point processes
+  BinomialProcess, 
+  ClusterProcess, 
+  InhibitionProcess, 
+  PoissonProcess, 
+  UnionProcess,
+
+  # operations
+  RandomThinning, 
+  thin
 
 end
