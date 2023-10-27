@@ -10,43 +10,26 @@ Parent type of all geostatistical processes.
 abstract type GeoStatsProcess end
 
 """
+    PointProcess <: GeoStatsProcess
+
+Parent type of all point processes.
+"""
+abstract type PointProcess <: GeoStatsProcess end
+
+"""
     FieldProcess <: GeoStatsProcess
 
 Parent type of all field processes.
 """
 abstract type FieldProcess <: GeoStatsProcess end
 
-"""
-    randprep(rng::AbstractRNG, process::FieldProcess, setup::RandSetup)
-
-Preprocessing step that is run before the generation of realizations of the `process`
-for the given `setup`.
-"""
-function randprep end
+#-----------------
+# FIELD PROCESSES
+#-----------------
 
 """
-    randsingle(rng::AbstractRNG, process::FieldProcess, setup::RandSetup, prep)
-
-Generate a single realization of the `process` for the given `setup` and `prep` data.
-"""
-function randsingle end
-
-struct RandSetup{D<:Domain,T}
-  domain::D
-  geotable::T
-  varnames::Vector{Symbol}
-  vartypes::Vector{DataType}
-  threads::Int
-end
-
-function randsetup(domain::Domain, data, threads)
-  geotable, names, types = _extract(data)
-  RandSetup(domain, geotable, collect(names), collect(types), threads)
-end
-
-"""
-    rand([rng], process, domain, data; paramaters...)
-    rand([rng], process, domain, data, nreals; paramaters...)
+    rand([rng], process::FieldProcess, domain, data; paramaters...)
+    rand([rng], process::FieldProcess, domain, data, nreals; paramaters...)
 
 Generate one or `nreals` realizations of the field `process` over the `domain`
 with `data` and optional `paramaters`.
@@ -121,6 +104,19 @@ end
 # UTILITIES
 #-----------
 
+struct RandSetup{D<:Domain,T}
+  domain::D
+  geotable::T
+  varnames::Vector{Symbol}
+  vartypes::Vector{DataType}
+  threads::Int
+end
+
+function randsetup(domain::Domain, data, threads)
+  geotable, names, types = _extract(data)
+  RandSetup(domain, geotable, collect(names), collect(types), threads)
+end
+
 function _extract(geotable::AbstractGeoTable)
   table = values(geotable)
   sch = Tables.schema(table)
@@ -133,3 +129,52 @@ function _extract(pairs)
   end
   nothing, first.(pairs), last.(pairs)
 end
+
+#-----------------
+# IMPLEMENTATIONS
+#-----------------
+
+include("field/spde.jl")
+include("field/seq.jl")
+include("field/fft.jl")
+include("field/lu.jl")
+include("field/iqp.jl")
+include("field/tp.jl")
+include("field/sp.jl")
+
+#-----------------
+# POINT PROCESSES
+#-----------------
+
+"""
+    ishomogeneous(process::PointProcess)
+
+Tells whether or not the spatial point process `process` is homogeneous.
+"""
+ishomogeneous(process::PointProcess) = false
+
+"""
+    rand([rng], process::PointProcess, g)
+    rand([rng], process::PointProcess, g)
+
+Generate `n` realizations of spatial point process `process`
+inside geometry or domain `g`. Optionally specify the
+random number generator `rng`.
+"""
+Base.rand(rng::AbstractRNG, p::PointProcess, g, n::Int) = [randsingle(rng, p, g) for _ in 1:n]
+
+Base.rand(rng::AbstractRNG, p::PointProcess, g) = randsingle(rng, p, g)
+
+Base.rand(p::PointProcess, g, n::Int) = rand(Random.default_rng(), p, g, n)
+
+Base.rand(p::PointProcess, g) = rand(Random.default_rng(), p, g)
+
+#-----------------
+# IMPLEMENTATIONS
+#-----------------
+
+include("point/binomial.jl")
+include("point/poisson.jl")
+include("point/inhibition.jl")
+include("point/cluster.jl")
+include("point/union.jl")
