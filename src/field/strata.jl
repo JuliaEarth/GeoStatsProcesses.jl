@@ -5,7 +5,7 @@
 """
     StrataProcess([paramaters])
 
-Stratigraphy simulation with Markov-Poisson sampling.
+A process to simulate 3D stratigraphic models.
 
 ## Parameters
 

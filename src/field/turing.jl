@@ -5,7 +5,7 @@
 """
     TuringProcess([paramaters])
 
-Turing pattern simulation.
+Turing process as described in Turing 1952.
 
 ## Parameters
 

@@ -5,7 +5,7 @@
 """
     QuiltingProcess([paramaters])
 
-Image quilting simulation process as described in Hoffimann et al. 2017.
+Image quilting process as described in Hoffimann et al. 2017.
 
 ## Parameters
 
