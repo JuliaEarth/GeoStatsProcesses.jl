@@ -3,22 +3,15 @@
 # ------------------------------------------------------------------
 
 """
-    FFTGP([paramaters])
+    FFTMethod([paramaters])
 
-The FFT Gaussian simulation solver introduced by Gutjahr 1997.
+The FFT Gaussian simulation method introduced by Gutjahr 1997.
 The covariance function is perturbed in the frequency domain
 after a fast Fourier transform. White noise is added to the
 phase of the spectrum, and a realization is produced by an
 inverse Fourier transform.
 
 ## Parameters
-
-* `variogram` - theoretical variogram (default to `GaussianVariogram()`)
-* `mean`      - mean of Gaussian field (default to `0`)
-
-In the case of conditional simulation, the following parameters
-can be passed to the underlying Kriging solver:
-
 * `minneighbors` - Minimum number of neighbors (default to `1`)
 * `maxneighbors` - Maximum number of neighbors (default to `nothing)
 * `neighborhood` - Search neighborhood (default to `nothing`)
@@ -34,25 +27,23 @@ can be passed to the underlying Kriging solver:
 
 ### Notes
 
-* The solver is limited to simulations on Cartesian grids, and care must be
+* The method is limited to simulations on Cartesian grids, and care must be
   taken to make sure that the correlation length is small enough compared to
   the grid size.
 
 * As a general rule of thumb, avoid correlation lengths greater than 1/3 of
   the grid.
 
-* The solver is extremely fast, and can be used to generate large 3D realizations.
+* The method is extremely fast, and can be used to generate large 3D realizations.
 """
-@kwdef struct FFTGP{V,T,N,D} <: FieldProcess
-  variogram::V = GaussianVariogram()
-  mean::T = 0.0
+@kwdef struct FFTMethod{N,D} <: RandMethod
   minneighbors::Int = 1
   maxneighbors::Int = 10
   neighborhood::N = nothing
   distance::D = Euclidean()
 end
 
-function randprep(::AbstractRNG, process::FFTGP, setup::RandSetup)
+function randprep(::AbstractRNG, process::GaussianProcess, method::FFTMethod, setup::RandSetup)
   # retrive variogram model and mean
   γ = process.variogram
   μ = process.mean
@@ -76,7 +67,7 @@ function randprep(::AbstractRNG, process::FFTGP, setup::RandSetup)
   pred = if isnothing(data)
     nothing
   else
-    (; minneighbors, maxneighbors, neighborhood, distance) = process
+    (; minneighbors, maxneighbors, neighborhood, distance) = method
     pred = fitpredict(Kriging(γ, μ), data, dom; minneighbors, maxneighbors, neighborhood, distance)
   end
 
@@ -109,7 +100,7 @@ function randprep(::AbstractRNG, process::FFTGP, setup::RandSetup)
   Dict(pairs)
 end
 
-function randsingle(rng::AbstractRNG, process::FFTGP, setup::RandSetup, prep)
+function randsingle(rng::AbstractRNG, process::GaussianProcess, method::FFTMethod, setup::RandSetup, prep)
   # retrieve domain info
   dom = setup.domain
   data = setup.geotable
@@ -147,7 +138,7 @@ function randsingle(rng::AbstractRNG, process::FFTGP, setup::RandSetup, prep)
       kdata = georef(ktab, kdom)
 
       # perform Kriging prediction
-      (; minneighbors, maxneighbors, neighborhood, distance) = process
+      (; minneighbors, maxneighbors, neighborhood, distance) = method
       pred = fitpredict(Kriging(γ, μ), kdata, dom; minneighbors, maxneighbors, neighborhood, distance)
       z̄ᵤ = pred[:, var]
 

@@ -9,15 +9,16 @@ using Meshes
 
 using StratiGraphics: LandState, Strata, simulate, voxelize
 
-using GeoStatsProcesses: SP, RandSetup
+using GeoStatsProcesses: RandSetup
+using GeoStatsProcesses: StrataProcess, DefaultRandMethod
 
 import GeoStatsProcesses: randprep, randsingle
 
-function randprep(::AbstractRNG, process::SP, setup::RandSetup)
+function randprep(::AbstractRNG, process::StrataProcess, ::DefaultRandMethod, setup::RandSetup)
   # retrieve domain info
   domain = setup.domain
 
-  @assert embeddim(domain) == 3 "solver implemented for 3D domain only"
+  @assert embeddim(domain) == 3 "process implemented for 3D domain only"
 
   pairs = map(setup.varnames) do var
     # determine initial state
@@ -36,7 +37,7 @@ function randprep(::AbstractRNG, process::SP, setup::RandSetup)
   Dict(pairs)
 end
 
-function randsingle(::AbstractRNG, process::SP, setup::RandSetup, prep)
+function randsingle(::AbstractRNG, process::StrataProcess, ::DefaultRandMethod, setup::RandSetup, prep)
   # retrieve domain info
   domain = setup.domain
   _, __, nz = size(domain)

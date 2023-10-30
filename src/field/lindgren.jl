@@ -3,9 +3,9 @@
 # ------------------------------------------------------------------
 
 """
-    SPDEGP([paramaters])
+    LindgrenProcess([paramaters])
 
-The SPDE Gaussian simulation solver introduced by Lindgren 2011.
+The SPDE Gaussian simulation process introduced by Lindgren 2011.
 It relies on a discretization of the Laplace-Beltrami operator on
 meshes and is adequate for highly curved domains (e.g. surfaces).
 
@@ -20,12 +20,12 @@ meshes and is adequate for highly curved domains (e.g. surfaces).
   Gaussian Markov random fields: the stochastic partial differential
   equation approach](https://rss.onlinelibrary.wiley.com/doi/10.1111/j.1467-9868.2011.00777.x)
 """
-@kwdef struct SPDEGP <: FieldProcess
+@kwdef struct LindgrenProcess <: FieldProcess
   sill::Float64 = 1.0
   range::Float64 = 1.0
 end
 
-function randprep(::AbstractRNG, process::SPDEGP, setup::RandSetup)
+function randprep(::AbstractRNG, process::LindgrenProcess, ::DefaultRandMethod, setup::RandSetup)
   isnothing(setup.geotable) || @error "conditional simulation is not implemented"
 
   # retrieve sill and range
@@ -67,7 +67,7 @@ function randprep(::AbstractRNG, process::SPDEGP, setup::RandSetup)
   Dict(pairs)
 end
 
-function randsingle(rng::AbstractRNG, ::SPDEGP, setup::RandSetup, prep)
+function randsingle(rng::AbstractRNG, ::LindgrenProcess, ::DefaultRandMethod, setup::RandSetup, prep)
   # retrieve problem info
   𝒟 = setup.domain
   n = nvertices(𝒟)

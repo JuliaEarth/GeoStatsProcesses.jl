@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------
 
 """
-    SP([paramaters])
+    StrataProcess([paramaters])
 
 Stratigraphy simulation with Markov-Poisson sampling.
 
@@ -21,7 +21,7 @@ Stratigraphy simulation with Markov-Poisson sampling.
 Hoffimann 2018. *Morphodynamic analysis and statistical
 synthesis of geormorphic data.*
 """
-@kwdef struct SP{E,S,ST,N,FB,FT} <: FieldProcess
+@kwdef struct StrataProcess{E,S,ST,N,FB,FT} <: FieldProcess
   environment::E
   state::S = nothing
   stack::ST = :erosional
