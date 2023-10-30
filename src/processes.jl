@@ -158,9 +158,9 @@ end
 # IMPLEMENTATIONS
 #-----------------
 
-include("field/spde.jl")
 include("field/seq.jl")
 include("field/gaussian.jl")
+include("field/spde.jl")
 include("field/iqp.jl")
 include("field/tp.jl")
 include("field/sp.jl")

@@ -31,11 +31,10 @@ include("operations.jl")
 
 export
   # field processes
-  SPDEGP, 
-  SEQ, 
-  GaussianProcess, 
-  IQP, 
-  TP, 
+  GaussianProcess,
+  SPDEGP,
+  IQP,
+  TP,
   SP,
 
   # rand methods
@@ -44,14 +43,14 @@ export
   SEQMethod,
 
   # point processes
-  BinomialProcess, 
-  ClusterProcess, 
-  InhibitionProcess, 
-  PoissonProcess, 
+  BinomialProcess,
+  ClusterProcess,
+  InhibitionProcess,
+  PoissonProcess,
   UnionProcess,
 
   # operations
-  RandomThinning, 
+  RandomThinning,
   thin
 
 end
