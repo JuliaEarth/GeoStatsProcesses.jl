@@ -16,11 +16,11 @@ include("gaussian/fft.jl")
 include("gaussian/seq.jl")
 
 function defaultmethod(::GaussianProcess, setup::RandSetup)
-  N = 10_000
-  domain, _ = unview(setup.domain)
-  if domain isa Grid
+  dom = setup.domain
+  udom, _ = unview(dom)
+  if udom isa Grid
     FFTMethod()
-  elseif nelements(domain) < N
+  elseif nelements(dom) < 10000
     LUMethod()
   else
     SEQMethod()
