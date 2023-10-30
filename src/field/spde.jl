@@ -5,7 +5,7 @@
 """
     SPDEGP([paramaters])
 
-The SPDE Gaussian simulation solver introduced by Lindgren 2011.
+The SPDE Gaussian simulation process introduced by Lindgren 2011.
 It relies on a discretization of the Laplace-Beltrami operator on
 meshes and is adequate for highly curved domains (e.g. surfaces).
 

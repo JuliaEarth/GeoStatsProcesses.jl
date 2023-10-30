@@ -5,7 +5,7 @@
 """
     IQP([paramaters])
 
-Image quilting simulation solver as described in Hoffimann et al. 2017.
+Image quilting simulation process as described in Hoffimann et al. 2017.
 
 ## Parameters
 

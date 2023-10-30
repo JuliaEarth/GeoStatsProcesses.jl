@@ -17,7 +17,7 @@ function randprep(::AbstractRNG, process::SP, ::DefaultRandMethod, setup::RandSe
   # retrieve domain info
   domain = setup.domain
 
-  @assert embeddim(domain) == 3 "solver implemented for 3D domain only"
+  @assert embeddim(domain) == 3 "process implemented for 3D domain only"
 
   pairs = map(setup.varnames) do var
     # determine initial state

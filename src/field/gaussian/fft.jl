@@ -5,7 +5,7 @@
 """
     FFTMethod([paramaters])
 
-The FFT Gaussian simulation solver introduced by Gutjahr 1997.
+The FFT Gaussian simulation method introduced by Gutjahr 1997.
 The covariance function is perturbed in the frequency domain
 after a fast Fourier transform. White noise is added to the
 phase of the spectrum, and a realization is produced by an
@@ -27,14 +27,14 @@ inverse Fourier transform.
 
 ### Notes
 
-* The solver is limited to simulations on Cartesian grids, and care must be
+* The method is limited to simulations on Cartesian grids, and care must be
   taken to make sure that the correlation length is small enough compared to
   the grid size.
 
 * As a general rule of thumb, avoid correlation lengths greater than 1/3 of
   the grid.
 
-* The solver is extremely fast, and can be used to generate large 3D realizations.
+* The method is extremely fast, and can be used to generate large 3D realizations.
 """
 @kwdef struct FFTMethod{N,D} <: RandMethod
   minneighbors::Int = 1

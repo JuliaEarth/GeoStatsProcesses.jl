@@ -5,7 +5,7 @@
 """
     LUMethod([paramaters])
 
-The LU Gaussian simulation solver introduced by Alabert 1987.
+The LU Gaussian simulation method introduced by Alabert 1987.
 The full covariance matrix is built to include all locations
 of the simulation domain, and samples from the multivariate
 Gaussian are drawn via LU factorization.
@@ -27,7 +27,7 @@ Gaussian are drawn via LU factorization.
 
 ### Notes
 
-* The solver is only adequate for domains with relatively small
+* The method is only adequate for domains with relatively small
   number of elements (e.g. 100x100 grids) where it is feasible to
   factorize the full covariance.
 

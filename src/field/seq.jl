@@ -6,7 +6,7 @@
 """
     SEQ([paramaters])
 
-A sequential simulation solver.
+A sequential simulation process.
 
 For each location in the simulation `path`, a maximum number
 of neighbors `maxneighbors` is used to fit a distribution.
