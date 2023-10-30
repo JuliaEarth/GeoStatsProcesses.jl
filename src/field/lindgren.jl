@@ -11,8 +11,8 @@ meshes and is adequate for highly curved domains (e.g. surfaces).
 
 ## Parameters
 
-* `sill`  - Sill or total variance (default to `1.0`)
 * `range` - Range or correlation length (default to `1.0`)
+* `sill`  - Sill or total variance (default to `1.0`)
 
 ### References
 
@@ -21,19 +21,19 @@ meshes and is adequate for highly curved domains (e.g. surfaces).
   equation approach](https://rss.onlinelibrary.wiley.com/doi/10.1111/j.1467-9868.2011.00777.x)
 """
 @kwdef struct LindgrenProcess <: FieldProcess
-  sill::Float64 = 1.0
   range::Float64 = 1.0
+  sill::Float64 = 1.0
 end
 
 function randprep(::AbstractRNG, process::LindgrenProcess, ::DefaultRandMethod, setup::RandSetup)
   isnothing(setup.geotable) || @error "conditional simulation is not implemented"
 
   # retrieve sill and range
-  σ = process.sill
   𝓁 = process.range
+  σ = process.sill
 
-  @assert σ > 0 "sill must be positive"
   @assert 𝓁 > 0 "range must be positive"
+  @assert σ > 0 "sill must be positive"
 
   # retrieve domain info
   𝒟 = setup.domain
