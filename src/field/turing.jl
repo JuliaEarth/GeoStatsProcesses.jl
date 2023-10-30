@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------
 
 """
-    TP([paramaters])
+    TuringProcess([paramaters])
 
 Turing pattern simulation.
 
@@ -18,7 +18,7 @@ Turing pattern simulation.
 
 Turing 1952. *The chemical basis of morphogenesis.*
 """
-@kwdef struct TP{P,B,E,I} <: FieldProcess
+@kwdef struct TuringProcess{P,B,E,I} <: FieldProcess
   params::P = nothing
   blur::B = nothing
   edge::E = nothing

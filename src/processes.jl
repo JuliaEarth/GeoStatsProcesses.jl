@@ -158,12 +158,12 @@ end
 # IMPLEMENTATIONS
 #-----------------
 
-include("field/seq.jl")
+include("field/sequential.jl")
 include("field/gaussian.jl")
-include("field/spde.jl")
-include("field/iqp.jl")
-include("field/tp.jl")
-include("field/sp.jl")
+include("field/lindgren.jl")
+include("field/quilting.jl")
+include("field/turing.jl")
+include("field/stratigraphy.jl")
 
 #-----------------
 # POINT PROCESSES

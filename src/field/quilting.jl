@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------
 
 """
-    IQP([paramaters])
+    QuiltingProcess([paramaters])
 
 Image quilting simulation process as described in Hoffimann et al. 2017.
 
@@ -28,7 +28,7 @@ Image quilting simulation process as described in Hoffimann et al. 2017.
 * Hoffimann et al 2017. *Stochastic simulation by image quilting of process-based geological models.*
 * Hoffimann et al 2015. *Geostatistical modeling of evolving landscapes by means of image quilting.*
 """
-@kwdef struct IQP{TR,TS,O,P,IN,S,T,I} <: FieldProcess
+@kwdef struct QuiltingProcess{TR,TS,O,P,IN,S,T,I} <: FieldProcess
   trainimg::TR
   tilesize::TS
   overlap::O = nothing

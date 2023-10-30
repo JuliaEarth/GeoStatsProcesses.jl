@@ -49,7 +49,7 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::SEQMethod, se
   (; path, minneighbors, maxneighbors, neighborhood, distance, init) = method
   probmodel = GeoStatsModels.SimpleKriging(variogram, mean)
   marginal = Normal(mean, √sill(variogram))
-  SEQ(; probmodel, marginal, path, minneighbors, maxneighbors, neighborhood, distance, init)
+  SequentialProcess(; probmodel, marginal, path, minneighbors, maxneighbors, neighborhood, distance, init)
 end
 
 function randsingle(rng::AbstractRNG, ::GaussianProcess, ::SEQMethod, setup::RandSetup, prep)

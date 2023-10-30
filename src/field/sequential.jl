@@ -4,7 +4,7 @@
 
 
 """
-    SEQ([paramaters])
+    SequentialProcess([paramaters])
 
 A sequential simulation process.
 
@@ -24,7 +24,7 @@ and in case there are none, use a `marginal` distribution.
 * `distance`     - Distance used to find nearest neighbors (default to `Euclidean()`)
 * `init`         - Data initialization method (default to `NearestInit()`)
 """
-@kwdef struct SEQ{M,D,P,N,DT,I} <: FieldProcess
+@kwdef struct SequentialProcess{M,D,P,N,DT,I} <: FieldProcess
   probmodel::M
   marginal::D
   path::P = LinearPath()
@@ -35,7 +35,7 @@ and in case there are none, use a `marginal` distribution.
   init::I = NearestInit()
 end
 
-function randprep(::AbstractRNG, process::SEQ, ::DefaultRandMethod, setup::RandSetup)
+function randprep(::AbstractRNG, process::SequentialProcess, ::DefaultRandMethod, setup::RandSetup)
   # retrieve domain info
   domain = setup.domain
   # retrieve process paramaters
@@ -64,7 +64,7 @@ function randprep(::AbstractRNG, process::SEQ, ::DefaultRandMethod, setup::RandS
   (; minneighbors, maxneighbors, searcher)
 end
 
-function randsingle(rng::AbstractRNG, process::SEQ, ::DefaultRandMethod, setup::RandSetup, prep)
+function randsingle(rng::AbstractRNG, process::SequentialProcess, ::DefaultRandMethod, setup::RandSetup, prep)
   # retrieve parameters
   (; probmodel, marginal, path, init) = process
   (; domain, geotable, varnames, vartypes) = setup

@@ -128,34 +128,34 @@
       end
     end
   
-    @testset "IQP" begin
+    @testset "QuiltingProcess" begin
       sdata = georef((; facies=[1.0, 0.0, 1.0]), [25.0 50.0 75.0; 25.0 75.0 50.0])
       sdomain = CartesianGrid(100, 100)
     
       rng = MersenneTwister(2017)
       trainimg = geostatsimage("Strebelle")
       inactive = [CartesianIndex(i, j) for i in 1:30 for j in 1:30]
-      process = IQP(trainimg=trainimg, tilesize=(30, 30), inactive=inactive)
+      process = QuiltingProcess(trainimg=trainimg, tilesize=(30, 30), inactive=inactive)
     
       sims = rand(rng, process, sdomain, sdata, 3)
       @test length(sims) == 3
       @test size(domain(sims[1])) == (100, 100)
     end
   
-    @testset "TP" begin
+    @testset "TuringProcess" begin
       Random.seed!(2019)
       sdomain = CartesianGrid(200, 200)
-      sims = rand(TP(), sdomain, [:z => Float64], 3)
+      sims = rand(TuringProcess(), sdomain, [:z => Float64], 3)
       @test length(sims) == 3
       @test size(domain(sims[1])) == (200, 200)
     end
   
-    @testset "SP" begin
+    @testset "StratigraphyProcess" begin
       rng = MersenneTwister(2019)
       proc = SmoothingProcess()
       env = Environment(rng, [proc, proc], [0.5 0.5; 0.5 0.5], ExponentialDuration(rng, 1.0))
       sdomain = CartesianGrid(50, 50, 20)
-      sims = rand(SP(environment=env), sdomain, [:z => Float64], 3)
+      sims = rand(StratigraphyProcess(environment=env), sdomain, [:z => Float64], 3)
       @test length(sims) == 3
       @test size(domain(sims[1])) == (50, 50, 20)
     end

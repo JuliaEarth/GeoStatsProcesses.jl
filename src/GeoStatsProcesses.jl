@@ -32,10 +32,10 @@ include("operations.jl")
 export
   # field processes
   GaussianProcess,
-  SPDEGP,
-  IQP,
-  TP,
-  SP,
+  LindgrenProcess,
+  QuiltingProcess,
+  TuringProcess,
+  StratigraphyProcess,
 
   # rand methods
   LUMethod,
