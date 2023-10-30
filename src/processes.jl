@@ -33,11 +33,11 @@ abstract type RandMethod end
 struct DefaultRandMethod <: RandMethod end
 
 """
-    defaultmethod(process::FieldProcess) -> RandMethod
+    defaultmethod(process::FieldProcess, setup) -> RandMethod
 
 Returns the default method for the corresponding field `process`.
 """
-defaultmethod(::FieldProcess) = DefaultRandMethod()
+defaultmethod(::FieldProcess, setup) = DefaultRandMethod()
 
 #-----------------
 # FIELD PROCESSES
@@ -61,7 +61,7 @@ julia> rand(process, domain, [:z => Float64])
 julia> rand(process, domain, geotable, 3)
 ```
 """
-Base.rand(process::FieldProcess, domain::Domain, data, method=defaultmethod(process); kwargs...) =
+Base.rand(process::FieldProcess, domain::Domain, data, method=nothing; kwargs...) =
   rand(Random.default_rng(), process, domain, data, method; kwargs...)
 
 function Base.rand(
@@ -69,17 +69,18 @@ function Base.rand(
   process::FieldProcess, 
   domain::Domain, 
   data, 
-  method=defaultmethod(process); 
+  method=nothing; 
   threads=cpucores()
 )
   setup = randsetup(domain, data, threads)
-  prep = randprep(rng, process, method, setup)
-  real = randsingle(rng, process, method, setup, prep)
+  rmethod = isnothing(method) ? defaultmethod(process, setup) : method
+  prep = randprep(rng, process, rmethod, setup)
+  real = randsingle(rng, process, rmethod, setup, prep)
   table = (; (var => real[var] for var in setup.varnames)...)
   georef(table, domain)
 end
 
-Base.rand(process::FieldProcess, domain::Domain, data, nreals::Integer, method=defaultmethod(process); kwargs...) =
+Base.rand(process::FieldProcess, domain::Domain, data, nreals::Integer, method=nothing; kwargs...) =
   rand(Random.default_rng(), process, domain, data, nreals, method; kwargs...)
 
 function Base.rand(
@@ -88,13 +89,14 @@ function Base.rand(
   domain::Domain,
   data,
   nreals::Integer,
-  method=defaultmethod(process);
+  method=nothing;
   pool=[myid()],
   threads=cpucores(),
   progress=true
 )
   setup = randsetup(domain, data, threads)
-  prep = randprep(rng, process, method, setup)
+  rmethod = isnothing(method) ? defaultmethod(process, setup) : method
+  prep = randprep(rng, process, rmethod, setup)
 
   # pool of worker processes
   pool = CachingPool(pool)
@@ -103,11 +105,11 @@ function Base.rand(
   reals = if progress
     message = "Simulating $(join(setup.varnames, " ,", " and ")):"
     @showprogress desc = message pmap(pool, 1:nreals) do _
-      randsingle(rng, process, method, setup, prep)
+      randsingle(rng, process, rmethod, setup, prep)
     end
   else
     pmap(pool, 1:nreals) do _
-      randsingle(rng, process, method, setup, prep)
+      randsingle(rng, process, rmethod, setup, prep)
     end
   end
 

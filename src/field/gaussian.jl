@@ -15,4 +15,4 @@ include("gaussian/lu.jl")
 include("gaussian/fft.jl")
 include("gaussian/seq.jl")
 
-defaultmethod(::GaussianProcess) = LUMethod()
+defaultmethod(::GaussianProcess, ::RandSetup) = LUMethod()
