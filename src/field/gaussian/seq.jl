@@ -5,7 +5,7 @@
 """
     SEQMethod([paramaters])
 
-The sequential Gaussian simulation solver introduced by Gomez-Hernandez 1993.
+The sequential simulation method introduced by Gomez-Hernandez 1993.
 It traverses all locations of the geospatial domain according to a path,
 approximates the conditional Gaussian distribution within a neighborhood
 using Kriging, and assigns a value to the center of the neighborhood by
@@ -31,9 +31,9 @@ distribution. The neighbors are searched according to a `neighborhood`.
 
 ### Notes
 
-* This solver is very sensitive to the simulation path and number of
+* This method is very sensitive to the simulation path and number of
   samples. Care must be taken to make sure that neighborhoods have
-  enough samples for the Kriging estimator.
+  enough samples for the geostatistical model (e.g. Kriging).
 """
 @kwdef struct SEQMethod{P,N,DT,I} <: RandMethod
   path::P = LinearPath()

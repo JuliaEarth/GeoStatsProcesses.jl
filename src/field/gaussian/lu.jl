@@ -31,7 +31,7 @@ Gaussian are drawn via LU factorization.
   number of elements (e.g. 100x100 grids) where it is feasible to
   factorize the full covariance.
 
-* For larger domains (e.g. 3D grids), other solvers are preferred
+* For larger domains (e.g. 3D grids), other methods are preferred
   such as [`SEQMethod`](@ref) and [`FFTMethod`](@ref).
 """
 @kwdef struct LUMethod{F,C,I} <: FieldProcess
