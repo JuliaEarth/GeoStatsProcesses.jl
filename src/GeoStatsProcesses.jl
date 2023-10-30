@@ -33,12 +33,15 @@ export
   # field processes
   SPDEGP, 
   SEQ, 
-  SGP, 
-  FFTGP, 
-  LUGP, 
+  GaussianProcess, 
   IQP, 
   TP, 
   SP,
+
+  # random methods
+  LUMethod,
+  FFTMethod,
+  SEQMethod,
 
   # point processes
   BinomialProcess, 

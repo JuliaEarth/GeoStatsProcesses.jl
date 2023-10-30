@@ -12,11 +12,11 @@ using GeoTables
 using GeoStatsBase: initbuff
 using ImageQuilting: iqsim
 
-using GeoStatsProcesses: IQP, RandSetup
+using GeoStatsProcesses: IQP, RandSetup, DefaultRandMethod
 
 import GeoStatsProcesses: randprep, randsingle
 
-function randprep(::AbstractRNG, process::IQP, setup::RandSetup)
+function randprep(::AbstractRNG, process::IQP, ::DefaultRandMethod, setup::RandSetup)
   # retrieve domain info
   sdomain = setup.domain
   simsize = size(sdomain)
@@ -74,7 +74,7 @@ function randprep(::AbstractRNG, process::IQP, setup::RandSetup)
   Dict(pairs)
 end
 
-function randsingle(rng::AbstractRNG, process::IQP, setup::RandSetup, prep)
+function randsingle(rng::AbstractRNG, process::IQP, ::DefaultRandMethod, setup::RandSetup, prep)
   pairs = map(setup.varnames) do var
     # unpack parameters
     threads = setup.threads

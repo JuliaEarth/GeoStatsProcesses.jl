@@ -23,16 +23,32 @@ Parent type of all field processes.
 """
 abstract type FieldProcess <: GeoStatsProcess end
 
+"""
+    RandMethod
+
+Parent type of all processes methods.
+"""
+abstract type RandMethod end
+
+struct DefaultRandMethod <: RandMethod end
+
+"""
+    defaultmethod(process::FieldProcess) -> RandMethod
+
+Returns the default method for the corresponding field `process`.
+"""
+defaultmethod(::FieldProcess) = DefaultRandMethod()
+
 #-----------------
 # FIELD PROCESSES
 #-----------------
 
 """
-    rand([rng], process::FieldProcess, domain, data; paramaters...)
-    rand([rng], process::FieldProcess, domain, data, nreals; paramaters...)
+    rand([rng], process::FieldProcess, domain, data, [method]; paramaters...)
+    rand([rng], process::FieldProcess, domain, data, nreals, [method]; paramaters...)
 
-Generate one or `nreals` realizations of the field `process` over the `domain`
-with `data` and optional `paramaters`.
+Generate one or `nreals` realizations of the field `process` with `method`
+over the `domain` with `data` and optional `paramaters`.
 
 The `data` can be a geotable or an iterable of pairs of the form `var => T`,
 where `var` is a symbol or string with the variable name and `T` is the corresponding
@@ -45,32 +61,40 @@ julia> rand(process, domain, [:z => Float64])
 julia> rand(process, domain, geotable, 3)
 ```
 """
-Base.rand(process::FieldProcess, domain::Domain, data; kwargs...) =
-  rand(Random.default_rng(), process, domain, data; kwargs...)
+Base.rand(process::FieldProcess, domain::Domain, data, method=defaultmethod(process); kwargs...) =
+  rand(Random.default_rng(), process, domain, data, method; kwargs...)
 
-function Base.rand(rng::AbstractRNG, process::FieldProcess, domain::Domain, data; threads=cpucores())
+function Base.rand(
+  rng::AbstractRNG, 
+  process::FieldProcess, 
+  domain::Domain, 
+  data, 
+  method=defaultmethod(process); 
+  threads=cpucores()
+)
   setup = randsetup(domain, data, threads)
-  prep = randprep(rng, process, setup)
-  real = randsingle(rng, process, setup, prep)
+  prep = randprep(rng, process, method, setup)
+  real = randsingle(rng, process, method, setup, prep)
   table = (; (var => real[var] for var in setup.varnames)...)
   georef(table, domain)
 end
 
-Base.rand(process::FieldProcess, domain::Domain, data, n::Integer; kwargs...) =
-  rand(Random.default_rng(), process, domain, data, n; kwargs...)
+Base.rand(process::FieldProcess, domain::Domain, data, nreals::Integer, method=defaultmethod(process); kwargs...) =
+  rand(Random.default_rng(), process, domain, data, nreals, method; kwargs...)
 
 function Base.rand(
   rng::AbstractRNG,
   process::FieldProcess,
   domain::Domain,
   data,
-  n::Integer;
+  nreals::Integer,
+  method=defaultmethod(process);
   pool=[myid()],
   threads=cpucores(),
   progress=true
 )
   setup = randsetup(domain, data, threads)
-  prep = randprep(rng, process, setup)
+  prep = randprep(rng, process, method, setup)
 
   # pool of worker processes
   pool = CachingPool(pool)
@@ -78,12 +102,12 @@ function Base.rand(
   # simulation loop
   reals = if progress
     message = "Simulating $(join(setup.varnames, " ,", " and ")):"
-    @showprogress desc = message pmap(pool, 1:n) do _
-      randsingle(rng, process, setup, prep)
+    @showprogress desc = message pmap(pool, 1:nreals) do _
+      randsingle(rng, process, method, setup, prep)
     end
   else
-    pmap(pool, 1:n) do _
-      randsingle(rng, process, setup, prep)
+    pmap(pool, 1:nreals) do _
+      randsingle(rng, process, method, setup, prep)
     end
   end
 
@@ -136,8 +160,7 @@ end
 
 include("field/spde.jl")
 include("field/seq.jl")
-include("field/fft.jl")
-include("field/lu.jl")
+include("field/gaussian.jl")
 include("field/iqp.jl")
 include("field/tp.jl")
 include("field/sp.jl")

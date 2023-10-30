@@ -25,7 +25,7 @@ meshes and is adequate for highly curved domains (e.g. surfaces).
   range::Float64 = 1.0
 end
 
-function randprep(::AbstractRNG, process::SPDEGP, setup::RandSetup)
+function randprep(::AbstractRNG, process::SPDEGP, ::DefaultRandMethod, setup::RandSetup)
   isnothing(setup.geotable) || @error "conditional simulation is not implemented"
 
   # retrieve sill and range
@@ -67,7 +67,7 @@ function randprep(::AbstractRNG, process::SPDEGP, setup::RandSetup)
   Dict(pairs)
 end
 
-function randsingle(rng::AbstractRNG, ::SPDEGP, setup::RandSetup, prep)
+function randsingle(rng::AbstractRNG, ::SPDEGP, ::DefaultRandMethod, setup::RandSetup, prep)
   # retrieve problem info
   𝒟 = setup.domain
   n = nvertices(𝒟)

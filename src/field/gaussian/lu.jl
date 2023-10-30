@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------
 
 """
-    LUGP([paramaters])
+    LUMethod([paramaters])
 
 The LU Gaussian simulation solver introduced by Alabert 1987.
 The full covariance matrix is built to include all locations
@@ -12,8 +12,6 @@ Gaussian are drawn via LU factorization.
 
 ## Parameters
 
-* `variogram`     - Theoretical variogram (default to `GaussianVariogram()`)
-* `mean`          - Mean of unconditional simulation (default to `0`)
 * `factorization` - Factorization method (default to `cholesky`)
 * `correlation`   - Correlation coefficient between two covariates (default to `0`)
 * `init`          - Data initialization method (default to `NearestInit()`)
@@ -34,17 +32,15 @@ Gaussian are drawn via LU factorization.
   factorize the full covariance.
 
 * For larger domains (e.g. 3D grids), other solvers are preferred
-  such as [`SGP`](@ref) and [`FFTGP`](@ref).
+  such as [`SEQMethod`](@ref) and [`FFTMethod`](@ref).
 """
-@kwdef struct LUGP{V,T,F,C,I} <: FieldProcess
-  variogram::V = GaussianVariogram()
-  mean::T = nothing
+@kwdef struct LUMethod{F,C,I} <: FieldProcess
   factorization::F = cholesky
   correlation::C = 0.0
   init::I = NearestInit()
 end
 
-function randprep(::AbstractRNG, process::LUGP, setup::RandSetup)
+function randprep(::AbstractRNG, process::GaussianProcess, method::LUMethod, setup::RandSetup)
   # retrieve setup paramaters
   (; domain, geotable, varnames, vartypes) = setup
 
@@ -56,9 +52,9 @@ function randprep(::AbstractRNG, process::LUGP, setup::RandSetup)
   _checkparam(process.variogram, nvars)
   _checkparam(process.mean, nvars)
 
-  # retrieve process parameters
-  fact = process.factorization
-  init = process.init
+  # retrieve method parameters
+  fact = method.factorization
+  init = method.init
 
   # initialize buffers for realizations and simulation mask
   vars = Dict(zip(varnames, vartypes))
@@ -117,7 +113,7 @@ function randprep(::AbstractRNG, process::LUGP, setup::RandSetup)
   Dict(pairs)
 end
 
-function randsingle(rng::AbstractRNG, process::LUGP, setup::RandSetup, prep)
+function randsingle(rng::AbstractRNG, ::GaussianProcess, method::LUMethod, setup::RandSetup, prep)
   # list of variable names
   vars = setup.varnames
 
@@ -128,7 +124,7 @@ function randsingle(rng::AbstractRNG, process::LUGP, setup::RandSetup, prep)
 
   # simulate second variable
   if length(vars) == 2
-    ρ = process.correlation
+    ρ = method.correlation
     v₂ = last(vars)
     Y₂, _ = _lusim(rng, prep[v₂], ρ, w₁)
     push!(varreal, v₂ => Y₂)
