@@ -35,12 +35,12 @@ distribution. The neighbors are searched according to a `neighborhood`.
   samples. Care must be taken to make sure that neighborhoods have
   enough samples for the geostatistical model (e.g. Kriging).
 """
-@kwdef struct SEQMethod{P,N,DT,I} <: RandMethod
+@kwdef struct SEQMethod{P,N,D,I} <: RandMethod
   path::P = LinearPath()
   minneighbors::Int = 1
   maxneighbors::Int = 10
   neighborhood::N = nothing
-  distance::DT = Euclidean()
+  distance::D = Euclidean()
   init::I = NearestInit()
 end
 

@@ -24,14 +24,14 @@ and in case there are none, use a `marginal` distribution.
 * `distance`     - Distance used to find nearest neighbors (default to `Euclidean()`)
 * `init`         - Data initialization method (default to `NearestInit()`)
 """
-@kwdef struct SequentialProcess{M,D,P,N,DT,I} <: FieldProcess
+@kwdef struct SequentialProcess{M,MD,P,N,D,I} <: FieldProcess
   probmodel::M
-  marginal::D
+  marginal::MD
   path::P = LinearPath()
   minneighbors::Int = 1
   maxneighbors::Int = 10
   neighborhood::N = nothing
-  distance::DT = Euclidean()
+  distance::D = Euclidean()
   init::I = NearestInit()
 end
 
