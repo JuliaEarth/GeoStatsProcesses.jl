@@ -35,7 +35,7 @@ export
   LindgrenProcess,
   QuiltingProcess,
   TuringProcess,
-  StratigraphyProcess,
+  StrataProcess,
 
   # rand methods
   LUMethod,

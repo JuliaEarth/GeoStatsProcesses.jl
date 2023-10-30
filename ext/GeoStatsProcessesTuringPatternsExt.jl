@@ -10,7 +10,8 @@ using Meshes
 using TuringPatterns: BoxBlur, Clamp, SimplePattern, Sim
 using TuringPatterns: PARAMS1, step!, scale01
 
-using GeoStatsProcesses: TuringProcess, RandSetup, DefaultRandMethod
+using GeoStatsProcesses: RandSetup
+using GeoStatsProcesses: TuringProcess, DefaultRandMethod
 
 import GeoStatsProcesses: randprep, randsingle
 

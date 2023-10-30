@@ -165,7 +165,7 @@ include("field/gaussian.jl")
 include("field/lindgren.jl")
 include("field/quilting.jl")
 include("field/turing.jl")
-include("field/stratigraphy.jl")
+include("field/strata.jl")
 
 #-----------------
 # POINT PROCESSES

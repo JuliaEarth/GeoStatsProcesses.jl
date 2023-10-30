@@ -12,7 +12,8 @@ using GeoTables
 using GeoStatsBase: initbuff
 using ImageQuilting: iqsim
 
-using GeoStatsProcesses: QuiltingProcess, RandSetup, DefaultRandMethod
+using GeoStatsProcesses: RandSetup
+using GeoStatsProcesses: QuiltingProcess, DefaultRandMethod
 
 import GeoStatsProcesses: randprep, randsingle
 
