@@ -64,7 +64,7 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::LUMethod, set
   pairs = map(enumerate(varnames)) do (i, var)
     # get variable specific parameters
     γ = _getparam(process.variogram, i)
-    vmean = _getparam(process.mean, i)
+    μ = _getparam(process.mean, i)
 
     # check stationarity
     @assert isstationary(γ) "variogram model must be stationary"
@@ -98,13 +98,6 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::LUMethod, set
       d₂ = A₂₁ * (L₁₁ \ z₁)
       L₂₂ = fact(Symmetric(C₂₂ - A₂₁ * B₁₂)).L
     end
-
-    if !isnothing(vmean) && !isempty(dlocs)
-      @warn "mean can only be specified in unconditional simulation"
-    end
-
-    # mean for unconditional simulation
-    μ = isnothing(vmean) ? zero(eltype(z₁)) : vmean
 
     # save preprocessed parameters for variable
     var => (z₁, d₂, L₂₂, μ, dlocs, slocs)
