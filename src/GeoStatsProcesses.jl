@@ -38,7 +38,7 @@ export
   TP, 
   SP,
 
-  # random methods
+  # rand methods
   LUMethod,
   FFTMethod,
   SEQMethod,
