@@ -15,8 +15,8 @@ and in case there are none, use a `marginal` distribution.
 
 ## Parameters
 
-* `estimator`    - CDF estimator
-* `marginal`     - Marginal distribution
+* `probmodel`    - Conditional distribution model from GeoStatsModels.jl
+* `marginal`     - Marginal distribution from Distributions.jl
 * `path`         - Simulation path (default to `LinearPath()`)
 * `minneighbors` - Minimum number of neighbors (default to `1`)
 * `maxneighbors` - Maximum number of neighbors (default to `10`)
