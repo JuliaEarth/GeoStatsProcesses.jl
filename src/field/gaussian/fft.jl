@@ -36,12 +36,24 @@ inverse Fourier transform.
 
 * The method is extremely fast, and can be used to generate large 3D realizations.
 """
-@kwdef struct FFTMethod{N,D} <: RandMethod
-  minneighbors::Int = 1
-  maxneighbors::Int = 10
-  neighborhood::N = nothing
-  distance::D = Euclidean()
+struct FFTMethod{N,D} <: RandMethod
+  minneighbors::Int
+  maxneighbors::Int
+  neighborhood::N
+  distance::D
+
+  function FFTMethod(
+    minneighbors::Int=1,
+    maxneighbors::Int=10,
+    neighborhood::N=nothing,
+    distance::D=Euclidean()
+  ) where {N,D}
+    new{N,D}(minneighbors, maxneighbors, neighborhood, distance)
+  end
 end
+
+FFTMethod(; minneighbors=1, maxneighbors=10, neighborhood=nothing, distance=Euclidean()) =
+  FFTMethod(minneighbors, maxneighbors, neighborhood, distance)
 
 function randprep(::AbstractRNG, process::GaussianProcess, method::FFTMethod, setup::RandSetup)
   # retrive variogram model and mean

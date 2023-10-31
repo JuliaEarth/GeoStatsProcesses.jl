@@ -21,11 +21,25 @@ A process to simulate 3D stratigraphic models.
 Hoffimann 2018. *Morphodynamic analysis and statistical
 synthesis of geormorphic data.*
 """
-@kwdef struct StrataProcess{E,S,ST,N,FB,FT} <: FieldProcess
+struct StrataProcess{E,S,ST,N,FB,FT} <: FieldProcess
   environment::E
-  state::S = nothing
-  stack::ST = :erosional
-  nepochs::N = 10
-  fillbase::FB = NaN
-  filltop::FT = NaN
+  state::S
+  stack::ST
+  nepochs::N
+  fillbase::FB
+  filltop::FT
+
+  function StrataProcess(
+    environment::E,
+    state::S=nothing,
+    stack::ST=:erosional,
+    nepochs::N=10,
+    fillbase::FB=NaN,
+    filltop::FT=NaN
+  ) where {E,S,ST,N,FB,FT}
+    new{E,S,ST,N,FB,FT}(environment, state, stack, nepochs, fillbase, filltop)
+  end
 end
+
+StrataProcess(; environment, state=nothing, stack=:erosional, nepochs=10, fillbase=NaN, filltop=NaN) =
+  StrataProcess(environment, state, stack, nepochs, fillbase, filltop)

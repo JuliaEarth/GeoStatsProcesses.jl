@@ -34,11 +34,17 @@ Gaussian are drawn via LU factorization.
 * For larger domains (e.g. 3D grids), other methods are preferred
   such as [`SEQMethod`](@ref) and [`FFTMethod`](@ref).
 """
-@kwdef struct LUMethod{F,C,I} <: FieldProcess
-  factorization::F = cholesky
-  correlation::C = 0.0
-  init::I = NearestInit()
+struct LUMethod{F,C,I} <: FieldProcess
+  factorization::F
+  correlation::C
+  init::I
+
+  function LUMethod(factorization::F=cholesky, correlation::C=0.0, init::I=NearestInit()) where {F,C,I}
+    new{F,C,I}(factorization, correlation, init)
+  end
 end
+
+LUMethod(; factorization=cholesky, correlation=0.0, init=NearestInit()) = LUMethod(factorization, correlation, init)
 
 function randprep(::AbstractRNG, process::GaussianProcess, method::LUMethod, setup::RandSetup)
   # retrieve setup paramaters

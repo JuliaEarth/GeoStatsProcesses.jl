@@ -18,9 +18,15 @@ Turing process as described in Turing 1952.
 
 Turing 1952. *The chemical basis of morphogenesis.*
 """
-@kwdef struct TuringProcess{P,B,E,I} <: FieldProcess
-  params::P = nothing
-  blur::B = nothing
-  edge::E = nothing
-  iter::I = 100
+struct TuringProcess{P,B,E,I} <: FieldProcess
+  params::P
+  blur::B
+  edge::E
+  iter::I
+
+  function TuringProcess(params::P=nothing, blur::B=nothing, edge::E=nothing, iter::I=100) where {P,B,E,I}
+    new{P,B,E,I}(params, blur, edge, iter)
+  end
 end
+
+TuringProcess(; params=nothing, blur=nothing, edge=nothing, iter=100) = TuringProcess(params, blur, edge, iter)

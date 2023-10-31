@@ -2,7 +2,6 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
-
 """
     SequentialProcess([paramaters])
 
@@ -24,16 +23,40 @@ and in case there are none, use a `marginal` distribution.
 * `distance`     - Distance used to find nearest neighbors (default to `Euclidean()`)
 * `init`         - Data initialization method (default to `NearestInit()`)
 """
-@kwdef struct SequentialProcess{M,MD,P,N,D,I} <: FieldProcess
+struct SequentialProcess{M,MD,P,N,D,I} <: FieldProcess
   probmodel::M
   marginal::MD
-  path::P = LinearPath()
-  minneighbors::Int = 1
-  maxneighbors::Int = 10
-  neighborhood::N = nothing
-  distance::D = Euclidean()
-  init::I = NearestInit()
+  path::P
+  minneighbors::Int
+  maxneighbors::Int
+  neighborhood::N
+  distance::D
+  init::I
+
+  function SequentialProcess(
+    probmodel::M,
+    marginal::MD,
+    path::P=LinearPath(),
+    minneighbors::Int=1,
+    maxneighbors::Int=10,
+    neighborhood::N=nothing,
+    distance::D=Euclidean(),
+    init::I=NearestInit()
+  ) where {M,MD,P,N,D,I}
+    new{M,MD,P,N,D,I}(probmodel, marginal, path, minneighbors, maxneighbors, neighborhood, distance, init)
+  end
 end
+
+SequentialProcess(;
+  probmodel,
+  marginal,
+  path=LinearPath(),
+  minneighbors=1,
+  maxneighbors=10,
+  neighborhood=nothing,
+  distance=Euclidean(),
+  init=NearestInit()
+) = SequentialProcess(probmodel, marginal, path, minneighbors, maxneighbors, neighborhood, distance, init)
 
 function randprep(::AbstractRNG, process::SequentialProcess, ::DefaultRandMethod, setup::RandSetup)
   # retrieve domain info

@@ -35,21 +35,41 @@ distribution. The neighbors are searched according to a `neighborhood`.
   samples. Care must be taken to make sure that neighborhoods have
   enough samples for the geostatistical model (e.g. Kriging).
 """
-@kwdef struct SEQMethod{P,N,D,I} <: RandMethod
-  path::P = LinearPath()
-  minneighbors::Int = 1
-  maxneighbors::Int = 10
-  neighborhood::N = nothing
-  distance::D = Euclidean()
-  init::I = NearestInit()
+struct SEQMethod{P,N,D,I} <: RandMethod
+  path::P
+  minneighbors::Int
+  maxneighbors::Int
+  neighborhood::N
+  distance::D
+  init::I
+
+  function SEQMethod(
+    path::P=LinearPath(),
+    minneighbors::Int=1,
+    maxneighbors::Int=10,
+    neighborhood::N=nothing,
+    distance::D=Euclidean(),
+    init::I=NearestInit()
+  ) where {P,N,D,I}
+    new{P,N,D,I}(path, minneighbors, maxneighbors, neighborhood, distance, init)
+  end
 end
+
+SEQMethod(
+  path=LinearPath(),
+  minneighbors=1,
+  maxneighbors=10,
+  neighborhood=nothing,
+  distance=Euclidean(),
+  init=NearestInit()
+) = SEQMethod(path, minneighbors, maxneighbors, neighborhood, distance, init)
 
 function randprep(::AbstractRNG, process::GaussianProcess, method::SEQMethod, setup::RandSetup)
   (; variogram, mean) = process
   (; path, minneighbors, maxneighbors, neighborhood, distance, init) = method
   probmodel = GeoStatsModels.SimpleKriging(variogram, mean)
   marginal = Normal(mean, √sill(variogram))
-  SequentialProcess(; probmodel, marginal, path, minneighbors, maxneighbors, neighborhood, distance, init)
+  SequentialProcess(probmodel, marginal, path, minneighbors, maxneighbors, neighborhood, distance, init)
 end
 
 function randsingle(rng::AbstractRNG, ::GaussianProcess, ::SEQMethod, setup::RandSetup, prep)
