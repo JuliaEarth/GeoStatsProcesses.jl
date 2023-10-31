@@ -15,6 +15,7 @@ using Tables
 using Distances
 using Distributions
 using ProgressMeter
+using Bessels: gamma
 
 using Random
 using Statistics
@@ -23,8 +24,6 @@ using LinearAlgebra
 
 using GeoStatsBase: Ensemble, integrate
 using GeoStatsBase: NearestInit, initbuff
-using GeoStatsModels: fitpredict
-using Bessels: gamma
 
 include("processes.jl")
 include("operations.jl")

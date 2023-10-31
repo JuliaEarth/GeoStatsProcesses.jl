@@ -68,7 +68,7 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::FFTMethod, se
     nothing
   else
     (; minneighbors, maxneighbors, neighborhood, distance) = method
-    pred = fitpredict(Kriging(γ, μ), data, dom; minneighbors, maxneighbors, neighborhood, distance)
+    pred = GeoStatsModels.fitpredict(Kriging(γ, μ), data, dom; minneighbors, maxneighbors, neighborhood, distance)
   end
 
   pairs = map(setup.vartypes, setup.varnames) do V, var
@@ -139,7 +139,7 @@ function randsingle(rng::AbstractRNG, process::GaussianProcess, method::FFTMetho
 
       # perform Kriging prediction
       (; minneighbors, maxneighbors, neighborhood, distance) = method
-      pred = fitpredict(Kriging(γ, μ), kdata, dom; minneighbors, maxneighbors, neighborhood, distance)
+      pred = GeoStatsModels.fitpredict(Kriging(γ, μ), kdata, dom; minneighbors, maxneighbors, neighborhood, distance)
       z̄ᵤ = pred[:, var]
 
       # add residual field

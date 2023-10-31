@@ -41,14 +41,11 @@ function randprep(::AbstractRNG, process::SequentialProcess, ::DefaultRandMethod
   # retrieve process paramaters
   (; minneighbors, maxneighbors, neighborhood, distance) = process
 
-  nelems = nelements(domain)
-  if maxneighbors > nelems || maxneighbors < 1
-    @warn "Invalid maximum number of neighbors. Adjusting to $nelems..."
-    maxneighbors = nelems
+  nobs = nelements(domain)
+  if maxneighbors > nobs || maxneighbors < 1
+    maxneighbors = nobs
   end
-
   if minneighbors > maxneighbors || minneighbors < 1
-    @warn "Invalid minimum number of neighbors. Adjusting to 1..."
     minneighbors = 1
   end
 
