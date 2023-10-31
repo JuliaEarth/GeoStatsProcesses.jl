@@ -44,15 +44,21 @@ defaultmethod(::FieldProcess, setup) = DefaultRandMethod()
 #-----------------
 
 """
-    rand([rng], process::FieldProcess, domain, data, [method]; paramaters...)
-    rand([rng], process::FieldProcess, domain, data, nreals, [method]; paramaters...)
+    rand([rng], process::FieldProcess, domain, data, [nreals], [method]; [parameters])
 
 Generate one or `nreals` realizations of the field `process` with `method`
-over the `domain` with `data` and optional `paramaters`.
+over the `domain` with `data` and optional `paramaters`. Optionally, specify
+the random number generator `rng` and global `parameters`.
 
 The `data` can be a geotable or an iterable of pairs of the form `var => T`,
 where `var` is a symbol or string with the variable name and `T` is the corresponding
 data type.
+
+## Parameters
+
+* `pool`     - Pool of worker processes (default to `[myid()]`)
+* `threads`  - Number of threads (default to `cpucores()`)
+* `progress` - Show progress bar (default to `true`)
 
 # Examples
 
@@ -63,6 +69,9 @@ julia> rand(process, domain, geotable, 3)
 """
 Base.rand(process::FieldProcess, domain::Domain, data, method=nothing; kwargs...) =
   rand(Random.default_rng(), process, domain, data, method; kwargs...)
+
+Base.rand(process::FieldProcess, domain::Domain, data, nreals::Int, method=nothing; kwargs...) =
+  rand(Random.default_rng(), process, domain, data, nreals, method; kwargs...)
 
 function Base.rand(
   rng::AbstractRNG, 
@@ -80,15 +89,12 @@ function Base.rand(
   georef(table, domain)
 end
 
-Base.rand(process::FieldProcess, domain::Domain, data, nreals::Integer, method=nothing; kwargs...) =
-  rand(Random.default_rng(), process, domain, data, nreals, method; kwargs...)
-
 function Base.rand(
   rng::AbstractRNG,
   process::FieldProcess,
   domain::Domain,
   data,
-  nreals::Integer,
+  nreals::Int,
   method=nothing;
   pool=[myid()],
   threads=cpucores(),
@@ -179,20 +185,20 @@ Tells whether or not the spatial point process `process` is homogeneous.
 ishomogeneous(process::PointProcess) = false
 
 """
-    rand([rng], process::PointProcess, g)
-    rand([rng], process::PointProcess, g)
+    rand([rng], process::PointProcess, geometry, [nreals])
+    rand([rng], process::PointProcess, domain, [nreals])
 
-Generate `n` realizations of spatial point process `process`
-inside geometry or domain `g`. Optionally specify the
-random number generator `rng`.
+Generate one or `nreals` realizations of the point `process` inside
+`geometry` or `domain`. Optionally specify the random number generator
+`rng`.
 """
-Base.rand(rng::AbstractRNG, p::PointProcess, g, n::Int) = [randsingle(rng, p, g) for _ in 1:n]
+Base.rand(process::PointProcess, geomdom) = rand(Random.default_rng(), process, geomdom)
 
-Base.rand(rng::AbstractRNG, p::PointProcess, g) = randsingle(rng, p, g)
+Base.rand(process::PointProcess, geomdom, nreals::Int) = rand(Random.default_rng(), process, geomdom, nreals)
 
-Base.rand(p::PointProcess, g, n::Int) = rand(Random.default_rng(), p, g, n)
+Base.rand(rng::AbstractRNG, process::PointProcess, geomdom) = randsingle(rng, process, geomdom)
 
-Base.rand(p::PointProcess, g) = rand(Random.default_rng(), p, g)
+Base.rand(rng::AbstractRNG, process::PointProcess, geomdom, nreals::Int) = [randsingle(rng, process, geomdom) for _ in 1:nreals]
 
 #-----------------
 # IMPLEMENTATIONS
