@@ -48,6 +48,7 @@ export
   InhibitionProcess,
   PoissonProcess,
   UnionProcess,
+  ishomogeneous,
 
   # operations
   RandomThinning,
