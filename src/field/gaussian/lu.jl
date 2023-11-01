@@ -56,7 +56,7 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::LUMethod, set
   fact = method.factorization
   init = method.init
 
-  # initialize buffers for realizations and process mask
+  # initialize buffers for realizations and simulation mask
   vars = Dict(zip(varnames, vartypes))
   buff, mask = initbuff(domain, vars, init, data=geotable)
 
