@@ -29,18 +29,6 @@ include("processes.jl")
 include("operations.jl")
 
 export
-  # field processes
-  GaussianProcess,
-  LindgrenProcess,
-  QuiltingProcess,
-  TuringProcess,
-  StrataProcess,
-
-  # rand methods
-  LUMethod,
-  FFTMethod,
-  SEQMethod,
-
   # point processes
   BinomialProcess,
   ClusterProcess,
@@ -49,8 +37,20 @@ export
   UnionProcess,
   ishomogeneous,
 
-  # operations
+  # point operations
   RandomThinning,
-  thin
+  thin,
+
+  # field processes
+  GaussianProcess,
+  LindgrenProcess,
+  QuiltingProcess,
+  TuringProcess,
+  StrataProcess,
+
+  # field methods
+  LUMethod,
+  FFTMethod,
+  SEQMethod
 
 end

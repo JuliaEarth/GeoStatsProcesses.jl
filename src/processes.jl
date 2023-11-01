@@ -10,6 +10,26 @@ Parent type of all geostatistical processes.
 abstract type GeoStatsProcess end
 
 """
+    RandMethod
+
+Parent type of all rand methods.
+"""
+abstract type RandMethod end
+
+struct DefaultRandMethod <: RandMethod end
+
+"""
+    defaultmethod(process, setup) -> RandMethod
+
+Returns the default method for the `process` and `setup`.
+"""
+defaultmethod(process, setup) = DefaultRandMethod()
+
+#-----------------
+# POINT PROCESSES
+#-----------------
+
+"""
     PointProcess <: GeoStatsProcess
 
 Parent type of all point processes.
@@ -17,31 +37,48 @@ Parent type of all point processes.
 abstract type PointProcess <: GeoStatsProcess end
 
 """
+    ishomogeneous(process::PointProcess)
+
+Tells whether or not the spatial point process `process` is homogeneous.
+"""
+ishomogeneous(process::PointProcess) = false
+
+"""
+    rand([rng], process::PointProcess, geometry, [nreals])
+    rand([rng], process::PointProcess, domain, [nreals])
+
+Generate one or `nreals` realizations of the point `process` inside
+`geometry` or `domain`. Optionally specify the random number generator
+`rng`.
+"""
+Base.rand(process::PointProcess, geomdom) = rand(Random.default_rng(), process, geomdom)
+
+Base.rand(process::PointProcess, geomdom, nreals::Int) = rand(Random.default_rng(), process, geomdom, nreals)
+
+Base.rand(rng::AbstractRNG, process::PointProcess, geomdom) = randsingle(rng, process, geomdom)
+
+Base.rand(rng::AbstractRNG, process::PointProcess, geomdom, nreals::Int) = [randsingle(rng, process, geomdom) for _ in 1:nreals]
+
+#-----------------
+# IMPLEMENTATIONS
+#-----------------
+
+include("point/binomial.jl")
+include("point/poisson.jl")
+include("point/inhibition.jl")
+include("point/cluster.jl")
+include("point/union.jl")
+
+#-----------------
+# FIELD PROCESSES
+#-----------------
+
+"""
     FieldProcess <: GeoStatsProcess
 
 Parent type of all field processes.
 """
 abstract type FieldProcess <: GeoStatsProcess end
-
-"""
-    RandMethod
-
-Parent type of all processes methods.
-"""
-abstract type RandMethod end
-
-struct DefaultRandMethod <: RandMethod end
-
-"""
-    defaultmethod(process::FieldProcess, setup) -> RandMethod
-
-Returns the default method for the corresponding field `process`.
-"""
-defaultmethod(::FieldProcess, setup) = DefaultRandMethod()
-
-#-----------------
-# FIELD PROCESSES
-#-----------------
 
 """
     rand([rng], process::FieldProcess, domain, data, [nreals], [method]; [parameters])
@@ -132,10 +169,6 @@ function Base.rand(
   Ensemble(domain, varreals)
 end
 
-#-----------
-# UTILITIES
-#-----------
-
 struct RandSetup{D<:Domain,T}
   domain::D
   geotable::T
@@ -172,40 +205,3 @@ include("field/lindgren.jl")
 include("field/quilting.jl")
 include("field/turing.jl")
 include("field/strata.jl")
-
-#-----------------
-# POINT PROCESSES
-#-----------------
-
-"""
-    ishomogeneous(process::PointProcess)
-
-Tells whether or not the spatial point process `process` is homogeneous.
-"""
-ishomogeneous(process::PointProcess) = false
-
-"""
-    rand([rng], process::PointProcess, geometry, [nreals])
-    rand([rng], process::PointProcess, domain, [nreals])
-
-Generate one or `nreals` realizations of the point `process` inside
-`geometry` or `domain`. Optionally specify the random number generator
-`rng`.
-"""
-Base.rand(process::PointProcess, geomdom) = rand(Random.default_rng(), process, geomdom)
-
-Base.rand(process::PointProcess, geomdom, nreals::Int) = rand(Random.default_rng(), process, geomdom, nreals)
-
-Base.rand(rng::AbstractRNG, process::PointProcess, geomdom) = randsingle(rng, process, geomdom)
-
-Base.rand(rng::AbstractRNG, process::PointProcess, geomdom, nreals::Int) = [randsingle(rng, process, geomdom) for _ in 1:nreals]
-
-#-----------------
-# IMPLEMENTATIONS
-#-----------------
-
-include("point/binomial.jl")
-include("point/poisson.jl")
-include("point/inhibition.jl")
-include("point/cluster.jl")
-include("point/union.jl")
