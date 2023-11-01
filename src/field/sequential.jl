@@ -76,7 +76,7 @@ function randsingle(rng::AbstractRNG, process::SequentialProcess, ::DefaultRandM
   (; domain, geotable, varnames, vartypes) = setup
   (; minneighbors, maxneighbors, searcher) = prep
 
-  # initialize buffers for realization and process mask
+  # initialize buffers for realization and simulation mask
   vars = Dict(zip(varnames, vartypes))
   buff, mask = initbuff(domain, vars, init, data=geotable)
 
