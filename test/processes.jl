@@ -152,7 +152,7 @@
       rng = MersenneTwister(2017)
       trainimg = geostatsimage("Strebelle")
       inactive = [CartesianIndex(i, j) for i in 1:30 for j in 1:30]
-      process = QuiltingProcess(trainimg, (30, 30), inactive=inactive)
+      process = QuiltingProcess(trainimg, (30, 30); inactive)
 
       sims = rand(rng, process, sdomain, sdata, 3)
       @test length(sims) == 3

@@ -5,19 +5,13 @@
 """
     QuiltingProcess(trainimg, tilesize; [paramaters])
 
-Image quilting process as described in Hoffimann et al. 2017.
+Image quilting process with training image `trainimg` and tile size `tilesize`
+as described in Hoffimann et al. 2017.
 
 ## Parameters
 
-### Required
-
-* `trainimg` - Training image from which to extract tiles
-* `tilesize` - Tuple with tile size for each dimension
-
-### Optional
-
 * `overlap`  - Overlap size (default to (1/6, 1/6, ..., 1/6))
-* `path`     - Simulation path (`:raster` (default), `:dilation`, or `:random`)
+* `path`     - Process path (`:raster` (default), `:dilation`, or `:random`)
 * `inactive` - Vector of inactive voxels (i.e. `CartesianIndex`) in the grid
 * `soft`     - A pair `(data,dataTI)` of geospatial data objects (default to `nothing`)
 * `tol`      - Initial relaxation tolerance in (0,1] (default to `0.1`)

@@ -5,23 +5,17 @@
 """
     SequentialProcess(probmodel, marginal; [paramaters])
 
-A sequential simulation process.
+A sequential process with given conditional distribution model `probmodel`
+and `marginal` distribution.
 
-For each location in the simulation `path`, a maximum number
+For each location in the process `path`, a maximum number
 of neighbors `maxneighbors` is used to fit a distribution.
 The neighbors are searched according to a `neighborhood`,
 and in case there are none, use a `marginal` distribution.
 
 ## Parameters
 
-### Required
-
-* `probmodel`    - Conditional distribution model from GeoStatsModels.jl
-* `marginal`     - Marginal distribution from Distributions.jl
-
-### Optional
-
-* `path`         - Simulation path (default to `LinearPath()`)
+* `path`         - Process path (default to `LinearPath()`)
 * `minneighbors` - Minimum number of neighbors (default to `1`)
 * `maxneighbors` - Maximum number of neighbors (default to `10`)
 * `neighborhood` - Search neighborhood (default to `nothing`)
@@ -82,7 +76,7 @@ function randsingle(rng::AbstractRNG, process::SequentialProcess, ::DefaultRandM
   (; domain, geotable, varnames, vartypes) = setup
   (; minneighbors, maxneighbors, searcher) = prep
 
-  # initialize buffers for realization and simulation mask
+  # initialize buffers for realization and process mask
   vars = Dict(zip(varnames, vartypes))
   buff, mask = initbuff(domain, vars, init, data=geotable)
 
@@ -97,7 +91,7 @@ function randsingle(rng::AbstractRNG, process::SequentialProcess, ::DefaultRandM
     realization = buff[var]
     simulated = mask[var]
 
-    # simulation loop
+    # process loop
     for ind in traverse(domain, path)
       if !simulated[ind]
         center = pset[ind]

@@ -5,15 +5,10 @@
 """
     StrataProcess(environment; [paramaters])
 
-A process to simulate 3D stratigraphic models.
+Strata process with given geological `environment`
+as described in Hoffimann 2018.
 
 ## Parameters
-
-### Required
-
-* `environment` - Geological environment
-
-### Optional
 
 * `state`       - Initial geological state
 * `stack`       - Stacking scheme (:erosional or :depositional)

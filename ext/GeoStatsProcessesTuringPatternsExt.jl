@@ -21,7 +21,7 @@ function randprep(::AbstractRNG, process::TuringProcess, ::DefaultRandMethod, se
   topo = topology(domain)
 
   # assert grid topology
-  @assert topo isa GridTopology "simulation only defined over grid topology"
+  @assert topo isa GridTopology "process only defined over grid topology"
 
   # retrieve simulation size
   sz = size(topo)

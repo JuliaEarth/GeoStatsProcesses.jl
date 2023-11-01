@@ -5,9 +5,9 @@
 """
     LUMethod(; [paramaters])
 
-The LU Gaussian simulation method introduced by Alabert 1987.
+The LU Gaussian process method introduced by Alabert 1987.
 The full covariance matrix is built to include all locations
-of the simulation domain, and samples from the multivariate
+of the process domain, and samples from the multivariate
 Gaussian are drawn via LU factorization.
 
 ## Parameters
@@ -56,7 +56,7 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::LUMethod, set
   fact = method.factorization
   init = method.init
 
-  # initialize buffers for realizations and simulation mask
+  # initialize buffers for realizations and process mask
   vars = Dict(zip(varnames, vartypes))
   buff, mask = initbuff(domain, vars, init, data=geotable)
 
