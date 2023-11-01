@@ -91,7 +91,7 @@ function randsingle(rng::AbstractRNG, process::SequentialProcess, ::DefaultRandM
     realization = buff[var]
     simulated = mask[var]
 
-    # process loop
+    # simulation loop
     for ind in traverse(domain, path)
       if !simulated[ind]
         center = pset[ind]
