@@ -11,7 +11,7 @@ and `sill` (total variance) as described in Lindgren 2011.
 The process relies relies on a discretization of the Laplace-Beltrami 
 operator on meshes and is adequate for highly curved domains (e.g. surfaces).
 
-### References
+## References
 
 * Lindgren et al. 2011. [An explicit link between Gaussian fields and
   Gaussian Markov random fields: the stochastic partial differential

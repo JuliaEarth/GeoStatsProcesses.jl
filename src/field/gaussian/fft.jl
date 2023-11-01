@@ -17,7 +17,7 @@ inverse Fourier transform.
 * `neighborhood` - Search neighborhood (default to `nothing`)
 * `distance`     - Distance used to find nearest neighbors (default to `Euclidean()`)
 
-### References
+## References
 
 * Gutjahr 1997. [General joint conditional simulations using a fast
   Fourier transform method](https://link.springer.com/article/10.1007/BF02769641)

@@ -16,7 +16,7 @@ Gaussian are drawn via LU factorization.
 * `correlation`   - Correlation coefficient between two covariates (default to `0`)
 * `init`          - Data initialization method (default to `NearestInit()`)
 
-### References
+## References
 
 * Alabert 1987. [The practice of fast conditional simulations
   through the LU decomposition of the covariance matrix]
