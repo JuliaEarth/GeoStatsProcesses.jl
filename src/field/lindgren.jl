@@ -3,7 +3,9 @@
 # ------------------------------------------------------------------
 
 """
-    LindgrenProcess([paramaters])
+    LindgrenProcess(range, sill)
+    LindgrenProcess(range; sill)
+    LindgrenProcess(; range, sill)
 
 The SPDE process introduced by Lindgren 2011. It relies on a
 discretization of the Laplace-Beltrami operator on meshes and
@@ -20,10 +22,13 @@ is adequate for highly curved domains (e.g. surfaces).
   Gaussian Markov random fields: the stochastic partial differential
   equation approach](https://rss.onlinelibrary.wiley.com/doi/10.1111/j.1467-9868.2011.00777.x)
 """
-@kwdef struct LindgrenProcess <: FieldProcess
-  range::Float64 = 1.0
-  sill::Float64 = 1.0
+struct LindgrenProcess <: FieldProcess
+  range::Float64
+  sill::Float64
 end
+
+LindgrenProcess(range; sill=1.0) = LindgrenProcess(range, sill)
+LindgrenProcess(; range=1.0, sill=1.0) = LindgrenProcess(range, sill)
 
 function randprep(::AbstractRNG, process::LindgrenProcess, ::DefaultRandMethod, setup::RandSetup)
   isnothing(setup.geotable) || @error "conditional simulation is not implemented"

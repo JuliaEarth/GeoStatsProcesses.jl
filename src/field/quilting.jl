@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------
 
 """
-    QuiltingProcess([paramaters])
+    QuiltingProcess(trainimg, tilesize; [paramaters])
 
 Image quilting process as described in Hoffimann et al. 2017.
 
@@ -28,13 +28,24 @@ Image quilting process as described in Hoffimann et al. 2017.
 * Hoffimann et al 2017. *Stochastic simulation by image quilting of process-based geological models.*
 * Hoffimann et al 2015. *Geostatistical modeling of evolving landscapes by means of image quilting.*
 """
-@kwdef struct QuiltingProcess{TR,TS,O,P,IN,S,T,I} <: FieldProcess
+struct QuiltingProcess{TR,TS,O,P,IN,S,T,I} <: FieldProcess
   trainimg::TR
   tilesize::TS
-  overlap::O = nothing
-  path::P = :raster
-  inactive::IN = nothing
-  soft::S = nothing
-  tol::T = 0.1
-  init::I = NearestInit()
+  overlap::O
+  path::P
+  inactive::IN
+  soft::S
+  tol::T
+  init::I
 end
+
+QuiltingProcess(
+  trainimg,
+  tilesize;
+  overlap=nothing,
+  path=:raster,
+  inactive=nothing,
+  soft=nothing,
+  tol=0.1,
+  init=NearestInit()
+) = QuiltingProcess(trainimg, tilesize, overlap, path, inactive, soft, tol, init)

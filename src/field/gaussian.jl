@@ -3,7 +3,9 @@
 # ------------------------------------------------------------------
 
 """
-    GaussianProcess([parameters])
+    GaussianProcess(variogram, mean)
+    GaussianProcess(variogram; mean)
+    GaussianProcess(; variogram, mean)
 
 Gaussian process with given variogram and mean.
 
@@ -13,10 +15,13 @@ Gaussian process with given variogram and mean.
 * `mean`      - Mean field value (default to `0.0`)
 
 """
-@kwdef struct GaussianProcess{V,T} <: FieldProcess
-  variogram::V = GaussianVariogram()
-  mean::T = 0.0
+struct GaussianProcess{V,T} <: FieldProcess
+  variogram::V
+  mean::T
 end
+
+GaussianProcess(variogram; mean=0.0) = GaussianProcess(variogram, mean)
+GaussianProcess(; variogram=GaussianVariogram(), mean=0.0) = GaussianProcess(variogram, mean)
 
 #---------
 # METHODS

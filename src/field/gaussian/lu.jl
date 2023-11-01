@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------
 
 """
-    LUMethod([paramaters])
+    LUMethod(; [paramaters])
 
 The LU Gaussian simulation method introduced by Alabert 1987.
 The full covariance matrix is built to include all locations

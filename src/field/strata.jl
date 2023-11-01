@@ -3,13 +3,18 @@
 # ------------------------------------------------------------------
 
 """
-    StrataProcess([paramaters])
+    StrataProcess(environment; [paramaters])
 
 A process to simulate 3D stratigraphic models.
 
 ## Parameters
 
+### Required
+
 * `environment` - Geological environment
+
+### Optional
+
 * `state`       - Initial geological state
 * `stack`       - Stacking scheme (:erosional or :depositional)
 * `nepochs`     - Number of epochs (default to 10)
@@ -21,11 +26,14 @@ A process to simulate 3D stratigraphic models.
 Hoffimann 2018. *Morphodynamic analysis and statistical
 synthesis of geormorphic data.*
 """
-@kwdef struct StrataProcess{E,S,ST,N,FB,FT} <: FieldProcess
+struct StrataProcess{E,S,ST,N,FB,FT} <: FieldProcess
   environment::E
-  state::S = nothing
-  stack::ST = :erosional
-  nepochs::N = 10
-  fillbase::FB = NaN
-  filltop::FT = NaN
+  state::S
+  stack::ST
+  nepochs::N
+  fillbase::FB
+  filltop::FT
 end
+
+StrataProcess(environment; state=nothing, stack=:erosional, nepochs=10, fillbase=NaN, filltop=NaN) =
+  StrataProcess(environment, state, stack, nepochs, fillbase, filltop)

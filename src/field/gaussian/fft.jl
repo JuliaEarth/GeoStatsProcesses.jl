@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------
 
 """
-    FFTMethod([paramaters])
+    FFTMethod(; [paramaters])
 
 The FFT Gaussian simulation method introduced by Gutjahr 1997.
 The covariance function is perturbed in the frequency domain

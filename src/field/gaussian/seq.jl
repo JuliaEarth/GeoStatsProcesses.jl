@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------
 
 """
-    SEQMethod([paramaters])
+    SEQMethod(; [paramaters])
 
 The sequential simulation method introduced by Gomez-Hernandez 1993.
 It traverses all locations of the geospatial domain according to a path,
@@ -49,7 +49,7 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::SEQMethod, se
   (; path, minneighbors, maxneighbors, neighborhood, distance, init) = method
   probmodel = GeoStatsModels.SimpleKriging(variogram, mean)
   marginal = Normal(mean, √sill(variogram))
-  SequentialProcess(; probmodel, marginal, path, minneighbors, maxneighbors, neighborhood, distance, init)
+  SequentialProcess(probmodel, marginal; path, minneighbors, maxneighbors, neighborhood, distance, init)
 end
 
 function randsingle(rng::AbstractRNG, ::GaussianProcess, ::SEQMethod, setup::RandSetup, prep)
