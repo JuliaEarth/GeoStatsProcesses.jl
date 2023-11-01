@@ -3,9 +3,7 @@
 # ------------------------------------------------------------------
 
 """
-    LindgrenProcess(range, sill)
-    LindgrenProcess(range; sill)
-    LindgrenProcess(; range, sill)
+    LindgrenProcess(range=1.0, sill=1.0)
 
 The SPDE process introduced by Lindgren 2011. It relies on a
 discretization of the Laplace-Beltrami operator on meshes and
@@ -13,8 +11,8 @@ is adequate for highly curved domains (e.g. surfaces).
 
 ## Parameters
 
-* `range` - Range or correlation length (default to `1.0`)
-* `sill`  - Sill or total variance (default to `1.0`)
+* `range` - Range or correlation length
+* `sill`  - Sill or total variance
 
 ### References
 
@@ -27,8 +25,8 @@ struct LindgrenProcess <: FieldProcess
   sill::Float64
 end
 
-LindgrenProcess(range; sill=1.0) = LindgrenProcess(range, sill)
-LindgrenProcess(; range=1.0, sill=1.0) = LindgrenProcess(range, sill)
+LindgrenProcess(range) = LindgrenProcess(range, 1.0)
+LindgrenProcess() = LindgrenProcess(1.0, 1.0)
 
 function randprep(::AbstractRNG, process::LindgrenProcess, ::DefaultRandMethod, setup::RandSetup)
   isnothing(setup.geotable) || @error "conditional simulation is not implemented"

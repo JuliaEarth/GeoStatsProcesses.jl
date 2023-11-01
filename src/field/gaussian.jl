@@ -3,16 +3,14 @@
 # ------------------------------------------------------------------
 
 """
-    GaussianProcess(variogram, mean)
-    GaussianProcess(variogram; mean)
-    GaussianProcess(; variogram, mean)
+    GaussianProcess(variogram=GaussianVariogram(), mean=0.0)
 
 Gaussian process with given variogram and mean.
 
 ## Parameters
 
-* `variogram` - Theoretical variogram model (default to `GaussianVariogram()`)
-* `mean`      - Mean field value (default to `0.0`)
+* `variogram` - Theoretical variogram model
+* `mean`      - Mean field value
 
 """
 struct GaussianProcess{V,T} <: FieldProcess
@@ -20,8 +18,8 @@ struct GaussianProcess{V,T} <: FieldProcess
   mean::T
 end
 
-GaussianProcess(variogram; mean=0.0) = GaussianProcess(variogram, mean)
-GaussianProcess(; variogram=GaussianVariogram(), mean=0.0) = GaussianProcess(variogram, mean)
+GaussianProcess(variogram) = GaussianProcess(variogram, 0.0)
+GaussianProcess() = GaussianProcess(GaussianVariogram(), 0.0)
 
 #---------
 # METHODS
