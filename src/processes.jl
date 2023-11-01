@@ -5,17 +5,22 @@
 """
     GeoStatsProcess
 
-Parent type of all geostatistical processes.
+A geostatistical process that can be simulated with the `rand` function.
 """
 abstract type GeoStatsProcess end
 
 """
     RandMethod
 
-Parent type of all rand methods.
+A `rand` method for geostatistical processes.
 """
 abstract type RandMethod end
 
+"""
+    DefaultRandMethod()
+
+Default `rand` method used by some geostatistical processes.
+"""
 struct DefaultRandMethod <: RandMethod end
 
 """
