@@ -11,7 +11,11 @@ import ImageQuilting
 import TuringPatterns
 using StratiGraphics: SmoothingProcess, Environment, ExponentialDuration
 
+# list of tests
+testfiles = ["point.jl", "field.jl"]
+
 @testset "GeoStatsProcesses.jl" begin
-  include("processes.jl")
-  include("operations.jl")
+  for testfile in testfiles
+    include(testfile)
+  end
 end
