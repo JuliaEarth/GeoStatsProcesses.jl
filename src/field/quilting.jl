@@ -19,8 +19,10 @@ as described in Hoffimann et al. 2017.
 
 ## References
 
-* Hoffimann et al 2017. *Stochastic simulation by image quilting of process-based geological models.*
-* Hoffimann et al 2015. *Geostatistical modeling of evolving landscapes by means of image quilting.*
+* Hoffimann et al 2017. [Stochastic simulation by image quilting
+  of process-based geological models](https://www.sciencedirect.com/science/article/abs/pii/S0098300417301139)
+* Hoffimann et al 2015. [Geostatistical modeling of evolving landscapes
+  by means of image quilting](https://www.researchgate.net/publication/295902985_Geostatistical_Modeling_of_Evolving_Landscapes_by_Means_of_Image_Quilting)
 """
 struct QuiltingProcess{TR,TS,O,P,IN,S,T,I} <: FieldProcess
   trainimg::TR

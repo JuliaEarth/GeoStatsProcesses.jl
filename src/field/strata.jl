@@ -18,7 +18,8 @@ as described in Hoffimann 2018.
 
 ## References
 
-* Hoffimann 2018. *Morphodynamic analysis and statistical synthesis of geormorphic data.*
+* Hoffimann 2018. [Morphodynamic analysis and statistical synthesis of
+  geormorphic data](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2019JF005245)
 """
 struct StrataProcess{E,S,ST,N,FB,FT} <: FieldProcess
   environment::E
