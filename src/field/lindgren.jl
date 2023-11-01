@@ -3,30 +3,30 @@
 # ------------------------------------------------------------------
 
 """
-    LindgrenProcess([paramaters])
+    LindgrenProcess(range=1.0, sill=1.0)
 
-The SPDE process introduced by Lindgren 2011. It relies on a
-discretization of the Laplace-Beltrami operator on meshes and
-is adequate for highly curved domains (e.g. surfaces).
+Lindgren process with given `range` (correlation length)
+and `sill` (total variance) as described in Lindgren 2011.
 
-## Parameters
+The process relies relies on a discretization of the Laplace-Beltrami 
+operator on meshes and is adequate for highly curved domains (e.g. surfaces).
 
-* `range` - Range or correlation length (default to `1.0`)
-* `sill`  - Sill or total variance (default to `1.0`)
-
-### References
+## References
 
 * Lindgren et al. 2011. [An explicit link between Gaussian fields and
   Gaussian Markov random fields: the stochastic partial differential
   equation approach](https://rss.onlinelibrary.wiley.com/doi/10.1111/j.1467-9868.2011.00777.x)
 """
-@kwdef struct LindgrenProcess <: FieldProcess
-  range::Float64 = 1.0
-  sill::Float64 = 1.0
+struct LindgrenProcess <: FieldProcess
+  range::Float64
+  sill::Float64
 end
 
+LindgrenProcess(range) = LindgrenProcess(range, 1.0)
+LindgrenProcess() = LindgrenProcess(1.0, 1.0)
+
 function randprep(::AbstractRNG, process::LindgrenProcess, ::DefaultRandMethod, setup::RandSetup)
-  isnothing(setup.geotable) || @error "conditional simulation is not implemented"
+  isnothing(setup.geotable) || @error "conditional process is not implemented"
 
   # retrieve sill and range
   𝓁 = process.range

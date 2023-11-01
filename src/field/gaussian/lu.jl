@@ -3,11 +3,11 @@
 # ------------------------------------------------------------------
 
 """
-    LUMethod([paramaters])
+    LUMethod(; [paramaters])
 
-The LU Gaussian simulation method introduced by Alabert 1987.
+The LU Gaussian process method introduced by Alabert 1987.
 The full covariance matrix is built to include all locations
-of the simulation domain, and samples from the multivariate
+of the process domain, and samples from the multivariate
 Gaussian are drawn via LU factorization.
 
 ## Parameters
@@ -16,7 +16,7 @@ Gaussian are drawn via LU factorization.
 * `correlation`   - Correlation coefficient between two covariates (default to `0`)
 * `init`          - Data initialization method (default to `NearestInit()`)
 
-### References
+## References
 
 * Alabert 1987. [The practice of fast conditional simulations
   through the LU decomposition of the covariance matrix]

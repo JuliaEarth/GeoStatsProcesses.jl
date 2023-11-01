@@ -3,20 +3,17 @@
 # ------------------------------------------------------------------
 
 """
-    GaussianProcess([parameters])
+    GaussianProcess(variogram=GaussianVariogram(), mean=0.0)
 
-Gaussian process with given variogram and mean.
-
-## Parameters
-
-* `variogram` - Theoretical variogram model (default to `GaussianVariogram()`)
-* `mean`      - Mean field value (default to `0.0`)
-
+Gaussian process with given theoretical `variogram` and global `mean`.
 """
-@kwdef struct GaussianProcess{V,T} <: FieldProcess
-  variogram::V = GaussianVariogram()
-  mean::T = 0.0
+struct GaussianProcess{V,T} <: FieldProcess
+  variogram::V
+  mean::T
 end
+
+GaussianProcess(variogram) = GaussianProcess(variogram, 0.0)
+GaussianProcess() = GaussianProcess(GaussianVariogram(), 0.0)
 
 #---------
 # METHODS

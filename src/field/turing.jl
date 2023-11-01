@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------
 
 """
-    TuringProcess([paramaters])
+    TuringProcess(; [paramaters])
 
 Turing process as described in Turing 1952.
 
@@ -14,13 +14,15 @@ Turing process as described in Turing 1952.
 * `edge`   - edge condition (default to `nothing`)
 * `iter`   - number of iterations (default to `100`)
 
-### References
+## References
 
-Turing 1952. *The chemical basis of morphogenesis.*
+* Turing 1952. [The chemical basis of morphogenesis](https://royalsocietypublishing.org/doi/10.1098/rstb.1952.0012)
 """
-@kwdef struct TuringProcess{P,B,E,I} <: FieldProcess
-  params::P = nothing
-  blur::B = nothing
-  edge::E = nothing
-  iter::I = 100
+struct TuringProcess{P,B,E,I} <: FieldProcess
+  params::P
+  blur::B
+  edge::E
+  iter::I
 end
+
+TuringProcess(; params=nothing, blur=nothing, edge=nothing, iter=100) = TuringProcess(params, blur, edge, iter)

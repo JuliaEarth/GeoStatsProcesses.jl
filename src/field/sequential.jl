@@ -2,38 +2,47 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
-
 """
-    SequentialProcess([paramaters])
+    SequentialProcess(probmodel, marginal; [paramaters])
 
-A sequential simulation process.
+A sequential process with given conditional distribution model `probmodel`
+and `marginal` distribution.
 
-For each location in the simulation `path`, a maximum number
+For each location in the process `path`, a maximum number
 of neighbors `maxneighbors` is used to fit a distribution.
 The neighbors are searched according to a `neighborhood`,
 and in case there are none, use a `marginal` distribution.
 
 ## Parameters
 
-* `probmodel`    - Conditional distribution model from GeoStatsModels.jl
-* `marginal`     - Marginal distribution from Distributions.jl
-* `path`         - Simulation path (default to `LinearPath()`)
+* `path`         - Process path (default to `LinearPath()`)
 * `minneighbors` - Minimum number of neighbors (default to `1`)
 * `maxneighbors` - Maximum number of neighbors (default to `10`)
 * `neighborhood` - Search neighborhood (default to `nothing`)
 * `distance`     - Distance used to find nearest neighbors (default to `Euclidean()`)
 * `init`         - Data initialization method (default to `NearestInit()`)
 """
-@kwdef struct SequentialProcess{M,MD,P,N,D,I} <: FieldProcess
+struct SequentialProcess{M,MD,P,N,D,I} <: FieldProcess
   probmodel::M
   marginal::MD
-  path::P = LinearPath()
-  minneighbors::Int = 1
-  maxneighbors::Int = 10
-  neighborhood::N = nothing
-  distance::D = Euclidean()
-  init::I = NearestInit()
+  path::P
+  minneighbors::Int
+  maxneighbors::Int
+  neighborhood::N
+  distance::D
+  init::I
 end
+
+SequentialProcess(
+  probmodel,
+  marginal;
+  path=LinearPath(),
+  minneighbors=1,
+  maxneighbors=10,
+  neighborhood=nothing,
+  distance=Euclidean(),
+  init=NearestInit()
+) = SequentialProcess(probmodel, marginal, path, minneighbors, maxneighbors, neighborhood, distance, init)
 
 function randprep(::AbstractRNG, process::SequentialProcess, ::DefaultRandMethod, setup::RandSetup)
   # retrieve domain info

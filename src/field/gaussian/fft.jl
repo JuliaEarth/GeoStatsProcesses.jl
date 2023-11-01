@@ -3,9 +3,9 @@
 # ------------------------------------------------------------------
 
 """
-    FFTMethod([paramaters])
+    FFTMethod(; [paramaters])
 
-The FFT Gaussian simulation method introduced by Gutjahr 1997.
+The FFT Gaussian process method introduced by Gutjahr 1997.
 The covariance function is perturbed in the frequency domain
 after a fast Fourier transform. White noise is added to the
 phase of the spectrum, and a realization is produced by an
@@ -17,7 +17,7 @@ inverse Fourier transform.
 * `neighborhood` - Search neighborhood (default to `nothing`)
 * `distance`     - Distance used to find nearest neighbors (default to `Euclidean()`)
 
-### References
+## References
 
 * Gutjahr 1997. [General joint conditional simulations using a fast
   Fourier transform method](https://link.springer.com/article/10.1007/BF02769641)
