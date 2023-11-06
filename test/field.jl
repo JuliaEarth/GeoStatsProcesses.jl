@@ -156,6 +156,8 @@
     sims = rand(rng, process, sdomain, sdata, 3)
     @test length(sims) == 3
     @test size(domain(sims[1])) == (100, 100)
+    @test any(ismissing, sims[1].facies)
+    @test all(!isnan, skipmissing(sims[1].facies))
   end
 
   @testset "TuringProcess" begin
@@ -174,5 +176,7 @@
     sims = rand(StrataProcess(env), sdomain, [:z => Float64], 3)
     @test length(sims) == 3
     @test size(domain(sims[1])) == (50, 50, 20)
+    @test any(ismissing, sims[1].z)
+    @test all(!isnan, skipmissing(sims[1].z))
   end
 end
