@@ -163,7 +163,8 @@ function Base.rand(
 
   # rearrange realizations
   (; varnames, vartypes) = setup
-  varvects = [Vector{V}[] for V in vartypes]
+  # allow missing values
+  varvects = [Vector{Union{V,Missing}}[] for V in vartypes]
   varreals = (; zip(varnames, varvects)...)
   for real in reals
     for var in varnames

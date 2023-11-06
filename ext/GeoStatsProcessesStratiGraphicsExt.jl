@@ -43,7 +43,7 @@ function randsingle(::AbstractRNG, process::StrataProcess, ::DefaultRandMethod, 
   _, __, nz = size(domain)
 
   # retrieve process parameters
-  (; environment, stack, nepochs, fillbase, filltop) = process
+  (; environment, stack, nepochs) = process
 
   pairs = map(setup.varnames) do var
     # get parameters for the variable
@@ -56,14 +56,15 @@ function randsingle(::AbstractRNG, process::StrataProcess, ::DefaultRandMethod, 
     strata = Strata(record, stack)
 
     # return voxel model
-    model = voxelize(strata, nz; fillbase, filltop)
+    model = voxelize(strata, nz)
 
+    # replace NaN with missing
+    vals = [isnan(v) ? missing : v for v in model]
     # flatten result
-    var => vec(model)
+    var => vec(vals)
   end
 
   Dict(pairs)
 end
-
 
 end

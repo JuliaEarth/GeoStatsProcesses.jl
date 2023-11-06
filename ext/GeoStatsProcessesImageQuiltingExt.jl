@@ -96,8 +96,10 @@ function randsingle(rng::AbstractRNG, process::QuiltingProcess, ::DefaultRandMet
       rng
     )
 
+    # replace NaN with missing
+    vals = [isnan(v) ? missing : v for v in reals[1]]
     # flatten result
-    var => vec(reals[1])
+    var => vec(vals)
   end
 
   Dict(pairs)
