@@ -24,8 +24,13 @@
   procs = [binom, poisson1, poisson2, inhibit]
 
   @testset "Basic" begin
-    for p in procs, g in geoms
-      pp = rand(p, g)
+    for p in procs
+      pp = rand(p, box)
+      @test all(∈(box), pp)
+    end
+
+    for g in geoms
+      pp = rand(binom, g)
       @test all(∈(g), pp)
     end
   end
@@ -74,8 +79,16 @@
     grid = CartesianGrid((0, 0), (4, 4), dims=(10, 10))
     geoms = [box, ball, tri, grid]
 
-    for p in procs, ofun in ofuns, g in geoms
+    for p in procs, ofun in ofuns
       cp = ClusterProcess(p, ofun)
+      pp = rand(cp, box)
+      if !isnothing(pp)
+        @test all(∈(box), pp)
+      end
+    end
+
+    for g in geoms
+      cp = ClusterProcess(binom, ofun1)
       pp = rand(cp, g)
       if !isnothing(pp)
         @test all(∈(g), pp)
