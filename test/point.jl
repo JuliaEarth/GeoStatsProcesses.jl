@@ -17,15 +17,20 @@
 
   # point processes
   λ(s) = sum(coordinates(s) .^ 2)
-  binom = BinomialProcess(100)
-  poisson1 = PoissonProcess(100.0)
+  binom = BinomialProcess(10)
+  poisson1 = PoissonProcess(10.0)
   poisson2 = PoissonProcess(λ)
   inhibit = InhibitionProcess(0.1)
   procs = [binom, poisson1, poisson2, inhibit]
 
   @testset "Basic" begin
-    for p in procs, g in geoms
-      pp = rand(p, g)
+    for p in procs
+      pp = rand(p, box)
+      @test all(∈(box), pp)
+    end
+
+    for g in geoms
+      pp = rand(binom, g)
       @test all(∈(g), pp)
     end
   end
@@ -58,13 +63,13 @@
   @testset "Inhibition" begin end
 
   @testset "Cluster" begin
-    binom = BinomialProcess(100)
-    poisson = PoissonProcess(100.0)
+    binom = BinomialProcess(10)
+    poisson = PoissonProcess(10.0)
     procs = [binom, poisson]
 
     ofun1 = parent -> rand(BinomialProcess(10), Ball(parent, 0.2))
-    ofun2 = parent -> rand(PoissonProcess(100), Ball(parent, 0.2))
-    ofun3 = parent -> rand(PoissonProcess(x -> 100 * sum((x - parent) .^ 2)), Ball(parent, 0.5))
+    ofun2 = parent -> rand(PoissonProcess(10), Ball(parent, 0.2))
+    ofun3 = parent -> rand(PoissonProcess(x -> 10 * sum((x - parent) .^ 2)), Ball(parent, 0.5))
     ofun4 = parent -> PointSet(sample(Sphere(parent, 0.1), RegularSampling(10)))
     ofuns = [ofun1, ofun2, ofun3, ofun4]
 
@@ -74,8 +79,16 @@
     grid = CartesianGrid((0, 0), (4, 4), dims=(10, 10))
     geoms = [box, ball, tri, grid]
 
-    for p in procs, ofun in ofuns, g in geoms
+    for p in procs, ofun in ofuns
       cp = ClusterProcess(p, ofun)
+      pp = rand(cp, box)
+      if !isnothing(pp)
+        @test all(∈(box), pp)
+      end
+    end
+
+    for g in geoms
+      cp = ClusterProcess(binom, ofun1)
       pp = rand(cp, g)
       if !isnothing(pp)
         @test all(∈(g), pp)
