@@ -17,8 +17,8 @@
 
   # point processes
   λ(s) = sum(coordinates(s) .^ 2)
-  binom = BinomialProcess(10)
-  poisson1 = PoissonProcess(10.0)
+  binom = BinomialProcess(100)
+  poisson1 = PoissonProcess(100.0)
   poisson2 = PoissonProcess(λ)
   inhibit = InhibitionProcess(0.1)
   procs = [binom, poisson1, poisson2, inhibit]
@@ -63,13 +63,13 @@
   @testset "Inhibition" begin end
 
   @testset "Cluster" begin
-    binom = BinomialProcess(10)
-    poisson = PoissonProcess(10.0)
+    binom = BinomialProcess(100)
+    poisson = PoissonProcess(100.0)
     procs = [binom, poisson]
 
     ofun1 = parent -> rand(BinomialProcess(10), Ball(parent, 0.2))
-    ofun2 = parent -> rand(PoissonProcess(10), Ball(parent, 0.2))
-    ofun3 = parent -> rand(PoissonProcess(x -> 10 * sum((x - parent) .^ 2)), Ball(parent, 0.5))
+    ofun2 = parent -> rand(PoissonProcess(100), Ball(parent, 0.2))
+    ofun3 = parent -> rand(PoissonProcess(x -> 100 * sum((x - parent) .^ 2)), Ball(parent, 0.5))
     ofun4 = parent -> PointSet(sample(Sphere(parent, 0.1), RegularSampling(10)))
     ofuns = [ofun1, ofun2, ofun3, ofun4]
 
