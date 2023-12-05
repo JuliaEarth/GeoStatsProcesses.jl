@@ -55,7 +55,7 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::FFTMethod, se
 
   dom = setup.domain
   data = setup.geotable
-  grid, _ = unview(dom)
+  grid = parent(dom)
   dims = size(grid)
   center = CartesianIndex(dims .÷ 2)
   cindex = LinearIndices(dims)[center]
@@ -104,7 +104,8 @@ function randsingle(rng::AbstractRNG, process::GaussianProcess, method::FFTMetho
   # retrieve domain info
   dom = setup.domain
   data = setup.geotable
-  grid, inds = unview(dom)
+  grid = parent(dom)
+  inds = parentindices(dom)
   dims = size(grid)
 
   # retrive variogram model and mean

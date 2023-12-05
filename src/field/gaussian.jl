@@ -25,8 +25,8 @@ include("gaussian/seq.jl")
 
 function defaultmethod(::GaussianProcess, setup::RandSetup)
   dom = setup.domain
-  udom, _ = unview(dom)
-  if udom isa Grid
+  pdom = parent(dom)
+  if pdom isa Grid
     FFTMethod()
   elseif nelements(dom) < 10000
     LUMethod()
