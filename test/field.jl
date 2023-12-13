@@ -18,16 +18,16 @@
       @test setup.varnames == [:z]
       @test setup.vartypes == [Float64]
       # iterable of pairs
-      setup = GeoStatsProcesses.randsetup(grid, [:z => Float64, :w => Int], 1)
+      setup = GeoStatsProcesses.randsetup(grid, [:a => Float64, :b => Int], 1)
       @test isnothing(setup.geotable)
-      @test setup.varnames == [:z, :w]
+      @test setup.varnames == [:a, :b]
       @test setup.vartypes == [Float64, Int]
-      setup = GeoStatsProcesses.randsetup(grid, ["z" => Float64, "w" => Int], 1)
+      setup = GeoStatsProcesses.randsetup(grid, ["a" => Float64, "b" => Int], 1)
       @test isnothing(setup.geotable)
-      @test setup.varnames == [:z, :w]
+      @test setup.varnames == [:a, :b]
       @test setup.vartypes == [Float64, Int]
       # error: invalid iterator
-      @test_throws ArgumentError GeoStatsProcesses.randsetup(grid, [:z, :w], 1)
+      @test_throws ArgumentError GeoStatsProcesses.randsetup(grid, [:a, :b], 1)
     end
 
     @testset "defaultmethod" begin
