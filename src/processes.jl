@@ -92,7 +92,7 @@ Generate one or `nreals` realizations of the field `process` with `method`
 over the `domain` with `data` and optional `paramaters`. Optionally, specify
 the random number generator `rng` and global `parameters`.
 
-The `data` can be a geotable or an iterable of pairs of the form `var => T`,
+The `data` can be a geotable, a pair, or an iterable of pairs of the form `var => T`,
 where `var` is a symbol or string with the variable name and `T` is the corresponding
 data type.
 
@@ -105,8 +105,11 @@ data type.
 # Examples
 
 ```julia
-julia> rand(process, domain, [:z => Float64])
 julia> rand(process, domain, geotable, 3)
+julia> rand(process, domain, :z => Float64)
+julia> rand(process, domain, "z" => Float64)
+julia> rand(process, domain, [:a => Float64, :b => Float64])
+julia> rand(process, domain, ["a" => Float64, "b" => Float64])
 ```
 """
 Base.rand(process::FieldProcess, domain::Domain, data, method=nothing; kwargs...) =
@@ -194,12 +197,13 @@ function _extract(geotable::AbstractGeoTable)
   geotable, sch.names, sch.types
 end
 
-function _extract(pairs)
-  if !(eltype(pairs) <: Pair{Symbol,DataType})
-    throw(ArgumentError("the data argument must be a geotable or an iterable of pairs"))
-  end
-  nothing, first.(pairs), last.(pairs)
-end
+_extract(pair::Pair{Symbol,DataType}) = nothing, [first(pair)], [last(pair)]
+_extract(pair::Pair{T,DataType}) where {T<:AbstractString} = nothing, [Symbol(first(pair))], [last(pair)]
+
+_extract(pairs) = _extract(eltype(pairs), pairs)
+_extract(::Type{Pair{Symbol,DataType}}, pairs) = nothing, first.(pairs), last.(pairs)
+_extract(::Type{Pair{T,DataType}}, pairs) where {T<:AbstractString} = nothing, Symbol.(first.(pairs)), last.(pairs)
+_extract(::Type, pairs) = throw(ArgumentError("the data argument must be a geotable, a pair, or an iterable of pairs"))
 
 #-----------------
 # IMPLEMENTATIONS

@@ -1,5 +1,35 @@
 @testset "FieldProcess" begin
   @testset "GaussianProcess" begin
+    @testset "data argument" begin
+      grid = CartesianGrid(10, 10)
+      gtb = georef((; z=rand(100)), grid)
+      # geotable
+      setup = GeoStatsProcesses.randsetup(grid, gtb, 1)
+      @test setup.geotable == gtb
+      @test setup.varnames == [:z]
+      @test setup.vartypes == [Float64]
+      # pair
+      setup = GeoStatsProcesses.randsetup(grid, :z => Float64, 1)
+      @test isnothing(setup.geotable)
+      @test setup.varnames == [:z]
+      @test setup.vartypes == [Float64]
+      setup = GeoStatsProcesses.randsetup(grid, "z" => Float64, 1)
+      @test isnothing(setup.geotable)
+      @test setup.varnames == [:z]
+      @test setup.vartypes == [Float64]
+      # iterable of pairs
+      setup = GeoStatsProcesses.randsetup(grid, [:a => Float64, :b => Int], 1)
+      @test isnothing(setup.geotable)
+      @test setup.varnames == [:a, :b]
+      @test setup.vartypes == [Float64, Int]
+      setup = GeoStatsProcesses.randsetup(grid, ["a" => Float64, "b" => Int], 1)
+      @test isnothing(setup.geotable)
+      @test setup.varnames == [:a, :b]
+      @test setup.vartypes == [Float64, Int]
+      # error: invalid iterator
+      @test_throws ArgumentError GeoStatsProcesses.randsetup(grid, [:a, :b], 1)
+    end
+
     @testset "defaultmethod" begin
       grid = CartesianGrid(100, 100)
       vgrid = view(grid, 1:1000)
@@ -7,13 +37,13 @@
       pset2 = PointSet(rand(Point2, 10000))
 
       process = GaussianProcess()
-      setup = GeoStatsProcesses.randsetup(grid, [:z => Float64], 1)
+      setup = GeoStatsProcesses.randsetup(grid, :z => Float64, 1)
       @test GeoStatsProcesses.defaultmethod(process, setup) isa FFTMethod
-      setup = GeoStatsProcesses.randsetup(vgrid, [:z => Float64], 1)
+      setup = GeoStatsProcesses.randsetup(vgrid, :z => Float64, 1)
       @test GeoStatsProcesses.defaultmethod(process, setup) isa FFTMethod
-      setup = GeoStatsProcesses.randsetup(pset1, [:z => Float64], 1)
+      setup = GeoStatsProcesses.randsetup(pset1, :z => Float64, 1)
       @test GeoStatsProcesses.defaultmethod(process, setup) isa LUMethod
-      setup = GeoStatsProcesses.randsetup(pset2, [:z => Float64], 1)
+      setup = GeoStatsProcesses.randsetup(pset2, :z => Float64, 1)
       @test GeoStatsProcesses.defaultmethod(process, setup) isa SEQMethod
     end
 
@@ -23,14 +53,14 @@
       dom = CartesianGrid(100, 100)
       process = GaussianProcess(GaussianVariogram(range=10.0))
       method = FFTMethod()
-      sims = rand(process, dom, [:z => Float64], 3, method)
+      sims = rand(process, dom, :z => Float64, 3, method)
 
       # anisotropic simulation
       Random.seed!(2019)
       dom = CartesianGrid(100, 100)
       process = GaussianProcess(GaussianVariogram(MetricBall((20.0, 5.0))))
       method = FFTMethod()
-      sims = rand(process, dom, [:z => Float64], 3, method)
+      sims = rand(process, dom, :z => Float64, 3, method)
 
       # simulation on view of grid
       Random.seed!(2022)
@@ -38,7 +68,7 @@
       vgrid = view(grid, 1:5000)
       process = GaussianProcess(GaussianVariogram(range=10.0))
       method = FFTMethod()
-      sim = rand(process, vgrid, [:z => Float64], method)
+      sim = rand(process, vgrid, :z => Float64, method)
       @test domain(sim) == vgrid
       @test length(sim.geometry) == 5000
 
@@ -63,7 +93,7 @@
 
       Random.seed!(2017)
       sims₁ = rand(process, 𝒟, 𝒮, 3)
-      sims₂ = rand(process, 𝒟, [:z => Float64], 3)
+      sims₂ = rand(process, 𝒟, :z => Float64, 3)
 
       # basic checks
       reals = sims₁[:z]
@@ -91,7 +121,7 @@
       rng = MersenneTwister(123)
       process = GaussianProcess(SphericalVariogram(range=10.0))
       method = LUMethod()
-      sims = rand(rng, process, 𝒟, [:z => Float64], 2, method)
+      sims = rand(rng, process, 𝒟, :z => Float64, 2, method)
 
       # -------------
       # co-simulation
@@ -109,7 +139,7 @@
       rng = MersenneTwister(123)
       process = GaussianProcess(GaussianVariogram(range=10.0))
       method = LUMethod()
-      sims = rand(rng, process, 𝒟, [:z => Float64], 3, method)
+      sims = rand(rng, process, 𝒟, :z => Float64, 3, method)
 
       # -------------------
       # anisotropy example
@@ -119,7 +149,7 @@
       ball = MetricBall((20.0, 5.0))
       process = GaussianProcess(GaussianVariogram(ball))
       method = LUMethod()
-      sims = rand(rng, process, 𝒟, [:z => Float64], 3, method)
+      sims = rand(rng, process, 𝒟, :z => Float64, 3, method)
 
       # ---------------------
       # custom factorization
@@ -163,7 +193,7 @@
   @testset "TuringProcess" begin
     Random.seed!(2019)
     sdomain = CartesianGrid(200, 200)
-    sims = rand(TuringProcess(), sdomain, [:z => Float64], 3)
+    sims = rand(TuringProcess(), sdomain, :z => Float64, 3)
     @test length(sims) == 3
     @test size(domain(sims[1])) == (200, 200)
   end
@@ -173,7 +203,7 @@
     proc = SmoothingProcess()
     env = Environment(rng, [proc, proc], [0.5 0.5; 0.5 0.5], ExponentialDuration(rng, 1.0))
     sdomain = CartesianGrid(50, 50, 20)
-    sims = rand(StrataProcess(env), sdomain, [:z => Float64], 3)
+    sims = rand(StrataProcess(env), sdomain, :z => Float64, 3)
     @test length(sims) == 3
     @test size(domain(sims[1])) == (50, 50, 20)
     @test any(ismissing, sims[1].z)
