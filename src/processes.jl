@@ -107,7 +107,9 @@ data type.
 ```julia
 julia> rand(process, domain, geotable, 3)
 julia> rand(process, domain, :z => Float64)
+julia> rand(process, domain, "z" => Float64)
 julia> rand(process, domain, [:a => Float64, :b => Float64])
+julia> rand(process, domain, ["a" => Float64, "b" => Float64])
 ```
 """
 Base.rand(process::FieldProcess, domain::Domain, data, method=nothing; kwargs...) =
