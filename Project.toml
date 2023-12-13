@@ -1,7 +1,7 @@
 name = "GeoStatsProcesses"
 uuid = "aa102bde-5a27-4b0c-b2c1-e7a7dcc4c3e7"
 authors = ["Elias Carvalho <eliascarvdev@gmail.com> and contributors"]
-version = "0.3.9"
+version = "0.3.10"
 
 [deps]
 Bessels = "0e736298-9ec6-45e8-9647-e4fc86a2fe38"
@@ -50,5 +50,5 @@ Statistics = "1.9"
 StratiGraphics = "0.8"
 Tables = "1.11"
 TuringPatterns = "0.7"
-Variography = "0.21"
+Variography = "0.22"
 julia = "1.9"
