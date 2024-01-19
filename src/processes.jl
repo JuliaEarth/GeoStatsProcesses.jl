@@ -164,17 +164,7 @@ function Base.rand(
     end
   end
 
-  # rearrange realizations
-  (; varnames, vartypes) = setup
-  # allow missing values
-  varvects = [Vector{Union{V,Missing}}[] for V in vartypes]
-  varreals = (; zip(varnames, varvects)...)
-  for real in reals
-    for var in varnames
-      push!(varreals[var], real[var])
-    end
-  end
-
+  varreals = (; (var => [real[var] for real in reals] for var in setup.varnames)...)
   Ensemble(domain, varreals)
 end
 
