@@ -81,15 +81,15 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::LUMethod, set
     𝒟s = [centroid(domain, i) for i in slocs]
 
     # covariance between simulation locations
-    C₂₂ = sill(γ) .- Variography.pairwise(γ, 𝒟s)
+    C₂₂ = sill(γ) .- GeoStatsFunctions.pairwise(γ, 𝒟s)
 
     if isempty(dlocs)
       d₂ = zero(eltype(z₁))
       L₂₂ = fact(Symmetric(C₂₂)).L
     else
       # covariance beween data locations
-      C₁₁ = sill(γ) .- Variography.pairwise(γ, 𝒟d)
-      C₁₂ = sill(γ) .- Variography.pairwise(γ, 𝒟d, 𝒟s)
+      C₁₁ = sill(γ) .- GeoStatsFunctions.pairwise(γ, 𝒟d)
+      C₁₂ = sill(γ) .- GeoStatsFunctions.pairwise(γ, 𝒟d, 𝒟s)
 
       L₁₁ = fact(Symmetric(C₁₁)).L
       B₁₂ = L₁₁ \ C₁₂

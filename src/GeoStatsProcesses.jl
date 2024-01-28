@@ -6,7 +6,7 @@ module GeoStatsProcesses
 
 using Meshes
 using GeoTables
-using Variography
+using GeoStatsFunctions
 using GeoStatsModels
 
 using FFTW

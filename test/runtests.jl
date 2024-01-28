@@ -1,8 +1,8 @@
 using GeoStatsProcesses
-using GeoStatsImages
-using Variography
-using GeoTables
 using Meshes
+using GeoTables
+using GeoStatsFunctions
+using GeoStatsImages
 using LinearAlgebra
 using Random
 using Test

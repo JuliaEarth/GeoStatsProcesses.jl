@@ -75,7 +75,7 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::FFTMethod, se
     # compute covariances between centroid and all points
     𝒟c = [centroid(grid, cindex)]
     𝒟p = [centroid(grid, i) for i in 1:nelements(grid)]
-    cs = sill(γ) .- Variography.pairwise(γ, 𝒟c, 𝒟p)
+    cs = sill(γ) .- GeoStatsFunctions.pairwise(γ, 𝒟c, 𝒟p)
     C = reshape(cs, dims)
 
     # move to frequency domain
