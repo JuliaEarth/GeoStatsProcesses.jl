@@ -23,12 +23,14 @@ include("gaussian/lu.jl")
 include("gaussian/fft.jl")
 include("gaussian/seq.jl")
 
-function defaultmethod(::GaussianProcess, setup::RandSetup)
-  dom = setup.domain
-  pdom = parent(dom)
-  if pdom isa Grid
+function defaultmethod(process::GaussianProcess, setup::RandSetup)
+  γ = process.variogram
+  d = setup.domain
+  p = parent(d)
+  b = boundingbox(p)
+  if p isa Grid && range(γ) ≤ minimum(sides(b)) / 3
     FFTMethod()
-  elseif nelements(dom) < 10000
+  elseif nelements(d) < 100 * 100
     LUMethod()
   else
     SEQMethod()
