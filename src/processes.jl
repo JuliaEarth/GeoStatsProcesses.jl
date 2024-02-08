@@ -98,9 +98,9 @@ data type.
 
 ## Parameters
 
-* `pool`     - Pool of worker processes (default to `[myid()]`)
-* `threads`  - Number of threads (default to `cpucores()`)
-* `progress` - Show progress bar (default to `true`)
+* `pool`    - Pool of worker processes (default to `[myid()]`)
+* `threads` - Number of threads (default to `cpucores()`)
+* `verbose` - Show progress and other information (default to `true`)
 
 # Examples
 
@@ -143,7 +143,7 @@ function Base.rand(
   method=nothing;
   pool=[myid()],
   threads=cpucores(),
-  progress=true
+  verbose=true
 )
   setup = randsetup(domain, data, threads)
   rmethod = isnothing(method) ? defaultmethod(process, setup) : method
@@ -153,7 +153,7 @@ function Base.rand(
   pool = CachingPool(pool)
 
   # simulation loop
-  reals = if progress
+  reals = if verbose
     message = "Simulating $(join(setup.varnames, " ,", " and ")):"
     @showprogress desc = message pmap(pool, 1:nreals) do _
       randsingle(rng, process, rmethod, setup, prep)
