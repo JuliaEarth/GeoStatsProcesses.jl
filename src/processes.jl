@@ -145,9 +145,13 @@ function Base.rand(
   threads=cpucores(),
   verbose=true
 )
+  # perform preprocessing step
   setup = randsetup(domain, data, threads)
   rmethod = isnothing(method) ? defaultmethod(process, setup) : method
   prep = randprep(rng, process, rmethod, setup)
+
+  # display chosen simulation method
+  verbose && @info "$(prettyname(process)) with $(prettyname(rmethod))"
 
   # pool of worker processes
   pool = CachingPool(pool)
