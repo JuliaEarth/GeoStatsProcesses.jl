@@ -13,7 +13,7 @@ inverse Fourier transform.
 
 ## Parameters
 * `minneighbors` - Minimum number of neighbors (default to `1`)
-* `maxneighbors` - Maximum number of neighbors (default to `nothing)
+* `maxneighbors` - Maximum number of neighbors (default to `10`)
 * `neighborhood` - Search neighborhood (default to `nothing`)
 * `distance`     - Distance used to find nearest neighbors (default to `Euclidean()`)
 
