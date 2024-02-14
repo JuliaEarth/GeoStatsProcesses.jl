@@ -150,15 +150,15 @@ function Base.rand(
   rmethod = isnothing(method) ? defaultmethod(process, setup) : method
   prep = randprep(rng, process, rmethod, setup)
 
-  # display chosen simulation method
-  verbose && @info "$(prettyname(process)) with $(prettyname(rmethod))"
-
   # pool of worker processes
   pool = CachingPool(pool)
 
   # simulation loop
   reals = if verbose
-    message = "Simulating $(join(setup.varnames, " ,", " and ")):"
+    pname = prettyname(process)
+    mname = prettyname(rmethod)
+    vname = join(setup.varnames, " ,", " and ")
+    message = "$pname with $mname → $vname"
     @showprogress desc = message pmap(pool, 1:nreals) do _
       randsingle(rng, process, rmethod, setup, prep)
     end
