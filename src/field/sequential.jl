@@ -82,7 +82,7 @@ function randsingle(rng::AbstractRNG, process::SequentialProcess, ::DefaultRandM
   buff, mask = initbuff(domain, vars, init, data=geotable)
 
   # consider point set with centroids for now
-  pset = PointSet([centroid(domain, ind) for ind in 1:nelements(domain)])
+  pointset = PointSet([centroid(domain, ind) for ind in 1:nelements(domain)])
 
   varreals = map(varnames) do var
     # pre-allocate memory for neighbors
@@ -95,7 +95,7 @@ function randsingle(rng::AbstractRNG, process::SequentialProcess, ::DefaultRandM
     # simulation loop
     for ind in traverse(domain, path)
       if !simulated[ind]
-        center = pset[ind]
+        center = pointset[ind]
         # search neighbors with simulated data
         nneigh = search!(neighbors, center, searcher, mask=simulated)
 
@@ -106,7 +106,7 @@ function randsingle(rng::AbstractRNG, process::SequentialProcess, ::DefaultRandM
           # neighborhood with data
           neigh = let
             ninds = view(neighbors, 1:nneigh)
-            dom = view(pset, ninds)
+            dom = view(pointset, ninds)
             val = view(realization, ninds)
             tab = (; var => val)
             georef(tab, dom)
