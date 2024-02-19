@@ -53,8 +53,7 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::SEQMethod, se
 end
 
 function randsingle(rng::AbstractRNG, ::GaussianProcess, ::SEQMethod, setup::RandSetup, prep)
-  seq = prep
-  seqmethod = DefaultRandMethod()
-  seqprep = randprep(rng, seq, seqmethod, setup)
-  randsingle(rng, seq, seqmethod, setup, seqprep)
+  proc, method = prep, DefaultRandMethod()
+  prep′ = randprep(rng, proc, method, setup)
+  randsingle(rng, proc, method, setup, prep′)
 end

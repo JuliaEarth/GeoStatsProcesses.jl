@@ -47,6 +47,7 @@ SequentialProcess(
 function randprep(::AbstractRNG, process::SequentialProcess, ::DefaultRandMethod, setup::RandSetup)
   # retrieve domain info
   domain = setup.domain
+
   # retrieve process paramaters
   (; minneighbors, maxneighbors, neighborhood, distance) = process
 
