@@ -186,9 +186,8 @@ function randsetup(domain::Domain, data, threads)
 end
 
 function _extract(geotable::AbstractGeoTable)
-  table = values(geotable)
-  sch = Tables.schema(table)
-  geotable, sch.names, sch.types
+  schema = Tables.schema(values(geotable))
+  geotable, schema.names, schema.types
 end
 
 _extract(pair::Pair{Symbol,DataType}) = nothing, [first(pair)], [last(pair)]
