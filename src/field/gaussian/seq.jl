@@ -45,12 +45,16 @@ distribution. The neighbors are searched according to a `neighborhood`.
 end
 
 function randprep(::AbstractRNG, process::GaussianProcess, method::SEQMethod, setup::RandSetup)
-  # retrieve domain info
-  domain = setup.domain
-
-  # retrieve process paramaters
+  # retrieve paramaters
+  (; variogram, mean) = process
   (; minneighbors, maxneighbors, neighborhood, distance) = method
+  (; domain) = setup
 
+  # probability model
+  probmodel = GeoStatsModels.SimpleKriging(variogram, mean)
+  marginal = Normal(mean, √sill(variogram))
+
+  # adjust min/max neighbors
   nobs = nelements(domain)
   if maxneighbors > nobs || maxneighbors < 1
     maxneighbors = nobs
@@ -68,19 +72,14 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::SEQMethod, se
     KBallSearch(domain, maxneighbors, neighborhood)
   end
 
-  (; minneighbors, maxneighbors, searcher)
+  (; probmodel, marginal, minneighbors, maxneighbors, searcher)
 end
 
 function randsingle(rng::AbstractRNG, process::GaussianProcess, method::SEQMethod, setup::RandSetup, prep)
   # retrieve parameters
-  (; variogram, mean) = process
   (; path, init) = method
   (; domain, geotable, varnames, vartypes) = setup
-  (; minneighbors, maxneighbors, searcher) = prep
-
-  # probability model
-  probmodel = GeoStatsModels.SimpleKriging(variogram, mean)
-  marginal = Normal(mean, √sill(variogram))
+  (; probmodel, marginal, minneighbors, maxneighbors, searcher) = prep
 
   # initialize buffers for realization and simulation mask
   vars = Dict(zip(varnames, vartypes))
