@@ -55,7 +55,7 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::SEQMethod, se
   fdom = scalefactor(pdom)
   fdat = isnothing(pdat) ? 1 : scalefactor(domain(pdat))
   factor = max(fdom, fdat)
-  transf = Scale(factor)
+  transf = Scale(inv(factor))
   dom = transf(pdom)
   data = transf(pdat)
 
@@ -152,5 +152,8 @@ function randsingle(rng::AbstractRNG, ::GaussianProcess, method::SEQMethod, setu
 end
 
 function scalefactor(domain)
-  1 # TODO: implement this
+  pmin, pmax = extrema(boundingbox(domain))
+  a, b = abs.(coordinates(pmin))
+  c, d = abs.(coordinates(pmax))
+  max(a, b, c, d)
 end
