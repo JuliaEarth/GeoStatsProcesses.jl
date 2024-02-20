@@ -153,7 +153,7 @@ end
 
 function scalefactor(domain)
   pmin, pmax = extrema(boundingbox(domain))
-  a, b = abs.(coordinates(pmin))
-  c, d = abs.(coordinates(pmax))
-  max(a, b, c, d)
+  cmin = abs.(coordinates(pmin))
+  cmax = abs.(coordinates(pmax))
+  max(cmin..., cmax...)
 end
