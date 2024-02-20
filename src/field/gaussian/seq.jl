@@ -56,7 +56,7 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::SEQMethod, se
   fdat = isnothing(pdat) ? 1 : scalefactor(domain(pdat))
   factor = max(fdom, fdat)
   transf = Scale(factor)
-  domain = transf(pdom)
+  dom = transf(pdom)
   data = transf(pdat)
 
   # scale variogram model accordingly
@@ -67,7 +67,7 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::SEQMethod, se
   marginal = Normal(mean, √sill(gamma))
 
   # adjust min/max neighbors
-  nobs = nelements(domain)
+  nobs = nelements(dom)
   if maxneighbors > nobs || maxneighbors < 1
     maxneighbors = nobs
   end
@@ -78,27 +78,27 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::SEQMethod, se
   # determine search method
   searcher = if isnothing(neighborhood)
     # nearest neighbor search with a metric
-    KNearestSearch(domain, maxneighbors; metric=distance)
+    KNearestSearch(dom, maxneighbors; metric=distance)
   else
     # neighbor search with ball neighborhood
-    KBallSearch(domain, maxneighbors, neighborhood)
+    KBallSearch(dom, maxneighbors, neighborhood)
   end
 
-  (; domain, data, probmodel, marginal, minneighbors, maxneighbors, searcher)
+  (; dom, data, probmodel, marginal, minneighbors, maxneighbors, searcher)
 end
 
-function randsingle(rng::AbstractRNG, process::GaussianProcess, method::SEQMethod, setup::RandSetup, prep)
+function randsingle(rng::AbstractRNG, ::GaussianProcess, method::SEQMethod, setup::RandSetup, prep)
   # retrieve parameters
   (; path, init) = method
   (; varnames, vartypes) = setup
-  (; domain, data, probmodel, marginal, minneighbors, maxneighbors, searcher) = prep
+  (; dom, data, probmodel, marginal, minneighbors, maxneighbors, searcher) = prep
 
   # initialize buffers for realization and simulation mask
   vars = Dict(zip(varnames, vartypes))
-  buff, mask = initbuff(domain, vars, init, data=data)
+  buff, mask = initbuff(dom, vars, init, data=data)
 
   # consider point set with centroids for now
-  pointset = PointSet([centroid(domain, ind) for ind in 1:nelements(domain)])
+  pointset = PointSet([centroid(dom, ind) for ind in 1:nelements(dom)])
 
   varreals = map(varnames) do var
     # pre-allocate memory for neighbors
@@ -109,7 +109,7 @@ function randsingle(rng::AbstractRNG, process::GaussianProcess, method::SEQMetho
     simulated = mask[var]
 
     # simulation loop
-    for ind in traverse(domain, path)
+    for ind in traverse(dom, path)
       if !simulated[ind]
         center = pointset[ind]
         # search neighbors with simulated data
