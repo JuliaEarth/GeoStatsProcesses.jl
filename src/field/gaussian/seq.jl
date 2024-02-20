@@ -48,11 +48,23 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::SEQMethod, se
   # retrieve paramaters
   (; variogram, mean) = process
   (; minneighbors, maxneighbors, neighborhood, distance) = method
-  (; domain) = setup
 
-  # probability model
-  probmodel = GeoStatsModels.SimpleKriging(variogram, mean)
-  marginal = Normal(mean, √sill(variogram))
+  # scale domains for numerical stability
+  pdom = setup.domain
+  pdat = setup.geotable
+  fdom = scalefactor(pdom)
+  fdat = isnothing(pdat) ? 1 : scalefactor(domain(pdat))
+  factor = max(fdom, fdat)
+  transf = Scale(factor)
+  domain = transf(pdom)
+  data = transf(pdat)
+
+  # scale variogram model accordingly
+  gamma = GeoStatsFunctions.scale(variogram, factor)
+
+  # determine probability model
+  probmodel = GeoStatsModels.SimpleKriging(gamma, mean)
+  marginal = Normal(mean, √sill(gamma))
 
   # adjust min/max neighbors
   nobs = nelements(domain)
@@ -72,18 +84,18 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::SEQMethod, se
     KBallSearch(domain, maxneighbors, neighborhood)
   end
 
-  (; probmodel, marginal, minneighbors, maxneighbors, searcher)
+  (; domain, data, probmodel, marginal, minneighbors, maxneighbors, searcher)
 end
 
 function randsingle(rng::AbstractRNG, process::GaussianProcess, method::SEQMethod, setup::RandSetup, prep)
   # retrieve parameters
   (; path, init) = method
-  (; domain, geotable, varnames, vartypes) = setup
-  (; probmodel, marginal, minneighbors, maxneighbors, searcher) = prep
+  (; varnames, vartypes) = setup
+  (; domain, data, probmodel, marginal, minneighbors, maxneighbors, searcher) = prep
 
   # initialize buffers for realization and simulation mask
   vars = Dict(zip(varnames, vartypes))
-  buff, mask = initbuff(domain, vars, init, data=geotable)
+  buff, mask = initbuff(domain, vars, init, data=data)
 
   # consider point set with centroids for now
   pointset = PointSet([centroid(domain, ind) for ind in 1:nelements(domain)])
@@ -137,4 +149,8 @@ function randsingle(rng::AbstractRNG, process::GaussianProcess, method::SEQMetho
   end
 
   Dict(varreals)
+end
+
+function scalefactor(domain)
+  1 # TODO: implement this
 end
