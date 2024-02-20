@@ -57,7 +57,7 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::SEQMethod, se
   factor = max(fdom, fdat)
   transf = Scale(inv(factor))
   dom = transf(pdom)
-  data = transf(pdat)
+  data = isnothing(pdat) ? nothing : transf(pdat)
 
   # scale variogram model accordingly
   gamma = GeoStatsFunctions.scale(variogram, factor)
