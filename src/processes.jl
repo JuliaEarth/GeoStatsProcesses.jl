@@ -203,7 +203,6 @@ _extract(::Type, pairs) = throw(ArgumentError("the data argument must be a geota
 # IMPLEMENTATIONS
 #-----------------
 
-include("field/sequential.jl")
 include("field/gaussian.jl")
 include("field/lindgren.jl")
 include("field/quilting.jl")

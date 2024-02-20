@@ -8,8 +8,8 @@
 The sequential process method introduced by Gomez-Hernandez 1993.
 It traverses all locations of the geospatial domain according to a path,
 approximates the conditional Gaussian distribution within a neighborhood
-using Kriging, and assigns a value to the center of the neighborhood by
-sampling from this distribution.
+using simple Kriging, and assigns a value to the center of the neighborhood
+by sampling from this distribution.
 
 ## Parameters
 
@@ -45,15 +45,97 @@ distribution. The neighbors are searched according to a `neighborhood`.
 end
 
 function randprep(::AbstractRNG, process::GaussianProcess, method::SEQMethod, setup::RandSetup)
-  (; variogram, mean) = process
-  (; path, minneighbors, maxneighbors, neighborhood, distance, init) = method
-  probmodel = GeoStatsModels.SimpleKriging(variogram, mean)
-  marginal = Normal(mean, √sill(variogram))
-  SequentialProcess(probmodel, marginal; path, minneighbors, maxneighbors, neighborhood, distance, init)
+  # retrieve domain info
+  domain = setup.domain
+
+  # retrieve process paramaters
+  (; minneighbors, maxneighbors, neighborhood, distance) = method
+
+  nobs = nelements(domain)
+  if maxneighbors > nobs || maxneighbors < 1
+    maxneighbors = nobs
+  end
+  if minneighbors > maxneighbors || minneighbors < 1
+    minneighbors = 1
+  end
+
+  # determine search method
+  searcher = if isnothing(neighborhood)
+    # nearest neighbor search with a metric
+    KNearestSearch(domain, maxneighbors; metric=distance)
+  else
+    # neighbor search with ball neighborhood
+    KBallSearch(domain, maxneighbors, neighborhood)
+  end
+
+  (; minneighbors, maxneighbors, searcher)
 end
 
-function randsingle(rng::AbstractRNG, ::GaussianProcess, ::SEQMethod, setup::RandSetup, prep)
-  proc, method = prep, DefaultRandMethod()
-  prep′ = randprep(rng, proc, method, setup)
-  randsingle(rng, proc, method, setup, prep′)
+function randsingle(rng::AbstractRNG, process::GaussianProcess, method::SEQMethod, setup::RandSetup, prep)
+  # retrieve parameters
+  (; variogram, mean) = process
+  (; path, init) = method
+  (; domain, geotable, varnames, vartypes) = setup
+  (; minneighbors, maxneighbors, searcher) = prep
+
+  # probability model
+  probmodel = GeoStatsModels.SimpleKriging(variogram, mean)
+  marginal = Normal(mean, √sill(variogram))
+
+  # initialize buffers for realization and simulation mask
+  vars = Dict(zip(varnames, vartypes))
+  buff, mask = initbuff(domain, vars, init, data=geotable)
+
+  # consider point set with centroids for now
+  pointset = PointSet([centroid(domain, ind) for ind in 1:nelements(domain)])
+
+  varreals = map(varnames) do var
+    # pre-allocate memory for neighbors
+    neighbors = Vector{Int}(undef, maxneighbors)
+
+    # retrieve realization and mask for variable
+    realization = buff[var]
+    simulated = mask[var]
+
+    # simulation loop
+    for ind in traverse(domain, path)
+      if !simulated[ind]
+        center = pointset[ind]
+        # search neighbors with simulated data
+        nneigh = search!(neighbors, center, searcher, mask=simulated)
+
+        if nneigh < minneighbors
+          # draw from marginal
+          realization[ind] = rand(rng, marginal)
+        else
+          # neighborhood with data
+          neigh = let
+            ninds = view(neighbors, 1:nneigh)
+            dom = view(pointset, ninds)
+            val = view(realization, ninds)
+            tab = (; var => val)
+            georef(tab, dom)
+          end
+
+          # fit distribution probmodel
+          fitted = GeoStatsModels.fit(probmodel, neigh)
+
+          # draw from conditional or marginal
+          distribution = if GeoStatsModels.status(fitted)
+            GeoStatsModels.predictprob(fitted, var, center)
+          else
+            marginal
+          end
+          realization[ind] = rand(rng, distribution)
+        end
+
+        # mark location as simulated and continue
+        simulated[ind] = true
+      end
+    end
+
+    var => realization
+  end
+
+  Dict(varreals)
 end
