@@ -15,7 +15,7 @@ by sampling from this distribution.
 
 * `path`         - Process path (default to `LinearPath()`)
 * `minneighbors` - Minimum number of neighbors (default to `1`)
-* `maxneighbors` - Maximum number of neighbors (default to `10`)
+* `maxneighbors` - Maximum number of neighbors (default to `36`)
 * `neighborhood` - Search neighborhood (default to `nothing`)
 * `distance`     - Distance used to find nearest neighbors (default to `Euclidean()`)
 * `init`         - Data initialization method (default to `NearestInit()`)
@@ -38,7 +38,7 @@ distribution. The neighbors are searched according to a `neighborhood`.
 @kwdef struct SEQMethod{P,N,D,I} <: RandMethod
   path::P = LinearPath()
   minneighbors::Int = 1
-  maxneighbors::Int = 10
+  maxneighbors::Int = 36 # 6x6 grid cells
   neighborhood::N = nothing
   distance::D = Euclidean()
   init::I = NearestInit()
