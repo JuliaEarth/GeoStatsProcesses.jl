@@ -16,13 +16,18 @@ by sampling from this distribution.
 * `path`         - Process path (default to `LinearPath()`)
 * `minneighbors` - Minimum number of neighbors (default to `1`)
 * `maxneighbors` - Maximum number of neighbors (default to `36`)
-* `neighborhood` - Search neighborhood (default to `nothing`)
+* `neighborhood` - Search neighborhood (default to `:range`)
 * `distance`     - Distance used to find nearest neighbors (default to `Euclidean()`)
 * `init`         - Data initialization method (default to `NearestInit()`)
 
 For each location in the process `path`, a maximum number of
 neighbors `maxneighbors` is used to fit the conditional Gaussian
 distribution. The neighbors are searched according to a `neighborhood`.
+
+The `neighborhood` can be a `MetricBall`, the symbol `:range` or `nothing`.
+The symbol `:range` is converted to `MetricBall(range(γ))` where `γ` is the
+variogram of the Gaussian process. If `neighborhood` is `nothing`, the nearest
+neighbors are used without additional constraints.
 
 ## References
 
@@ -31,15 +36,15 @@ distribution. The neighbors are searched according to a `neighborhood`.
 
 ### Notes
 
-* This method is very sensitive to the process path and number of
-  samples. Care must be taken to make sure that neighborhoods have
-  enough samples for the geostatistical model (e.g. Kriging).
+* This method is very sensitive to the various parameters.
+  Care must be taken to make sure that enough neighbors
+  are used in the underlying Kriging model.
 """
 @kwdef struct SEQMethod{P,N,D,I} <: RandMethod
   path::P = LinearPath()
   minneighbors::Int = 1
   maxneighbors::Int = 36 # 6x6 grid cells
-  neighborhood::N = nothing
+  neighborhood::N = :range
   distance::D = Euclidean()
   init::I = NearestInit()
 end
@@ -55,6 +60,15 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::SEQMethod, se
   # scale variogram model accordingly
   gamma = GeoStatsFunctions.scale(variogram, finv)
 
+  # scale neighborhood accordingly
+  neigh = if neighborhood isa MetricBall
+    finv * neighborhood
+  elseif neighborhood == :range
+    MetricBall(range(gamma))
+  else
+    nothing
+  end
+
   # determine probability model
   probmodel = GeoStatsModels.SimpleKriging(gamma, mean)
   marginal = Normal(mean, √sill(gamma))
@@ -69,12 +83,12 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::SEQMethod, se
   end
 
   # determine search method
-  searcher = if isnothing(neighborhood)
+  searcher = if isnothing(neigh)
     # nearest neighbor search with a metric
     KNearestSearch(dom, maxneighbors; metric=distance)
   else
     # neighbor search with ball neighborhood
-    KBallSearch(dom, maxneighbors, neighborhood)
+    KBallSearch(dom, maxneighbors, neigh)
   end
 
   (; dom, data, probmodel, marginal, minneighbors, maxneighbors, searcher)
