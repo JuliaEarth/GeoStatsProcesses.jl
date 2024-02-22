@@ -50,17 +50,10 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::SEQMethod, se
   (; minneighbors, maxneighbors, neighborhood, distance) = method
 
   # scale domains for numerical stability
-  pdom = setup.domain
-  pdat = setup.geotable
-  fdom = scalefactor(pdom)
-  fdat = isnothing(pdat) ? 1 : scalefactor(domain(pdat))
-  factor = max(fdom, fdat)
-  transf = Scale(inv(factor))
-  dom = transf(pdom)
-  data = isnothing(pdat) ? nothing : transf(pdat)
+  finv, dom, data = _scaledomains(setup)
 
   # scale variogram model accordingly
-  gamma = GeoStatsFunctions.scale(variogram, factor)
+  gamma = GeoStatsFunctions.scale(variogram, finv)
 
   # determine probability model
   probmodel = GeoStatsModels.SimpleKriging(gamma, mean)
@@ -151,7 +144,22 @@ function randsingle(rng::AbstractRNG, ::GaussianProcess, method::SEQMethod, setu
   Dict(varreals)
 end
 
-function scalefactor(domain)
+function _scaledomains(setup)
+  sdom = setup.domain
+  sdat = setup.geotable
+  fdom = _scalefactor(sdom)
+  fdat = isnothing(sdat) ? 1 : _scalefactor(domain(sdat))
+  fmax = max(fdom, fdat)
+  finv = 1 / fmax
+  func = Scale(finv)
+
+  dom = func(sdom)
+  dat = isnothing(sdat) ? nothing : func(sdat)
+
+  finv, dom, dat
+end
+
+function _scalefactor(domain)
   pmin, pmax = extrema(boundingbox(domain))
   cmin = abs.(coordinates(pmin))
   cmax = abs.(coordinates(pmax))
