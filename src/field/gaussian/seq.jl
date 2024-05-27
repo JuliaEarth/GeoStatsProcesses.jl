@@ -175,7 +175,7 @@ end
 
 function _scalefactor(domain)
   pmin, pmax = extrema(boundingbox(domain))
-  cmin = abs.(coordinates(pmin))
-  cmax = abs.(coordinates(pmax))
-  max(cmin..., cmax...)
+  cmin = abs.(to(pmin))
+  cmax = abs.(to(pmax))
+  ustrip(max(cmin..., cmax...))
 end

@@ -29,7 +29,7 @@ function randsingle(rng::AbstractRNG, p::PoissonProcess{<:Real}, g)
   # simulate number of points
   λ = p.λ
   V = measure(g)
-  n = rand(rng, Poisson(λ * V))
+  n = rand(rng, Poisson(ustrip(λ * V)))
 
   # simulate n points
   iszero(n) ? nothing : PointSet(sample(rng, g, HomogeneousSampling(n)))
@@ -44,7 +44,7 @@ function randsingle(rng::AbstractRNG, p::PoissonProcess{<:Function}, g)
   λmax = _maxintensity(p, g)
 
   # simulate a homogeneous process
-  pset = randsingle(rng, PoissonProcess(λmax), g)
+  pset = randsingle(rng, PoissonProcess(ustrip(λmax)), g)
 
   # thin point pattern
   isnothing(pset) ? nothing : thin(pset, RandomThinning(x -> p.λ(x) / λmax))
@@ -53,7 +53,7 @@ end
 function randsingle(rng::AbstractRNG, p::PoissonProcess{<:AbstractVector}, d::Domain)
   # simulate number of points
   λ = p.λ .* measure.(d)
-  n = rand(rng, Poisson(sum(λ)))
+  n = rand(rng, Poisson(ustrip(sum(λ))))
 
   # simulate point pattern
   iszero(n) ? nothing : PointSet(sample(rng, d, HomogeneousSampling(n, λ)))

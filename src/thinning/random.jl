@@ -13,7 +13,7 @@ mapping a point to a probability.
 
 ```julia
 RandomThinning(0.5)
-RandomThinning(p -> sum(coordinates(p)))
+RandomThinning(p -> sum(to(p)))
 ```
 """
 struct RandomThinning{P<:Union{Real,Function}} <: ThinningMethod
