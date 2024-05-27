@@ -23,10 +23,6 @@ end
 ClusterProcess(p::PointProcess, o::PointProcess, gfun::Function) = ClusterProcess(p, parent -> rand(o, gfun(parent)))
 
 function randsingle(rng::AbstractRNG, p::ClusterProcess, g)
-  # retrieve parameters
-  Dim = embeddim(g)
-  T = coordtype(g)
-
   # generate parents
   parents = rand(rng, p.proc, g)
 

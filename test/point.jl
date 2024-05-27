@@ -10,13 +10,13 @@
   hole2 = [(2, -0.2), (3, -0.2), (3, 0.4), (2, 0.4)]
   poly = PolyArea([outer, hole1, hole2])
   grid = CartesianGrid((0, 0), (4, 4), dims=(10, 10))
-  points = Point2[(0, 0), (4.5, 0), (0, 4.2), (4, 4.3), (1.5, 1.5)]
+  points = [(0, 0), (4.5, 0), (0, 4.2), (4, 4.3), (1.5, 1.5)]
   connec = connect.([(1, 2, 5), (2, 4, 5), (4, 3, 5), (3, 1, 5)], Triangle)
   mesh = SimpleMesh(points, connec)
   geoms = [seg, tri, quad, box, ball, poly, grid, mesh]
 
   # point processes
-  λ(s) = sum(coordinates(s) .^ 2)
+  λ(s) = sum(to(s) .^ 2)
   binom = BinomialProcess(100)
   poisson1 = PoissonProcess(100.0)
   poisson2 = PoissonProcess(λ)
@@ -56,7 +56,7 @@
       @test isnothing(rand(PoissonProcess(0.0), seg))
     end
 
-    pp = PointSet(rand(Point2, 10))
+    pp = PointSet([rand(Point{2}) for _ in 1:10])
     @test isnothing(rand(PoissonProcess(100.0), pp))
   end
 
@@ -115,15 +115,14 @@
     pp = rand(p, q)
     tp = thin(pp, RandomThinning(0.3))
     @test length(tp) ≤ length(pp)
-    xs = coordinates.(tp)
-    @test all(0 .≤ first.(xs) .≤ 4.0)
-    @test all(0 .≤ last.(xs) .≤ 4.0)
+    xs = to.(tp)
+    @test all(0u"m" .≤ first.(xs) .≤ 4.0u"m")
+    @test all(0u"m" .≤ last.(xs) .≤ 4.0u"m")
 
-    λ(s::Point2) = sum(coordinates(s) .^ 2)
     tp = thin(pp, RandomThinning(s -> λ(s) / λ(Point(4.0, 4.0))))
     @test length(tp) ≤ length(pp)
-    xs = coordinates.(tp)
-    @test all(0 .≤ first.(xs) .≤ 4.0)
-    @test all(0 .≤ last.(xs) .≤ 4.0)
+    xs = to.(tp)
+    @test all(0u"m" .≤ first.(xs) .≤ 4.0u"m")
+    @test all(0u"m" .≤ last.(xs) .≤ 4.0u"m")
   end
 end
