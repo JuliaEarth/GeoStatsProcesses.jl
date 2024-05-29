@@ -33,8 +33,8 @@
     @testset "defaultmethod" begin
       grid = CartesianGrid(100, 100)
       vgrid = view(grid, 1:1000)
-      pset1 = PointSet([rand(Point{2}) for _ in 1:1000])
-      pset2 = PointSet([rand(Point{2}) for _ in 1:10000])
+      pset1 = PointSet(rand(Point{2}, 1000))
+      pset2 = PointSet(rand(Point{2}, 10000))
 
       process = GaussianProcess()
       setup = GeoStatsProcesses.randsetup(grid, :z => Float64, 1)

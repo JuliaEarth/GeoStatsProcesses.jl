@@ -56,7 +56,7 @@
       @test isnothing(rand(PoissonProcess(0.0), seg))
     end
 
-    pp = PointSet([rand(Point{2}) for _ in 1:10])
+    pp = PointSet(rand(Point{2}, 10))
     @test isnothing(rand(PoissonProcess(100.0), pp))
   end
 
