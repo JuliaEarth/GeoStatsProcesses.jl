@@ -92,7 +92,7 @@ function randsingle(rng::AbstractRNG, ::LindgrenProcess, ::DefaultRandMethod, se
   vtable = (; varreal...)
 
   # change of support
-  vdata = georef(vtable, 𝒟)
+  vdata = GeoTable(𝒟; vtable)
   edata = integrate(vdata, setup.varnames...)
 
   # columns of element table
