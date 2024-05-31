@@ -202,6 +202,13 @@
     process = LindgrenProcess(2, 2)
     @test Unitful.numtype(process.range) == Float64
     @test process.sill isa Float64
+
+    # simulation on sphere
+    p = LindgrenProcess()
+    s = Sphere((0,0,0))
+    m = simplexify(s)
+    r = rand(p, m, :z => Float64)
+    @test isapprox(sum(r.z) / length(r.z), 0.0, atol=1e-4)
   end
 
   @testset "QuiltingProcess" begin
