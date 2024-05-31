@@ -26,6 +26,7 @@ using LinearAlgebra
 using GeoStatsBase: Ensemble, integrate
 using GeoStatsBase: NearestInit, initbuff
 
+include("units.jl")
 include("ioutils.jl")
 include("processes.jl")
 include("operations.jl")

@@ -17,13 +17,17 @@ operator on meshes and is adequate for highly curved domains (e.g. surfaces).
   Gaussian Markov random fields: the stochastic partial differential
   equation approach](https://rss.onlinelibrary.wiley.com/doi/10.1111/j.1467-9868.2011.00777.x)
 """
-struct LindgrenProcess <: FieldProcess
-  range::Float64
-  sill::Float64
+struct LindgrenProcess{ℒ<:Len,V} <: FieldProcess
+  range::ℒ
+  sill::V
+  LindgrenProcess(range::ℒ, sill::V) where {ℒ<:Len,V} = new{float(ℒ),float(V)}(range, sill)
 end
 
+LindgrenProcess(range, sill) = LindgrenProcess(addunit(range, u"m"), sill)
+
 LindgrenProcess(range) = LindgrenProcess(range, 1.0)
-LindgrenProcess() = LindgrenProcess(1.0, 1.0)
+
+LindgrenProcess() = LindgrenProcess(1.0u"m", 1.0)
 
 function randprep(::AbstractRNG, process::LindgrenProcess, ::DefaultRandMethod, setup::RandSetup)
   isnothing(setup.geotable) || @error "conditional process is not implemented"
@@ -32,8 +36,8 @@ function randprep(::AbstractRNG, process::LindgrenProcess, ::DefaultRandMethod, 
   𝓁 = process.range
   σ = process.sill
 
-  @assert 𝓁 > 0 "range must be positive"
-  @assert σ > 0 "sill must be positive"
+  @assert 𝓁 > zero(𝓁) "range must be positive"
+  @assert σ > zero(σ) "sill must be positive"
 
   # retrieve domain info
   𝒟 = setup.domain
@@ -47,14 +51,14 @@ function randprep(::AbstractRNG, process::LindgrenProcess, ::DefaultRandMethod, 
   # result of preprocessing
   pairs = map(setup.varnames) do var
     # LHS of SPDE (κ² - Δ)Z = τW
-    α = 2one(σ + 𝓁)
+    α = 2
     ν = α - d / 2
     κ = 1 / 𝓁
     A = κ^2 * I - Δ
 
     # covariance structure
     τ² = σ^2 * κ^(2ν) * (4π)^(d / 2) * gamma(α) / gamma(ν)
-    Q = A'A / τ²
+    Q = ustrip.(A'A / τ²)
 
     # factorization
     F = cholesky(Array(Q))

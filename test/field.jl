@@ -178,6 +178,32 @@
     end
   end
 
+  @testset "LindgrenProcess" begin
+    process = LindgrenProcess()
+    @test process.range == 1u"m"
+    @test process.sill == 1.0
+
+    process = LindgrenProcess(2.0)
+    @test process.range == 2.0u"m"
+    @test process.sill == 1.0
+
+    process = LindgrenProcess(2.0u"km")
+    @test process.range == 2.0u"km"
+    @test process.sill == 1.0
+
+    process = LindgrenProcess(2.0, 2.0)
+    @test process.range == 2.0u"m"
+    @test process.sill == 2.0
+
+    process = LindgrenProcess(2.0u"km", 2.0)
+    @test process.range == 2.0u"km"
+    @test process.sill == 2.0
+
+    process = LindgrenProcess(2, 2)
+    @test Unitful.numtype(process.range) == Float64
+    @test process.sill isa Float64
+  end
+
   @testset "QuiltingProcess" begin
     sdata = georef((; facies=[1.0, 0.0, 1.0]), [25.0 50.0 75.0; 25.0 75.0 50.0])
     sdomain = CartesianGrid(100, 100)
