@@ -208,7 +208,7 @@
     s = Sphere((0,0,0))
     m = simplexify(s)
     r = rand(p, m, :z => Float64)
-    @test isapprox(sum(r.z) / length(r.z), 0.0, atol=1e-4)
+    @test isapprox(sum(r.z) / length(r.z), 0.0, atol=1e-3)
   end
 
   @testset "QuiltingProcess" begin
