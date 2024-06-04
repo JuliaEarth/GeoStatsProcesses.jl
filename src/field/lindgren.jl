@@ -72,9 +72,13 @@ function randprep(::AbstractRNG, process::LindgrenProcess, ::DefaultRandMethod, 
 
   # result of preprocessing
   pairs = map(varnames) do var
-    # retrieve data locations and data values in domain
-    i₁ = findall(mask[var])
-    z₁ = view(buff[var], i₁)
+    # retrieve buffer and mask for variable
+    z = buff[var]
+    m = mask[var]
+
+    # retrieve data locations and data values
+    i₁ = findall(m)
+    z₁ = view(z, i₁)
 
     # retrieve simulation locations
     i₂ = setdiff(1:nvertices(domain), i₁)
@@ -83,10 +87,8 @@ function randprep(::AbstractRNG, process::LindgrenProcess, ::DefaultRandMethod, 
     z̄ = if isempty(i₁)
       nothing
     else
-      z̄ = similar(buff[var])
-      z₂ = -Q[i₂,i₂] \ (Q[i₂,i₁] * z₁)
-      z̄[i₁] .= z₁
-      z̄[i₂] .= z₂
+      z[i₂] .= -Q[i₂,i₂] \ (Q[i₂,i₁] * z₁)
+      z
     end
 
     # save preprocessed inputs for variable
