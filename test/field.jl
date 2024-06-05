@@ -204,11 +204,20 @@
     @test process.sill isa Float64
 
     # simulation on sphere
-    p = LindgrenProcess()
+    p = LindgrenProcess(0.1)
     s = Sphere((0,0,0))
     m = simplexify(s)
-    r = rand(p, m, :z => Float64)
-    @test isapprox(sum(r.z) / length(r.z), 0.0, atol=1e-3)
+    # unconditional realization
+    r = rand(p, m, :z => Float64, 3)
+    for i in 1:3
+      @test isapprox(sum(r[i].z) / length(r[i].z), 0.0, atol=1e-3)
+    end
+    # conditional realization
+    d = georef((z=[0.,1.],), [(0,0,-1), (0,0,1)])
+    r = rand(p, m, d, 3)
+    for i in 1:3
+      @test isapprox(sum(r[i].z) / length(r[i].z), 0.0, atol=1e-3)
+    end
   end
 
   @testset "QuiltingProcess" begin

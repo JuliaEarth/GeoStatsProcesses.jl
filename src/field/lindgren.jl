@@ -43,15 +43,15 @@ function randprep(::AbstractRNG, process::LindgrenProcess, ::DefaultRandMethod, 
   @assert 𝓁 > zero(𝓁) "range must be positive"
   @assert σ > zero(σ) "sill must be positive"
 
-  # Beltrami-Laplace discretization
-  B = laplacematrix(domain)
+  # Laplace-Beltrami operator
+  W = laplacematrix(domain)
   M = measurematrix(domain)
-  Δ = inv(M) * B
+  Δ = inv(M) * W
 
   # retrieve parametric dimension
   d = paramdim(domain)
 
-  # LHS of SPDE (κ² - Δ)Z = τW
+  # LHS of SPDE (κ² - Δ)Z = τW with Δ = M⁻¹W
   α = 2
   ν = α - d / 2
   κ = 1 / 𝓁
