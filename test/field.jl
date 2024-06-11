@@ -176,6 +176,15 @@
       # the number of parameters must be equal to the number of variables
       @test_throws AssertionError rand(process, 𝒟, [:a => Float64, :b => Float64], method)
     end
+
+    @testset "show" begin
+      process = GaussianProcess()
+      @test sprint(show, process) == "GaussianProcess(variogram: GaussianVariogram(sill: 1.0, nugget: 0.0, range: 1.0 m, distance: Euclidean), mean: 0.0)"
+      @test sprint(show, MIME("text/plain"), process) == """
+      GaussianProcess
+      ├─ variogram: GaussianVariogram(sill: 1.0, nugget: 0.0, range: 1.0 m, distance: Euclidean)
+      └─ mean: 0.0"""
+    end
   end
 
   @testset "LindgrenProcess" begin
@@ -218,6 +227,14 @@
     for i in 1:3
       @test isapprox(sum(r[i].z) / length(r[i].z), 0.0, atol=1e-3)
     end
+
+    process = LindgrenProcess()
+    @test sprint(show, process) == "LindgrenProcess(range: 1.0 m, sill: 1.0, init: NearestInit())"
+    @test sprint(show, MIME("text/plain"), process) == """
+    LindgrenProcess
+    ├─ range: 1.0 m
+    ├─ sill: 1.0
+    └─ init: GeoStatsBase.NearestInit()"""
   end
 
   @testset "QuiltingProcess" begin
@@ -235,6 +252,19 @@
     @test eltype(sims[1].facies) <: Union{Float64,Missing}
     @test any(ismissing, sims[1].facies)
     @test all(!isnan, skipmissing(sims[1].facies))
+
+    process = QuiltingProcess(trainimg, (30, 30))
+    @test sprint(show, process) == "QuiltingProcess(trainimg: 62500×2 GeoTable over 250×250 CartesianGrid, tilesize: (30, 30), overlap: nothing, path: :raster, inactive: nothing, soft: nothing, tol: 0.1, init: NearestInit())"
+    @test sprint(show, MIME("text/plain"), process) == """
+    QuiltingProcess
+    ├─ trainimg: 62500×2 GeoTable over 250×250 CartesianGrid
+    ├─ tilesize: (30, 30)
+    ├─ overlap: nothing
+    ├─ path: :raster
+    ├─ inactive: nothing
+    ├─ soft: nothing
+    ├─ tol: 0.1
+    └─ init: GeoStatsBase.NearestInit()"""
   end
 
   @testset "TuringProcess" begin
@@ -244,6 +274,15 @@
     @test length(sims) == 3
     @test size(domain(sims[1])) == (200, 200)
     @test eltype(sims[1].z) <: Float64
+
+    process = TuringProcess()
+    @test sprint(show, process) == "TuringProcess(params: nothing, blur: nothing, edge: nothing, iter: 100)"
+    @test sprint(show, MIME("text/plain"), process) == """
+    TuringProcess
+    ├─ params: nothing
+    ├─ blur: nothing
+    ├─ edge: nothing
+    └─ iter: 100"""
   end
 
   @testset "StrataProcess" begin
@@ -257,5 +296,17 @@
     @test eltype(sims[1].z) <: Union{Float64,Missing}
     @test any(ismissing, sims[1].z)
     @test all(!isnan, skipmissing(sims[1].z))
+
+    rng = MersenneTwister(2019)
+    proc = SmoothingProcess()
+    env = Environment(rng, [proc, proc], [0.5 0.5; 0.5 0.5], ExponentialDuration(rng, 1.0))
+    process = StrataProcess(env)
+    @test sprint(show, process) == "StrataProcess(environment: Environment{MersenneTwister}(MersenneTwister(2019), SmoothingProcess[SmoothingProcess(3.0), SmoothingProcess(3.0)], [0.5 0.5; 0.5 0.5], ExponentialDuration{MersenneTwister}(MersenneTwister(2019), 1.0)), state: nothing, stack: :erosional, nepochs: 10)"
+    @test sprint(show, MIME("text/plain"), process) == """
+    StrataProcess
+    ├─ environment: Environment{MersenneTwister}(MersenneTwister(2019), SmoothingProcess[SmoothingProcess(3.0), SmoothingProcess(3.0)], [0.5 0.5; 0.5 0.5], ExponentialDuration{MersenneTwister}(MersenneTwister(2019), 1.0))
+    ├─ state: nothing
+    ├─ stack: :erosional
+    └─ nepochs: 10"""
   end
 end
