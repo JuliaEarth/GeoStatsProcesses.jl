@@ -41,6 +41,12 @@
       pp = rand(p, g)
       @test nelements(pp) == 10
     end
+
+    p = BinomialProcess(10)
+    @test sprint(show, p) == "BinomialProcess(n: 10)"
+    @test sprint(show, MIME("text/plain"), p) == """
+    BinomialProcess
+    └─ n: 10"""
   end
 
   @testset "Poisson" begin
@@ -58,9 +64,21 @@
 
     pp = PointSet(rand(Point{2}, 10))
     @test isnothing(rand(PoissonProcess(100.0), pp))
+
+    p = PoissonProcess(100.0)
+    @test sprint(show, p) == "PoissonProcess(λ: 100.0)"
+    @test sprint(show, MIME("text/plain"), p) == """
+    PoissonProcess
+    └─ λ: 100.0"""
   end
 
-  @testset "Inhibition" begin end
+  @testset "Inhibition" begin
+    p = InhibitionProcess(0.1)
+    @test sprint(show, p) == "InhibitionProcess(δ: 0.1)"
+    @test sprint(show, MIME("text/plain"), p) == """
+    InhibitionProcess
+    └─ δ: 0.1"""
+  end
 
   @testset "Cluster" begin
     binom = BinomialProcess(100)
@@ -94,6 +112,13 @@
         @test all(∈(g), pp)
       end
     end
+
+    p = ClusterProcess(binom, identity)
+    @test sprint(show, p) == "ClusterProcess(proc: BinomialProcess(n: 100), ofun: identity)"
+    @test sprint(show, MIME("text/plain"), p) == """
+    ClusterProcess
+    ├─ proc: BinomialProcess(n: 100)
+    └─ ofun: identity"""
   end
 
   @testset "Union" begin
@@ -107,6 +132,13 @@
     @test s[1] isa PointSet
     @test s[2] isa PointSet
     @test nelements.(s) == [100, 100]
+
+    p = BinomialProcess(50) ∪ BinomialProcess(100)
+    @test sprint(show, p) == "UnionProcess(p₁: BinomialProcess(n: 50), p₂: BinomialProcess(n: 100))"
+    @test sprint(show, MIME("text/plain"), p) == """
+    UnionProcess
+    ├─ p₁: BinomialProcess(n: 50)
+    └─ p₂: BinomialProcess(n: 100)"""
   end
 
   @testset "Thinning" begin

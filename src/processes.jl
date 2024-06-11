@@ -198,6 +198,25 @@ _extract(::Type{Pair{Symbol,DataType}}, pairs) = nothing, first.(pairs), last.(p
 _extract(::Type{Pair{T,DataType}}, pairs) where {T<:AbstractString} = nothing, Symbol.(first.(pairs)), last.(pairs)
 _extract(::Type, pairs) = throw(ArgumentError("the data argument must be a geotable, a pair, or an iterable of pairs"))
 
+# -----------
+# IO METHODS
+# -----------
+
+Base.summary(io::IO, process::GeoStatsProcess) = print(io, prettyname(process))
+
+function Base.show(io::IO, process::GeoStatsProcess)
+  name = prettyname(process)
+  ioctx = IOContext(io, :compact => true)
+  print(io, "$name(")
+  printfields(ioctx, process, singleline=true)
+  print(io, ")")
+end
+
+function Base.show(io::IO, ::MIME"text/plain", process::GeoStatsProcess)
+  summary(io, process)
+  printfields(io, process)
+end
+
 #-----------------
 # IMPLEMENTATIONS
 #-----------------
