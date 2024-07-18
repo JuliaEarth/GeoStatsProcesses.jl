@@ -62,7 +62,7 @@
       @test isnothing(rand(PoissonProcess(0.0), seg))
     end
 
-    pp = PointSet(rand(Point{2}, 10))
+    pp = PointSet(rand(Point, 10))
     @test isnothing(rand(PoissonProcess(100.0), pp))
 
     p = PoissonProcess(100.0)

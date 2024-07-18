@@ -33,8 +33,8 @@
     @testset "defaultmethod" begin
       grid = CartesianGrid(100, 100)
       vgrid = view(grid, 1:1000)
-      pset1 = PointSet(rand(Point{2}, 1000))
-      pset2 = PointSet(rand(Point{2}, 10000))
+      pset1 = PointSet(rand(Point, 1000))
+      pset2 = PointSet(rand(Point, 10000))
 
       process = GaussianProcess()
       setup = GeoStatsProcesses.randsetup(grid, :z => Float64, 1)
@@ -85,7 +85,7 @@
     end
 
     @testset "SEQMethod" begin
-      𝒮 = georef((; z=[1.0, 0.0, 1.0]), [25.0 50.0 75.0; 25.0 75.0 50.0])
+      𝒮 = georef((; z=[1.0, 0.0, 1.0]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
       𝒟 = CartesianGrid((100, 100), (0.5, 0.5), (1.0, 1.0))
       N = 3
 
@@ -107,7 +107,7 @@
     end
 
     @testset "LUMethod" begin
-      𝒮 = georef((; z=[0.0, 1.0, 0.0, 1.0, 0.0]), [0.0 25.0 50.0 75.0 100.0])
+      𝒮 = georef((; z=[0.0, 1.0, 0.0, 1.0, 0.0]), [(0.0,), (25.0,), (50.0,), (75.0,), (100.0,)])
       𝒟 = CartesianGrid(100)
 
       # ----------------------
@@ -238,7 +238,7 @@
   end
 
   @testset "QuiltingProcess" begin
-    sdata = georef((; facies=[1.0, 0.0, 1.0]), [25.0 50.0 75.0; 25.0 75.0 50.0])
+    sdata = georef((; facies=[1.0, 0.0, 1.0]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
     sdomain = CartesianGrid(100, 100)
 
     rng = MersenneTwister(2017)
