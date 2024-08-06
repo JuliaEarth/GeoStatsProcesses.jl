@@ -5,8 +5,7 @@ using GeoTables
 using GeoStatsFunctions
 using GeoStatsImages
 using LinearAlgebra
-using Random
-using Test
+using Test, StableRNGs
 
 import ImageQuilting
 import TuringPatterns

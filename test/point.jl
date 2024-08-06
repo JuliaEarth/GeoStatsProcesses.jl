@@ -5,9 +5,9 @@
   quad = Quadrangle((0.0, 0.0), (0.0, 4.0), (4.0, 4.0), (4.0, 0.0))
   box = Box((0.0, 0.0), (4.0, 4.0))
   ball = Ball((1.0, 1.0), 2.25)
-  outer = [(0, -4), (4, -1), (4, 1.5), (0, 3)]
-  hole1 = [(0.2, -0.2), (1.4, -0.2), (1.4, 0.6), (0.2, 0.6)]
-  hole2 = [(2, -0.2), (3, -0.2), (3, 0.4), (2, 0.4)]
+  outer = [(0.0, -4.0), (4.0, -1.0), (4.0, 1.5), (0.0, 3.0)]
+  hole1 = [(0.2, 0.6), (1.4, 0.6), (1.4, -0.2), (0.2, -0.2)]
+  hole2 = [(2.0, 0.4), (3.0, 0.4), (3.0, -0.2), (2.0, -0.2)]
   poly = PolyArea([outer, hole1, hole2])
   grid = CartesianGrid((0, 0), (4, 4), dims=(10, 10))
   points = [(0, 0), (4.5, 0), (0, 4.2), (4, 4.3), (1.5, 1.5)]
@@ -24,21 +24,25 @@
   procs = [binom, poisson1, poisson2, inhibit]
 
   @testset "Basic" begin
+    rng = StableRNG(2024)
+
     for p in procs
-      pp = rand(p, box)
+      pp = rand(rng, p, box)
       @test all(∈(box), pp)
     end
 
     for g in geoms
-      pp = rand(binom, g)
+      pp = rand(rng, binom, g)
       @test all(∈(g), pp)
     end
   end
 
   @testset "Binomial" begin
+    rng = StableRNG(2024)
+
     p = BinomialProcess(10)
     for g in geoms
-      pp = rand(p, g)
+      pp = rand(rng, p, g)
       @test nelements(pp) == 10
     end
 
@@ -50,20 +54,22 @@
   end
 
   @testset "Poisson" begin
+    rng = StableRNG(2024)
+
     # inhomogeneous with piecewise constant intensity
     for g in [grid, mesh]
       p = PoissonProcess(λ.(centroid.(g)))
-      pp = rand(p, g)
+      pp = rand(rng, p, g)
       @test all(∈(g), pp)
     end
 
     # empty pointsets
     for g in geoms
-      @test isnothing(rand(PoissonProcess(0.0), seg))
+      @test isnothing(rand(rng, PoissonProcess(0.0), seg))
     end
 
-    pp = PointSet(rand(Point, 10))
-    @test isnothing(rand(PoissonProcess(100.0), pp))
+    pp = PointSet(rand(rng, Point, 10))
+    @test isnothing(rand(rng, PoissonProcess(100.0), pp))
 
     p = PoissonProcess(100.0)
     @test sprint(show, p) == "PoissonProcess(λ: 100.0)"
@@ -81,13 +87,15 @@
   end
 
   @testset "Cluster" begin
+    rng = StableRNG(2024)
+
     binom = BinomialProcess(100)
     poisson = PoissonProcess(100.0)
     procs = [binom, poisson]
 
-    ofun1 = parent -> rand(BinomialProcess(10), Ball(parent, 0.2))
-    ofun2 = parent -> rand(PoissonProcess(100), Ball(parent, 0.2))
-    ofun3 = parent -> rand(PoissonProcess(x -> 100 * sum((x - parent) .^ 2)), Ball(parent, 0.5))
+    ofun1 = parent -> rand(rng, BinomialProcess(10), Ball(parent, 0.2))
+    ofun2 = parent -> rand(rng, PoissonProcess(100), Ball(parent, 0.2))
+    ofun3 = parent -> rand(rng, PoissonProcess(x -> 100 * sum((x - parent) .^ 2)), Ball(parent, 0.5))
     ofun4 = parent -> PointSet(sample(Sphere(parent, 0.1), RegularSampling(10)))
     ofuns = [ofun1, ofun2, ofun3, ofun4]
 
@@ -99,7 +107,7 @@
 
     for p in procs, ofun in ofuns
       cp = ClusterProcess(p, ofun)
-      pp = rand(cp, box)
+      pp = rand(rng, cp, box)
       if !isnothing(pp)
         @test all(∈(box), pp)
       end
@@ -107,7 +115,7 @@
 
     for g in geoms
       cp = ClusterProcess(binom, ofun1)
-      pp = rand(cp, g)
+      pp = rand(rng, cp, g)
       if !isnothing(pp)
         @test all(∈(g), pp)
       end
@@ -122,12 +130,14 @@
   end
 
   @testset "Union" begin
+    rng = StableRNG(2024)
+
     b = Box((0.0, 0.0), (100.0, 100.0))
     p₁ = BinomialProcess(50)
     p₂ = BinomialProcess(50)
     p = p₁ ∪ p₂ # 100 points
 
-    s = rand(p, b, 2)
+    s = rand(rng, p, b, 2)
     @test length(s) == 2
     @test s[1] isa PointSet
     @test s[2] isa PointSet
@@ -142,9 +152,12 @@
   end
 
   @testset "Thinning" begin
+    rng = StableRNG(2024)
+
     p = PoissonProcess(10)
     q = Quadrangle((0.0, 0.0), (4.0, 0.0), (4.0, 4.0), (0.0, 4.0))
-    pp = rand(p, q)
+    pp = rand(rng, p, q)
+
     tp = thin(pp, RandomThinning(0.3))
     @test length(tp) ≤ length(pp)
     xs = to.(tp)
