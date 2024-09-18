@@ -22,7 +22,7 @@ data type.
 
 ## Parameters
 
-* `pool`    - Pool of worker processes (default to `[myid()]`)
+* `workers` - Worker processes (default to `[myid()]`)
 * `threads` - Number of threads (default to `cpucores()`)
 * `verbose` - Show progress and other information (default to `true`)
 
@@ -65,7 +65,7 @@ function Base.rand(
   data,
   nreals::Int,
   method=nothing;
-  pool=[myid()],
+  workers=[myid()],
   threads=cpucores(),
   verbose=true
 )
@@ -75,7 +75,7 @@ function Base.rand(
   prep = randprep(rng, process, rmethod, setup)
 
   # pool of worker processes
-  pool = CachingPool(pool)
+  pool = CachingPool(workers)
 
   # simulation loop
   reals = if verbose
