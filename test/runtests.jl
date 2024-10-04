@@ -5,7 +5,8 @@ using GeoTables
 using GeoStatsFunctions
 using GeoStatsImages
 using LinearAlgebra
-using Test, StableRNGs, CSV
+using CSV
+using Test, StableRNGs
 
 import ImageQuilting
 import TuringPatterns
@@ -15,7 +16,7 @@ using StratiGraphics: SmoothingProcess, Environment, ExponentialDuration
 datadir = joinpath(@__DIR__, "data")
 
 # list of tests
-testfiles = ["point.jl", "field.jl", "ensembles.jl", "initbuff.jl"]
+testfiles = ["ensembles.jl", "initbuff.jl", "point.jl", "field.jl"]
 
 @testset "GeoStatsProcesses.jl" begin
   for testfile in testfiles
