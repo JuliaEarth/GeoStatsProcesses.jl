@@ -9,11 +9,11 @@ using Random
 using Meshes
 using GeoTables
 
-using GeoStatsBase: initbuff
 using ImageQuilting: iqsim
 
 using GeoStatsProcesses: RandSetup
 using GeoStatsProcesses: QuiltingProcess, DefaultRandMethod
+using GeoStatsProcesses: initbuff
 
 import GeoStatsProcesses: randprep, randsingle
 

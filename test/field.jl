@@ -236,7 +236,7 @@
     LindgrenProcess
     ├─ range: 1.0 m
     ├─ sill: 1.0
-    └─ init: GeoStatsBase.NearestInit()"""
+    └─ init: NearestInit()"""
   end
 
   @testset "QuiltingProcess" begin
@@ -266,7 +266,7 @@
     ├─ inactive: nothing
     ├─ soft: nothing
     ├─ tol: 0.1
-    └─ init: GeoStatsBase.NearestInit()"""
+    └─ init: NearestInit()"""
   end
 
   @testset "TuringProcess" begin

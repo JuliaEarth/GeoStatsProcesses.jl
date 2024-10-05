@@ -23,15 +23,30 @@ using Statistics
 using Distributed
 using LinearAlgebra
 
-using GeoStatsBase: Ensemble, integrate
-using GeoStatsBase: NearestInit, initbuff
+import Distributions: mean, var, cdf, quantile
+import Base: ==
 
 include("units.jl")
 include("ioutils.jl")
+include("ensembles.jl")
+include("initbuff.jl")
 include("processes.jl")
 include("operations.jl")
 
 export
+  # ensembles
+  Ensemble,
+  mean,
+  var,
+  cdf,
+  quantile,
+
+  # initialization
+  InitMethod,
+  NearestInit,
+  ExplicitInit,
+  initbuff,
+
   # point processes
   BinomialProcess,
   ClusterProcess,
