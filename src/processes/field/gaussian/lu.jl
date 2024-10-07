@@ -113,7 +113,7 @@ function randsingle(rng::AbstractRNG, ::GaussianProcess, method::LUMethod, setup
   # simulate first variable
   v₁ = first(vars)
   Y₁, w₁ = _lusim(rng, prep[v₁])
-  varreal = Dict(v₁ => Y₁)
+  varreal = [v₁ => Y₁]
 
   # simulate second variable
   if length(vars) == 2
@@ -123,7 +123,7 @@ function randsingle(rng::AbstractRNG, ::GaussianProcess, method::LUMethod, setup
     push!(varreal, v₂ => Y₂)
   end
 
-  varreal
+  (; varreal...)
 end
 
 #-----------

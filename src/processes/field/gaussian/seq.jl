@@ -107,7 +107,7 @@ function randsingle(rng::AbstractRNG, ::GaussianProcess, method::SEQMethod, setu
   # consider point set with centroids for now
   pointset = PointSet([centroid(dom, ind) for ind in 1:nelements(dom)])
 
-  varreals = map(varnames) do var
+  varreal = map(varnames) do var
     # pre-allocate memory for neighbors
     neighbors = Vector{Int}(undef, maxneighbors)
 
@@ -155,7 +155,7 @@ function randsingle(rng::AbstractRNG, ::GaussianProcess, method::SEQMethod, setu
     var => realization
   end
 
-  Dict(varreals)
+  (; varreal...)
 end
 
 function _scaledomains(setup)

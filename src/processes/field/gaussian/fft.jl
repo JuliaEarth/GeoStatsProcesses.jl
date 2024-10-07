@@ -150,5 +150,5 @@ function randsingle(rng::AbstractRNG, process::GaussianProcess, method::FFTMetho
     var => z
   end
 
-  Dict(varreal)
+  (; varreal...)
 end

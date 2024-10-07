@@ -50,7 +50,7 @@ function randsingle(::AbstractRNG, process::TuringProcess, ::DefaultRandMethod, 
   edge = isnothing(process.edge) ? Clamp() : process.edge()
   iter = process.iter
 
-  pairs = map(setup.vartypes, setup.varnames) do V, var
+  varreal = map(setup.vartypes, setup.varnames) do V, var
     # unpack preprocessed parameters
     patterns = prep[var]
 
@@ -65,7 +65,7 @@ function randsingle(::AbstractRNG, process::TuringProcess, ::DefaultRandMethod, 
     var => vec(real)
   end
 
-  Dict(pairs)
+  (; varreal...)
 end
 
 end

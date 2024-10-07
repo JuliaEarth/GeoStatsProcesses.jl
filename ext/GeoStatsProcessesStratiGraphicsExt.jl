@@ -45,7 +45,7 @@ function randsingle(::AbstractRNG, process::StrataProcess, ::DefaultRandMethod, 
   # retrieve process parameters
   (; environment, stack, nepochs) = process
 
-  pairs = map(setup.varnames) do var
+  varreal = map(setup.varnames) do var
     # get parameters for the variable
     state = prep[var]
 
@@ -64,7 +64,7 @@ function randsingle(::AbstractRNG, process::StrataProcess, ::DefaultRandMethod, 
     var => vec(vals)
   end
 
-  Dict(pairs)
+  (; varreal...)
 end
 
 end

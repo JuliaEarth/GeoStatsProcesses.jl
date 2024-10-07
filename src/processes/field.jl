@@ -53,9 +53,8 @@ function Base.rand(
   setup = randsetup(domain, data, threads)
   rmethod = isnothing(method) ? defaultmethod(process, setup) : method
   prep = randprep(rng, process, rmethod, setup)
-  real = randsingle(rng, process, rmethod, setup, prep)
-  table = (; (var => real[var] for var in setup.varnames)...)
-  georef(table, domain)
+  realization = randsingle(rng, process, rmethod, setup, prep)
+  georef(realization, domain)
 end
 
 function Base.rand(

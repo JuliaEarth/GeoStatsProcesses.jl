@@ -140,7 +140,7 @@ function randsingle(rng::AbstractRNG, ::LindgrenProcess, ::DefaultRandMethod, se
 
   # columns of element table
   cols = Tables.columns(values(edata))
-  Dict(var => Tables.getcolumn(cols, var) for var in varnames)
+  (; (var => Tables.getcolumn(cols, var) for var in varnames)...)
 end
 
 # -----------------
