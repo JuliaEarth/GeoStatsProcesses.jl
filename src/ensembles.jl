@@ -7,28 +7,16 @@
 
 An ensemble of geostatistical realizations from a geostatistical process.
 """
-struct Ensemble{𝒟,ℛ}
-  domain::𝒟
-  reals::ℛ
+struct Ensemble{D,V,T,R,F}
+  domain::D
+  varnames::V
+  vartypes::T
+  reals::R
   nreals::Int
-
-  function Ensemble{𝒟,ℛ}(domain, reals) where {𝒟,ℛ}
-    n = [length(r) for r in reals]
-    @assert length(unique(n)) == 1 "number of realizations must be unique"
-    new(domain, reals, first(n))
-  end
+  fetch::F
 end
 
-Ensemble(domain::𝒟, reals::ℛ) where {𝒟,ℛ} = Ensemble{𝒟,ℛ}(domain, reals)
-
-==(e₁::Ensemble, e₂::Ensemble) = e₁.domain == e₂.domain && e₁.reals == e₂.reals
-
-# -------------
-# VARIABLE API
-# -------------
-
-Base.getindex(e::Ensemble, var::Symbol) = e.reals[var]
-Base.getindex(e::Ensemble, var::AbstractString) = getindex(e, Symbol(var))
+Ensemble(domain, varnames, vartypes, reals; fetch=identity) = Ensemble(domain, varnames, vartypes, reals, length(reals), fetch)
 
 # -------------
 # ITERATOR API
@@ -42,10 +30,10 @@ Base.length(e::Ensemble) = e.nreals
 # --------------
 
 function Base.getindex(e::Ensemble, ind::Int)
-  sdomain = e.domain
-  sreals = pairs(e.reals)
-  idata = (; (var => reals[ind] for (var, reals) in sreals)...)
-  georef(idata, sdomain)
+  domain = e.domain
+  real = e.fetch(e.reals[ind])
+  table = (; (var => real[var] for var in e.varnames)...)
+  georef(table, domain)
 end
 Base.getindex(e::Ensemble, inds::AbstractVector{Int}) = [getindex(e, ind) for ind in inds]
 Base.firstindex(e::Ensemble) = 1
@@ -56,38 +44,40 @@ Base.lastindex(e::Ensemble) = length(e)
 # -----------
 
 function mean(e::Ensemble)
-  mtable = (; (variable => mean(reals) for (variable, reals) in pairs(e.reals))...)
+  reals = map(e.fetch, e.reals)
+  calc(var) = mean(real[var] for real in reals)
+  mtable = (; (var => calc(var) for var in e.varnames)...)
   georef(mtable, e.domain)
 end
 
 function var(e::Ensemble)
-  vtable = (; (variable => var(reals) for (variable, reals) in pairs(e.reals))...)
+  reals = map(e.fetch, e.reals)
+  calc(v) = var([real[v] for real in reals])
+  vtable = (; (v => calc(v) for v in e.varnames)...)
   georef(vtable, e.domain)
 end
 
 function cdf(e::Ensemble, x::Number)
-  cols = []
-  for (var, reals) in pairs(e.reals)
-    vals = map(1:nelements(e.domain)) do ind
-      slice = getindex.(reals, ind)
+  reals = map(e.fetch, e.reals)
+  function calc(var)
+    map(1:nelements(e.domain)) do ind
+      slice = [real[var][ind] for real in reals]
       _cdf(slice, x)
     end
-    push!(cols, var => vals)
   end
-  ctable = (; cols...)
+  ctable = (; (var => calc(var) for var in e.varnames)...)
   georef(ctable, e.domain)
 end
 
 function quantile(e::Ensemble, p::Number)
-  cols = []
-  for (var, reals) in pairs(e.reals)
-    vals = map(1:nelements(e.domain)) do ind
-      slice = getindex.(reals, ind)
+  reals = map(e.fetch, e.reals)
+  function calc(var)
+    map(1:nelements(e.domain)) do ind
+      slice = [real[var][ind] for real in reals]
       quantile(slice, p)
     end
-    push!(cols, var => vals)
   end
-  qtable = (; cols...)
+  qtable = (; (var => calc(var) for var in e.varnames)...)
   georef(qtable, e.domain)
 end
 
@@ -109,10 +99,7 @@ function Base.show(io::IO, e::Ensemble)
 end
 
 function Base.show(io::IO, ::MIME"text/plain", e::Ensemble)
-  names = keys(e.reals)
-  rvals = values(e.reals)
-  types = eltype.(first.(rvals))
-  vars = ["$n ($t)" for (n, t) in zip(names, types)]
+  vars = ["$n ($t)" for (n, t) in zip(e.varnames, e.vartypes)]
   println(io, e)
   println(io, "  domain:    ", e.domain)
   println(io, "  variables: ", join(vars, ", ", " and "))
