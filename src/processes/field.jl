@@ -106,9 +106,7 @@ function Base.rand(
     end
   end
 
-  fetchfun = async ? fetch : identity 
-
-  Ensemble(domain, setup.varnames, reals, fetch=fetchfun)
+  Ensemble(domain, setup.varnames, reals, fetch=async ? fetch : identity)
 end
 
 struct RandSetup{D<:Domain,T}
