@@ -76,7 +76,7 @@ function randprep(::AbstractRNG, process::QuiltingProcess, ::DefaultRandMethod, 
 end
 
 function randsingle(rng::AbstractRNG, process::QuiltingProcess, ::DefaultRandMethod, setup::RandSetup, prep)
-  varreal = map(setup.varnames) do var
+  pairs = map(setup.varnames) do var
     # unpack parameters
     threads = setup.threads
     (; tilesize, path, tol) = process
@@ -102,7 +102,7 @@ function randsingle(rng::AbstractRNG, process::QuiltingProcess, ::DefaultRandMet
     var => vec(vals)
   end
 
-  (; varreal...)
+  (; pairs...)
 end
 
 end

@@ -103,7 +103,7 @@ function randsingle(rng::AbstractRNG, ::LindgrenProcess, ::DefaultRandMethod, se
   (; domain, geotable, varnames, vartypes) = setup
 
   # simulation at vertices
-  varreal = map(varnames, vartypes) do var, V
+  pairs = map(varnames, vartypes) do var, V
     # unpack preprocessed parameters
     (; Q, L, i₁, i₂, z̄) = prep[var]
 
@@ -132,7 +132,7 @@ function randsingle(rng::AbstractRNG, ::LindgrenProcess, ::DefaultRandMethod, se
   end
 
   # vertex table
-  vtable = (; varreal...)
+  vtable = (; pairs...)
 
   # change of support
   vdata = GeoTable(domain; vtable)

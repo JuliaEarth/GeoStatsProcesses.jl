@@ -113,17 +113,17 @@ function randsingle(rng::AbstractRNG, ::GaussianProcess, method::LUMethod, setup
   # simulate first variable
   v₁ = first(vars)
   Y₁, w₁ = _lusim(rng, prep[v₁])
-  varreal = [v₁ => Y₁]
+  pairs = [v₁ => Y₁]
 
   # simulate second variable
   if length(vars) == 2
     ρ = method.correlation
     v₂ = last(vars)
     Y₂, _ = _lusim(rng, prep[v₂], ρ, w₁)
-    push!(varreal, v₂ => Y₂)
+    push!(pairs, v₂ => Y₂)
   end
 
-  (; varreal...)
+  (; pairs...)
 end
 
 #-----------
