@@ -25,7 +25,7 @@ data type.
 * `workers` - Worker processes (default to `[myid()]`)
 * `threads` - Number of threads (default to `cpucores()`)
 * `verbose` - Show progress and other information (default to `true`)
-* `async`   - Evaluate each realization on available `workers` only when requested (default to `false`) 
+* `async`   - Return to master process immediately (default to `false`) 
 
 # Examples
 
