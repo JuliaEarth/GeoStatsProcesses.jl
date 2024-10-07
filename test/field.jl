@@ -29,7 +29,7 @@
     @test_throws ArgumentError GeoStatsProcesses.randsetup(grid, [:a, :b], 1)
   end
 
-  @test "async" begin
+  @testset "async" begin
     rng = StableRNG(2019)
     grid = CartesianGrid(100, 100)
     process = GaussianProcess()
