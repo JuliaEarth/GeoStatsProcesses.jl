@@ -31,6 +31,7 @@
 
   @testset "async" begin
     addprocs(2)
+    
     @everywhere using GeoStatsProcesses, StableRNGs
 
     rng = StableRNG(2019)
