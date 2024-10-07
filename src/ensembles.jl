@@ -29,8 +29,8 @@ Base.length(e::Ensemble) = length(e.reals)
 
 function Base.getindex(e::Ensemble, ind::Int)
   domain = e.domain
-  realization = e.fetch(e.reals[ind])
-  georef(realization, domain)
+  table = e.fetch(e.reals[ind])
+  georef(table, domain)
 end
 Base.getindex(e::Ensemble, inds::AbstractVector{Int}) = [getindex(e, ind) for ind in inds]
 Base.firstindex(e::Ensemble) = 1
