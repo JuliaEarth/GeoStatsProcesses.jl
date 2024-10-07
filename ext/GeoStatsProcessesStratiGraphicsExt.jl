@@ -64,7 +64,7 @@ function randsingle(::AbstractRNG, process::StrataProcess, ::DefaultRandMethod, 
     var => vec(vals)
   end
 
-  Dict(pairs)
+  (; pairs...)
 end
 
 end

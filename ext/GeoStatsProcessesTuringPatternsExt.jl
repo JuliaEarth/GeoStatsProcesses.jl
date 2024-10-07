@@ -65,7 +65,7 @@ function randsingle(::AbstractRNG, process::TuringProcess, ::DefaultRandMethod, 
     var => vec(real)
   end
 
-  Dict(pairs)
+  (; pairs...)
 end
 
 end

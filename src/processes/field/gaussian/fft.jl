@@ -112,7 +112,7 @@ function randsingle(rng::AbstractRNG, process::GaussianProcess, method::FFTMetho
   γ = process.variogram
   μ = process.mean
 
-  varreal = map(setup.vartypes, setup.varnames) do V, var
+  pairs = map(setup.vartypes, setup.varnames) do V, var
     # unpack preprocessed parameters
     (; F, z̄, dinds) = prep[var]
 
@@ -150,5 +150,5 @@ function randsingle(rng::AbstractRNG, process::GaussianProcess, method::FFTMetho
     var => z
   end
 
-  Dict(varreal)
+  (; pairs...)
 end

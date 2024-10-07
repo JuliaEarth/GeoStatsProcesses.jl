@@ -1,6 +1,6 @@
 @testset "Ensembles" begin
   d = PointSet(rand(Point, 100))
-  r = [Dict(:z => 1:100) for _ in 1:10]
+  r = [(; z=1:100) for _ in 1:10]
   s = Ensemble(d, [:z], r)
   for i in 1:10
     @test s[i] == georef((z=1:100,), d)
@@ -11,7 +11,7 @@
         "3D Ensemble\n  domain:    100 PointSet\n  variables: z\n  N° reals:  10"
 
   d = CartesianGrid(10, 10)
-  r = [Dict(:z => 1:100) for _ in 1:10]
+  r = [(; z=1:100) for _ in 1:10]
   s = Ensemble(d, [:z], r)
   for i in 1:10
     @test s[i] == georef((z=1:100,), d)
@@ -22,7 +22,7 @@
         "2D Ensemble\n  domain:    10×10 CartesianGrid\n  variables: z\n  N° reals:  10"
 
   grid = CartesianGrid(3, 3)
-  reals = [Dict(:z => i * ones(nelements(grid))) for i in 1:3]
+  reals = [(; z=i * ones(nelements(grid))) for i in 1:3]
   ensemble = Ensemble(grid, [:z], reals)
 
   # mean

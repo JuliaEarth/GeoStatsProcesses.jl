@@ -102,7 +102,7 @@ function randsingle(rng::AbstractRNG, process::QuiltingProcess, ::DefaultRandMet
     var => vec(vals)
   end
 
-  Dict(pairs)
+  (; pairs...)
 end
 
 end
