@@ -37,6 +37,10 @@
     @test length(sims) == 3
     @test domain(sims[1]) == grid
     @test eltype(sims[1].z) <: Float64
+    @test domain(sims[2]) == grid
+    @test eltype(sims[2].z) <: Float64
+    @test domain(sims[3]) == grid
+    @test eltype(sims[3].z) <: Float64
     # error: passing the master worker when using the `async` option is not allowed
     @test_throws ArgumentError rand(rng, process, grid, :z => Float64, 3, workers=[myid()], async=true)
   end
