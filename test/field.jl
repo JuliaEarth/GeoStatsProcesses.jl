@@ -31,7 +31,7 @@
 
   @testset "async" begin
     addprocs(2)
-    
+
     @everywhere using GeoStatsProcesses, StableRNGs
 
     rng = StableRNG(2019)
@@ -235,7 +235,7 @@
 
     # simulation on sphere
     p = LindgrenProcess(0.1)
-    s = Sphere((0,0,0))
+    s = Sphere((0, 0, 0))
     m = simplexify(s)
     # unconditional realization
     rng = StableRNG(2024)
@@ -245,7 +245,7 @@
     end
     # conditional realization
     rng = StableRNG(2024)
-    d = georef((z=[0.,1.],), [(0,0,-1), (0,0,1)])
+    d = georef((z=[0.0, 1.0],), [(0, 0, -1), (0, 0, 1)])
     r = rand(rng, p, m, d, 3)
     for i in 1:3
       @test isapprox(sum(r[i].z) / length(r[i].z), 0.0, atol=1e-3)
