@@ -78,14 +78,17 @@ function Base.rand(
   realization() = randsingle(rng, process, rmethod, setup, prep)
 
   # pool of worker processes
-  nworkers = length(workers)
   pool = CachingPool(workers)
+
+  # number of realizations and workers
+  nr = nreals
+  nw = length(pool)
 
   # simulation loop
   reals = if async
-    map(1:nreals) do i
-      j = mod1(i, nworkers)
-      @spawnat j realization()
+    map(1:nr) do i
+      w = workers[mod1(i, nw)]
+      @spawnat w realization()
     end
   else
     if verbose
@@ -93,11 +96,11 @@ function Base.rand(
       mname = prettyname(rmethod)
       vname = join(setup.varnames, " ,", " and ")
       message = "$pname with $mname → $vname"
-      @showprogress desc = message pmap(pool, 1:nreals) do _
+      @showprogress desc = message pmap(pool, 1:nr) do _
         realization()
       end
     else
-      pmap(pool, 1:nreals) do _
+      pmap(pool, 1:nr) do _
         realization()
       end
     end
