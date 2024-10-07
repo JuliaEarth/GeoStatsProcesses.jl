@@ -30,6 +30,9 @@
   end
 
   @testset "async" begin
+    addprocs(2)
+    @everywhere using GeoStatsProcesses, StableRNGs
+
     rng = StableRNG(2019)
     grid = CartesianGrid(100, 100)
     process = GaussianProcess()
@@ -43,6 +46,8 @@
     @test eltype(sims[3].z) <: Float64
     # error: passing the master worker when using the `async` option is not allowed
     @test_throws ArgumentError rand(rng, process, grid, :z => Float64, 3, workers=[myid()], async=true)
+
+    rmprocs(workers()...)
   end
 
   @testset "GaussianProcess" begin

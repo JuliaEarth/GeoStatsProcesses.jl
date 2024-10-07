@@ -13,9 +13,6 @@ import ImageQuilting
 import TuringPatterns
 using StratiGraphics: SmoothingProcess, Environment, ExponentialDuration
 
-# for async tests
-addprocs(2)
-
 # environment settings
 datadir = joinpath(@__DIR__, "data")
 
