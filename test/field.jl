@@ -29,6 +29,18 @@
     @test_throws ArgumentError GeoStatsProcesses.randsetup(grid, [:a, :b], 1)
   end
 
+  @test "async" begin
+    rng = StableRNG(2019)
+    grid = CartesianGrid(100, 100)
+    process = GaussianProcess()
+    sims = rand(rng, process, grid, :z => Float64, 3, async=true)
+    @test length(sims) == 3
+    @test domain(sims[1]) == grid
+    @test eltype(sims[1].z) <: Float64
+    # error: passing the master worker when using the `async` option is not allowed
+    @test_throws ArgumentError rand(rng, process, grid, :z => Float64, 3, workers=[myid()], async=true)
+  end
+
   @testset "GaussianProcess" begin
     @testset "defaultmethod" begin
       grid = CartesianGrid(100, 100)

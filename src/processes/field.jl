@@ -22,7 +22,7 @@ data type.
 
 ## Parameters
 
-* `workers` - Worker processes (default to `[myid()]`)
+* `workers` - Worker processes (default to `workers()`)
 * `threads` - Number of threads (default to `cpucores()`)
 * `verbose` - Show progress and other information (default to `true`)
 * `async`   - Return to master process immediately (default to `false`) 
@@ -65,7 +65,7 @@ function Base.rand(
   data,
   nreals::Int,
   method=nothing;
-  workers=[myid()],
+  workers=workers(),
   threads=cpucores(),
   verbose=true,
   async=false
@@ -83,6 +83,10 @@ function Base.rand(
 
   # number of workers
   nworkers = length(pool)
+
+  if async && myid() ∈ workers
+    throw(ArgumentError("passing the master worker when using the `async` option is not allowed"))
+  end
 
   # simulation loop
   reals = if async
