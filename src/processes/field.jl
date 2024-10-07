@@ -66,7 +66,8 @@ function Base.rand(
   method=nothing;
   workers=[myid()],
   threads=cpucores(),
-  verbose=true
+  verbose=true,
+  async=false
 )
   # perform preprocessing step
   setup = randsetup(domain, data, threads)
@@ -77,24 +78,34 @@ function Base.rand(
   realization() = randsingle(rng, process, rmethod, setup, prep)
 
   # pool of worker processes
+  nworkers = length(workers)
   pool = CachingPool(workers)
 
   # simulation loop
-  reals = if verbose
-    pname = prettyname(process)
-    mname = prettyname(rmethod)
-    vname = join(setup.varnames, " ,", " and ")
-    message = "$pname with $mname → $vname"
-    @showprogress desc = message pmap(pool, 1:nreals) do _
-      realization()
+  reals = if async
+    map(1:nreals) do i
+      j = mod1(i, nworkers)
+      @spawnat j realization()
     end
   else
-    pmap(pool, 1:nreals) do _
-      realization()
+    if verbose
+      pname = prettyname(process)
+      mname = prettyname(rmethod)
+      vname = join(setup.varnames, " ,", " and ")
+      message = "$pname with $mname → $vname"
+      @showprogress desc = message pmap(pool, 1:nreals) do _
+        realization()
+      end
+    else
+      pmap(pool, 1:nreals) do _
+        realization()
+      end
     end
   end
 
-  Ensemble(domain, setup.varnames, reals)
+  fetchfun = async ? fetch : identity 
+
+  Ensemble(domain, setup.varnames, reals, fetch=fetchfun)
 end
 
 struct RandSetup{D<:Domain,T}
