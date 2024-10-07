@@ -74,6 +74,9 @@ function Base.rand(
   rmethod = isnothing(method) ? defaultmethod(process, setup) : method
   prep = randprep(rng, process, rmethod, setup)
 
+  # generate a single realization
+  realization() = randsingle(rng, process, rmethod, setup, prep)
+
   # pool of worker processes
   pool = CachingPool(workers)
 
@@ -84,16 +87,15 @@ function Base.rand(
     vname = join(setup.varnames, " ,", " and ")
     message = "$pname with $mname → $vname"
     @showprogress desc = message pmap(pool, 1:nreals) do _
-      randsingle(rng, process, rmethod, setup, prep)
+      realization()
     end
   else
     pmap(pool, 1:nreals) do _
-      randsingle(rng, process, rmethod, setup, prep)
+      realization()
     end
   end
 
-  varreals = (; (var => [real[var] for real in reals] for var in setup.varnames)...)
-  Ensemble(domain, varreals)
+  Ensemble(domain, setup.varnames, reals)
 end
 
 struct RandSetup{D<:Domain,T}

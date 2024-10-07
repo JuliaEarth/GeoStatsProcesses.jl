@@ -99,11 +99,10 @@
       @test eltype(sims₂[1].z) <: Float64
 
       # basic checks
-      reals = sims₁[:z]
       inds = LinearIndices(size(𝒟))
-      @test all(reals[i][inds[25, 25]] == 1.0 for i in 1:N)
-      @test all(reals[i][inds[50, 75]] == 0.0 for i in 1:N)
-      @test all(reals[i][inds[75, 50]] == 1.0 for i in 1:N)
+      @test all(sims₁[i].z[inds[25, 25]] == 1.0 for i in 1:N)
+      @test all(sims₁[i].z[inds[50, 75]] == 0.0 for i in 1:N)
+      @test all(sims₁[i].z[inds[75, 50]] == 1.0 for i in 1:N)
     end
 
     @testset "LUMethod" begin
