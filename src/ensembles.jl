@@ -58,8 +58,8 @@ quantile(e::Ensemble, ps::AbstractVector) = [quantile(e, p) for p in ps]
 function ereduce(f, e)
   function reducevar(var)
     map(1:nelements(e.domain)) do i
-      rowvals = (e.fetch(real)[var][i] for real in e.reals)
-      f(rowvals)
+      vals = (e.fetch(real)[var][i] for real in e.reals)
+      f(vals)
     end
   end
   table = (; (var => reducevar(var) for var in e.vars)...)
