@@ -85,7 +85,7 @@ function Base.rand(
   nworkers = length(pool)
 
   if async && myid() ∈ workers
-    throw(ArgumentError("passing the master worker when using the `async` option is not allowed"))
+    throw(ArgumentError("the `async` option is not allowed when the master process is in the `workers`"))
   end
 
   # simulation loop
