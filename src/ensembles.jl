@@ -118,3 +118,36 @@ function Base.show(io::IO, ::MIME"text/plain", e::Ensemble)
   println(io, "  variables: ", join(vars, ", ", " and "))
   print(io, "  N° reals:  ", e.nreals)
 end
+
+# ---------------
+# ASYNC ENSEMBLE
+# ---------------
+
+struct AsyncEnsemble{D,R}
+  domain::D
+  reals::R
+  nreals::Int
+end
+
+AsyncEnsemble(domain, reals) = AsyncEnsemble(domain, reals, length(reals))
+
+# -------------
+# ITERATOR API
+# -------------
+
+Base.iterate(e::AsyncEnsemble, state=1) = state > e.nreals ? nothing : (e[state], state + 1)
+Base.length(e::AsyncEnsemble) = e.nreals
+
+# --------------
+# INDEXABLE API
+# --------------
+
+function Base.getindex(e::AsyncEnsemble, ind::Int)
+  domain = e.domain
+  real = fetch(e.reals[ind])
+  table = (; (var => real[var] for var in setup.varnames)...)
+  georef(table, domain)
+end
+Base.getindex(e::AsyncEnsemble, inds::AbstractVector{Int}) = [getindex(e, ind) for ind in inds]
+Base.firstindex(e::AsyncEnsemble) = 1
+Base.lastindex(e::AsyncEnsemble) = length(e)

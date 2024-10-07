@@ -67,7 +67,8 @@ function Base.rand(
   method=nothing;
   workers=[myid()],
   threads=cpucores(),
-  verbose=true
+  verbose=true,
+  async=true
 )
   # perform preprocessing step
   setup = randsetup(domain, data, threads)
@@ -78,22 +79,30 @@ function Base.rand(
   pool = CachingPool(workers)
 
   # simulation loop
-  reals = if verbose
-    pname = prettyname(process)
-    mname = prettyname(rmethod)
-    vname = join(setup.varnames, " ,", " and ")
-    message = "$pname with $mname → $vname"
-    @showprogress desc = message pmap(pool, 1:nreals) do _
-      randsingle(rng, process, rmethod, setup, prep)
+  if async
+    reals = map(1:nreals) do _
+      @spawnat :any randsingle(rng, process, rmethod, setup, prep)
     end
-  else
-    pmap(pool, 1:nreals) do _
-      randsingle(rng, process, rmethod, setup, prep)
-    end
-  end
 
-  varreals = (; (var => [real[var] for real in reals] for var in setup.varnames)...)
-  Ensemble(domain, varreals)
+    AsyncEnsemble(domain, reals)
+  else
+    reals = if verbose
+      pname = prettyname(process)
+      mname = prettyname(rmethod)
+      vname = join(setup.varnames, " ,", " and ")
+      message = "$pname with $mname → $vname"
+      @showprogress desc = message pmap(pool, 1:nreals) do _
+        randsingle(rng, process, rmethod, setup, prep)
+      end
+    else
+      pmap(pool, 1:nreals) do _
+        randsingle(rng, process, rmethod, setup, prep)
+      end
+    end
+  
+    varreals = (; (var => [real[var] for real in reals] for var in setup.varnames)...)
+    Ensemble(domain, varreals)
+  end
 end
 
 struct RandSetup{D<:Domain,T}
