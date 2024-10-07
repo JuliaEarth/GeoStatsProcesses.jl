@@ -95,7 +95,7 @@ function Base.rand(
     end
   end
 
-  Ensemble(domain, setup.varnames, setup.vartypes, reals)
+  Ensemble(domain, setup.varnames, reals)
 end
 
 struct RandSetup{D<:Domain,T}
