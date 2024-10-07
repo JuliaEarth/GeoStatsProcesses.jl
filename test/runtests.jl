@@ -5,6 +5,7 @@ using GeoTables
 using GeoStatsFunctions
 using GeoStatsImages
 using LinearAlgebra
+using Distributed
 using CSV
 using Test, StableRNGs
 

@@ -22,9 +22,10 @@ data type.
 
 ## Parameters
 
-* `workers` - Worker processes (default to `[myid()]`)
+* `workers` - Worker processes (default to `workers()`)
 * `threads` - Number of threads (default to `cpucores()`)
 * `verbose` - Show progress and other information (default to `true`)
+* `async`   - Return to master process immediately (default to `false`) 
 
 # Examples
 
@@ -64,9 +65,10 @@ function Base.rand(
   data,
   nreals::Int,
   method=nothing;
-  workers=[myid()],
+  workers=workers(),
   threads=cpucores(),
-  verbose=true
+  verbose=true,
+  async=false
 )
   # perform preprocessing step
   setup = randsetup(domain, data, threads)
@@ -79,22 +81,36 @@ function Base.rand(
   # pool of worker processes
   pool = CachingPool(workers)
 
+  # number of workers
+  nworkers = length(pool)
+
+  if async && myid() ∈ workers
+    throw(ArgumentError("the `async` option is not allowed when the master process is in the `workers`"))
+  end
+
   # simulation loop
-  reals = if verbose
-    pname = prettyname(process)
-    mname = prettyname(rmethod)
-    vname = join(setup.varnames, " ,", " and ")
-    message = "$pname with $mname → $vname"
-    @showprogress desc = message pmap(pool, 1:nreals) do _
-      realization()
+  reals = if async
+    map(1:nreals) do i
+      w = workers[mod1(i, nworkers)]
+      @spawnat w realization()
     end
   else
-    pmap(pool, 1:nreals) do _
-      realization()
+    if verbose
+      pname = prettyname(process)
+      mname = prettyname(rmethod)
+      vname = join(setup.varnames, " ,", " and ")
+      message = "$pname with $mname → $vname"
+      @showprogress desc = message pmap(pool, 1:nreals) do _
+        realization()
+      end
+    else
+      pmap(pool, 1:nreals) do _
+        realization()
+      end
     end
   end
 
-  Ensemble(domain, setup.varnames, reals)
+  Ensemble(domain, setup.varnames, reals, fetch=async ? fetch : identity)
 end
 
 struct RandSetup{D<:Domain,T}

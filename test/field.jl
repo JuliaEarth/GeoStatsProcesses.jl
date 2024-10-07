@@ -29,6 +29,28 @@
     @test_throws ArgumentError GeoStatsProcesses.randsetup(grid, [:a, :b], 1)
   end
 
+  @testset "async" begin
+    addprocs(2)
+
+    @everywhere using GeoStatsProcesses, StableRNGs
+
+    rng = StableRNG(2019)
+    grid = CartesianGrid(100, 100)
+    process = GaussianProcess()
+    sims = rand(rng, process, grid, :z => Float64, 3, async=true)
+    @test length(sims) == 3
+    @test domain(sims[1]) == grid
+    @test eltype(sims[1].z) <: Float64
+    @test domain(sims[2]) == grid
+    @test eltype(sims[2].z) <: Float64
+    @test domain(sims[3]) == grid
+    @test eltype(sims[3].z) <: Float64
+    # error: the `async` option is not allowed when the master process is in the `workers`
+    @test_throws ArgumentError rand(rng, process, grid, :z => Float64, 3, workers=[myid()], async=true)
+
+    rmprocs(workers()...)
+  end
+
   @testset "GaussianProcess" begin
     @testset "defaultmethod" begin
       grid = CartesianGrid(100, 100)
@@ -213,7 +235,7 @@
 
     # simulation on sphere
     p = LindgrenProcess(0.1)
-    s = Sphere((0,0,0))
+    s = Sphere((0, 0, 0))
     m = simplexify(s)
     # unconditional realization
     rng = StableRNG(2024)
@@ -223,7 +245,7 @@
     end
     # conditional realization
     rng = StableRNG(2024)
-    d = georef((z=[0.,1.],), [(0,0,-1), (0,0,1)])
+    d = georef((z=[0.0, 1.0],), [(0, 0, -1), (0, 0, 1)])
     r = rand(rng, p, m, d, 3)
     for i in 1:3
       @test isapprox(sum(r[i].z) / length(r[i].z), 0.0, atol=1e-3)
