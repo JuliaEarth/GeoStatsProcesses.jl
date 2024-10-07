@@ -53,8 +53,8 @@ function Base.rand(
   setup = randsetup(domain, data, threads)
   rmethod = isnothing(method) ? defaultmethod(process, setup) : method
   prep = randprep(rng, process, rmethod, setup)
-  realization = randsingle(rng, process, rmethod, setup, prep)
-  georef(realization, domain)
+  table = randsingle(rng, process, rmethod, setup, prep)
+  georef(table, domain)
 end
 
 function Base.rand(
