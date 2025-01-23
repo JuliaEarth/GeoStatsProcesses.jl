@@ -81,7 +81,7 @@
       # anisotropic simulation
       rng = StableRNG(2019)
       dom = CartesianGrid(100, 100)
-      process = GaussianProcess(GaussianVariogram(MetricBall((20.0, 5.0))))
+      process = GaussianProcess(GaussianVariogram(ranges=(20.0, 5.0)))
       method = FFTMethod()
       sims = rand(rng, process, dom, :z => Float64, 3, method)
 
@@ -200,10 +200,10 @@
 
     @testset "show" begin
       process = GaussianProcess()
-      @test sprint(show, process) == "GaussianProcess(variogram: GaussianVariogram(sill: 1.0, nugget: 0.0, range: 1.0 m, distance: Euclidean), mean: 0.0)"
+      @test sprint(show, process) == "GaussianProcess(variogram: GaussianVariogram(range: 1.0 m, sill: 1.0, nugget: 0.0), mean: 0.0)"
       @test sprint(show, MIME("text/plain"), process) == """
       GaussianProcess
-      ├─ variogram: GaussianVariogram(sill: 1.0, nugget: 0.0, range: 1.0 m, distance: Euclidean)
+      ├─ variogram: GaussianVariogram(range: 1.0 m, sill: 1.0, nugget: 0.0)
       └─ mean: 0.0"""
     end
   end
