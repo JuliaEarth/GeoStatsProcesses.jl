@@ -70,7 +70,7 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::SEQMethod, se
   end
 
   # determine probability model
-  probmodel = GeoStatsModels.SimpleKriging(gamma, mean)
+  probmodel = Kriging(gamma, mean)
   marginal = Normal(mean, √sill(gamma))
 
   # adjust min/max neighbors

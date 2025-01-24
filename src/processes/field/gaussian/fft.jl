@@ -12,6 +12,7 @@ phase of the spectrum, and a realization is produced by an
 inverse Fourier transform.
 
 ## Parameters
+
 * `minneighbors` - Minimum number of neighbors (default to `1`)
 * `maxneighbors` - Maximum number of neighbors (default to `10`)
 * `neighborhood` - Search neighborhood (default to `nothing`)
