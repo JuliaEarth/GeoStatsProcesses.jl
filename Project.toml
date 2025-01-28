@@ -1,7 +1,7 @@
 name = "GeoStatsProcesses"
 uuid = "aa102bde-5a27-4b0c-b2c1-e7a7dcc4c3e7"
 authors = ["Júlio Hoffimann <julio.hoffimann@gmail.com> and contributors"]
-version = "0.8.7"
+version = "0.8.8"
 
 [deps]
 Bessels = "0e736298-9ec6-45e8-9647-e4fc86a2fe38"
@@ -39,7 +39,7 @@ Distributed = "1.9"
 Distributions = "0.25"
 FFTW = "1.7"
 GeoStatsFunctions = "0.9"
-GeoStatsModels = "0.8"
+GeoStatsModels = "0.9"
 GeoTables = "1.21"
 ImageQuilting = "1.0"
 LinearAlgebra = "1.9"
