@@ -16,8 +16,8 @@ The number of realizations `n` can be omitted, in which case the result is a sin
 geotable. If `n` is provided, the result becomes an ensemble with multiple realizations.
 
 Some processes like the [`GaussianProcess`](@ref) can be simulated with alternative
-simulation `method`s from the literature. Other processes can only be simulated with
-a default method.
+simulation `method`s from the literature such as [`LUSIM`](@ref), [`SEQSIM`](@ref)
+and [`FFTSIM`](@ref). Other processes can only be simulated with a default method.
 
 Multiple `workers` created with the `Distributed` standard library can be used for
 parallel simulation. The function can be called `async`hrounously, in which case it
