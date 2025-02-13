@@ -13,9 +13,3 @@ struct UnionProcess{P₁<:PointProcess,P₂<:PointProcess} <: PointProcess
 end
 
 ishomogeneous(p::UnionProcess) = ishomogeneous(p.p₁) && ishomogeneous(p.p₂)
-
-function randsingle(rng::AbstractRNG, p::UnionProcess, g)
-  pp₁ = rand(rng, p.p₁, g)
-  pp₂ = rand(rng, p.p₂, g)
-  PointSet([collect(pp₁); collect(pp₂)])
-end

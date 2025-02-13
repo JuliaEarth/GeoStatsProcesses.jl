@@ -5,7 +5,7 @@
 """
     InitMethod
 
-A method to initialize buffers in geostatistical solvers.
+A method to initialize buffers in geostatistical simulation.
 """
 abstract type InitMethod end
 

@@ -21,17 +21,3 @@ struct ClusterProcess{P<:PointProcess,F<:Function} <: PointProcess
 end
 
 ClusterProcess(p::PointProcess, o::PointProcess, gfun::Function) = ClusterProcess(p, parent -> rand(o, gfun(parent)))
-
-function randsingle(rng::AbstractRNG, p::ClusterProcess, g)
-  # generate parents
-  parents = rand(rng, p.proc, g)
-
-  # generate offsprings
-  offsprings = filter(!isnothing, p.ofun.(parents))
-
-  # intersect with geometry
-  intersects = filter(!isnothing, [o ∩ g for o in offsprings])
-
-  # combine offsprings into single set
-  isempty(intersects) ? nothing : PointSet(mapreduce(collect, vcat, intersects))
-end

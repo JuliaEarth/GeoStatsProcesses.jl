@@ -7,14 +7,13 @@
 
 An ensemble of geostatistical realizations from a geostatistical process.
 """
-struct Ensemble{D,V,R,F}
+struct Ensemble{D,R,F}
   domain::D
-  vars::V
   reals::R
   fetch::F
 end
 
-Ensemble(domain, vars, reals; fetch=identity) = Ensemble(domain, vars, reals, fetch)
+Ensemble(domain, reals; fetch=identity) = Ensemble(domain, reals, fetch)
 
 # -------------
 # ITERATOR API
@@ -50,9 +49,27 @@ quantile(e::Ensemble, p::Number) = ereduce(vals -> quantile(vals, p), e)
 
 quantile(e::Ensemble, ps::AbstractVector) = [quantile(e, p) for p in ps]
 
+# -----------
+# IO METHODS
+# -----------
+
+function Base.show(io::IO, e::Ensemble)
+  dim = embeddim(e.domain)
+  print(io, "$(dim)D Ensemble")
+end
+
+function Base.show(io::IO, ::MIME"text/plain", e::Ensemble)
+  println(io, e)
+  println(io, "  domain:    ", e.domain)
+  println(io, "  variables: ", join(evars(e), ", ", " and "))
+  print(io, "  N° reals:  ", length(e))
+end
+
 # -----------------
 # HELPER FUNCTIONS
 # -----------------
+
+evars(e) = e.reals |> first |> Tables.columns |> Tables.columnnames
 
 function ereduce(f, e)
   function reducevar(var)
@@ -61,22 +78,6 @@ function ereduce(f, e)
       f(vals)
     end
   end
-  table = (; (var => reducevar(var) for var in e.vars)...)
+  table = (; (var => reducevar(var) for var in evars(e))...)
   georef(table, e.domain)
-end
-
-# -----------
-# IO METHODS
-# -----------
-
-function Base.show(io::IO, e::Ensemble)
-  N = embeddim(e.domain)
-  print(io, "$(N)D Ensemble")
-end
-
-function Base.show(io::IO, ::MIME"text/plain", e::Ensemble)
-  println(io, e)
-  println(io, "  domain:    ", e.domain)
-  println(io, "  variables: ", join(e.vars, ", ", " and "))
-  print(io, "  N° reals:  ", length(e))
 end

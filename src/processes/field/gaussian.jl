@@ -5,7 +5,7 @@
 """
     GaussianProcess(function, mean=0.0)
 
-Gaussian process with given geostatistical `function` and global `mean`.
+Gaussian process with given geostatistical `function` (e.g. variogram) and `mean`.
 
 ## Examples
 

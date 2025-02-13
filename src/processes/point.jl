@@ -16,22 +16,6 @@ Tells whether or not the spatial point process `process` is homogeneous.
 """
 ishomogeneous(process::PointProcess) = false
 
-"""
-    rand([rng], process::PointProcess, geometry, [nreals])
-    rand([rng], process::PointProcess, domain, [nreals])
-
-Generate one or `nreals` realizations of the point `process` inside
-`geometry` or `domain`. Optionally specify the random number generator
-`rng`.
-"""
-Base.rand(process::PointProcess, geomdom) = rand(Random.default_rng(), process, geomdom)
-
-Base.rand(process::PointProcess, geomdom, nreals::Int) = rand(Random.default_rng(), process, geomdom, nreals)
-
-Base.rand(rng::AbstractRNG, process::PointProcess, geomdom) = randsingle(rng, process, geomdom)
-
-Base.rand(rng::AbstractRNG, process::PointProcess, geomdom, nreals::Int) = [randsingle(rng, process, geomdom) for _ in 1:nreals]
-
 #-----------------
 # IMPLEMENTATIONS
 #-----------------

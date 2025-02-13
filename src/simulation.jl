@@ -172,3 +172,10 @@ function defaultmethod(process::GaussianProcess, domain, data)
     SEQSIM()
   end
 end
+
+# ----------------
+# IMPLEMENTATIONS
+# ----------------
+
+include("simulation/point.jl")
+include("simulation/field.jl")
