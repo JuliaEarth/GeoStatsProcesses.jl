@@ -53,20 +53,15 @@
 
   @testset "GaussianProcess" begin
     @testset "defaultmethod" begin
+      process = GaussianProcess()
       grid = CartesianGrid(100, 100)
       vgrid = view(grid, 1:1000)
       pset1 = PointSet(rand(Point, 1000))
       pset2 = PointSet(rand(Point, 10000))
-
-      process = GaussianProcess()
-      setup = GeoStatsProcesses.randsetup(grid, :z => Float64, 1)
-      @test GeoStatsProcesses.defaultmethod(process, setup) isa FFTMethod
-      setup = GeoStatsProcesses.randsetup(vgrid, :z => Float64, 1)
-      @test GeoStatsProcesses.defaultmethod(process, setup) isa FFTMethod
-      setup = GeoStatsProcesses.randsetup(pset1, :z => Float64, 1)
-      @test GeoStatsProcesses.defaultmethod(process, setup) isa LUMethod
-      setup = GeoStatsProcesses.randsetup(pset2, :z => Float64, 1)
-      @test GeoStatsProcesses.defaultmethod(process, setup) isa SEQMethod
+      @test GeoStatsProcesses.defaultmethod(process, grid, nothing) isa FFTMethod
+      @test GeoStatsProcesses.defaultmethod(process, vgrid, nothing) isa FFTMethod
+      @test GeoStatsProcesses.defaultmethod(process, pset1, nothing) isa LUMethod
+      @test GeoStatsProcesses.defaultmethod(process, pset2, nothing) isa SEQMethod
     end
 
     @testset "FFTMethod" begin

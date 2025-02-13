@@ -27,25 +27,23 @@ import Distributions: mean, var, cdf, quantile
 import Base: ==
 
 include("utils.jl")
-include("ioutils.jl")
-include("ensembles.jl")
 include("initbuff.jl")
+include("ensembles.jl")
 include("processes.jl")
 include("operations.jl")
+include("simulation.jl")
 
 export
+  # initialization
+  NearestInit,
+  ExplicitInit,
+
   # ensembles
   Ensemble,
   mean,
   var,
   cdf,
   quantile,
-
-  # initialization
-  InitMethod,
-  NearestInit,
-  ExplicitInit,
-  initbuff,
 
   # point processes
   BinomialProcess,
@@ -55,20 +53,20 @@ export
   UnionProcess,
   ishomogeneous,
 
-  # point operations
-  RandomThinning,
-  thin,
-
   # field processes
   GaussianProcess,
   LindgrenProcess,
   QuiltingProcess,
   TuringProcess,
-  StrataProcess,
+  StrataProcess
 
-  # field methods
-  LUMethod,
-  FFTMethod,
-  SEQMethod
+  # point operations
+  RandomThinning,
+  thin,
+
+  # field simulation
+  LUSIM,
+  SEQSIM,
+  FFTSIM
 
 end

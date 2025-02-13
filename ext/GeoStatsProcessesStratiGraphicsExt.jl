@@ -9,12 +9,11 @@ using Meshes
 
 using StratiGraphics: LandState, Strata, simulate, voxelize
 
-using GeoStatsProcesses: RandSetup
-using GeoStatsProcesses: StrataProcess, DefaultRandMethod
+using GeoStatsProcesses: StrataProcess, DefaultSimulation
 
-import GeoStatsProcesses: randprep, randsingle
+import GeoStatsProcesses: preprocess, randsingle
 
-function randprep(::AbstractRNG, process::StrataProcess, ::DefaultRandMethod, setup::RandSetup)
+function preprocess(::AbstractRNG, process::StrataProcess, ::DefaultSimulation, domain, data)
   # retrieve domain info
   domain = setup.domain
 
@@ -37,7 +36,7 @@ function randprep(::AbstractRNG, process::StrataProcess, ::DefaultRandMethod, se
   Dict(pairs)
 end
 
-function randsingle(::AbstractRNG, process::StrataProcess, ::DefaultRandMethod, setup::RandSetup, prep)
+function randsingle(::AbstractRNG, process::StrataProcess, ::DefaultSimulation, domain, data, preproc)
   # retrieve domain info
   domain = setup.domain
   _, __, nz = size(domain)

@@ -5,56 +5,66 @@
 """
     FieldProcess <: GeoStatsProcess
 
-Parent type of all field processes.
+A field process (a.k.a. stochastic random field) is defined over a
+fixed geospatial domain. The realizations of the process are stored
+in an ensemble, which is an indexable collection of geotables.
 """
 abstract type FieldProcess <: GeoStatsProcess end
 
 """
-    rand([rng], process::FieldProcess, domain, data, [nreals], [method]; [options])
+    rand([rng], process::FieldProcess, domain, [n];
+         data=nothing, method=nothing,
+         workers=workers(), async=false,
+         showprogress=true)
 
-Generate one or `nreals` realizations of the field `process` with `method`
-over the `domain` with `data` and optional `paramaters`. Optionally, specify
-the random number generator `rng` and global `options`.
+Simulate `n` random realizations of the field `process` over the geospatial `domain`,
+using the random number generator `rng`. If a geotable is provided as `data`, perform
+conditional simulation, ensuring that all realizations match the `data` values.
 
-The `data` can be a geotable, a pair, or an iterable of pairs of the form `var => T`,
-where `var` is a symbol or string with the variable name and `T` is the corresponding
-data type.
+The number of realizations `n` can be omitted, in which case the result is a single
+geotable. If `n` is provided, the result becomes an ensemble with multiple realizations.
 
-## Options
+Some processes like the [`GaussianProcess`](@ref) can be simulated with alternative
+simulation `method`s from the literature. Other processes can only be simulated with
+a default method.
 
-* `workers` - Worker processes (default to `workers()`)
-* `threads` - Number of threads (default to `cpucores()`)
-* `verbose` - Show progress and other information (default to `true`)
-* `async`   - Return to master process immediately (default to `false`) 
+Multiple `workers` created with the `Distributed` standard library can be used for
+parallel simulation. The function can be called `async`hrounously, in which case it
+returns immediately for online consumption of realizations in a loop. The option
+`showprogress` can be used to show a progress bar with estimated time of conclusion.
 
-# Examples
+## Examples
 
 ```julia
-julia> rand(process, domain, geotable, 3)
-julia> rand(process, domain, :z => Float64)
-julia> rand(process, domain, "z" => Float64)
-julia> rand(process, domain, [:a => Float64, :b => Float64])
-julia> rand(process, domain, ["a" => Float64, "b" => Float64])
+rand(process, domain) # single realization as geotable
+rand(process, domain, data=data) # conditional simulation
+rand(process, domain, 3) # ensemble of realizations
+rand(process, domain, 10, data=data) # ensemble of realizations
+rand(rng, process, domain, 3) # specify random number generator
 ```
 """
-Base.rand(process::FieldProcess, domain::Domain, data, method=nothing; kwargs...) =
-  rand(Random.default_rng(), process, domain, data, method; kwargs...)
+Base.rand(process::FieldProcess, domain::Domain; kwargs...) =
+  rand(Random.default_rng(), process, domain; kwargs...)
 
-Base.rand(process::FieldProcess, domain::Domain, data, nreals::Int, method=nothing; kwargs...) =
-  rand(Random.default_rng(), process, domain, data, nreals, method; kwargs...)
+Base.rand(process::FieldProcess, domain::Domain, nreals::Int; kwargs...) =
+  rand(Random.default_rng(), process, domain, nreals; kwargs...)
 
 function Base.rand(
-  rng::AbstractRNG, 
-  process::FieldProcess, 
-  domain::Domain, 
-  data, 
-  method=nothing; 
-  threads=cpucores()
+  rng::AbstractRNG,
+  process::FieldProcess,
+  domain::Domain;
+  data=nothing,
+  method=nothing,
+  kwargs...
 )
-  setup = randsetup(domain, data, threads)
-  rmethod = isnothing(method) ? defaultmethod(process, setup) : method
-  prep = randprep(rng, process, rmethod, setup)
-  table = randsingle(rng, process, rmethod, setup, prep)
+  # perform processing step
+  smethod = isnothing(method) ? defaultmethod(process, domain, data) : method
+  preproc = preprocess(rng, process, smethod, domain, data)
+
+  # simulate a single realization
+  table = randsingle(rng, process, smethod, preproc)
+
+  # return geotable
   georef(table, domain)
 end
 
@@ -62,21 +72,18 @@ function Base.rand(
   rng::AbstractRNG,
   process::FieldProcess,
   domain::Domain,
-  data,
-  nreals::Int,
-  method=nothing;
+  nreals::Int;
   workers=workers(),
-  threads=cpucores(),
-  verbose=true,
-  async=false
+  async=false,
+  showprogress=true,
+  kwargs...
 )
   # perform preprocessing step
-  setup = randsetup(domain, data, threads)
-  rmethod = isnothing(method) ? defaultmethod(process, setup) : method
-  prep = randprep(rng, process, rmethod, setup)
+  smethod = isnothing(method) ? defaultmethod(process, domain, data) : method
+  preproc = preprocess(rng, process, smethod, domain, data)
 
-  # generate a single realization
-  realization() = randsingle(rng, process, rmethod, setup, prep)
+  # simulate a single realization
+  realization() = randsingle(rng, process, smethod, preproc)
 
   # pool of worker processes
   pool = CachingPool(workers)
@@ -95,11 +102,10 @@ function Base.rand(
       @spawnat w realization()
     end
   else
-    if verbose
+    if showprogress
       pname = prettyname(process)
-      mname = prettyname(rmethod)
-      vname = join(setup.varnames, " ,", " and ")
-      message = "$pname with $mname → $vname"
+      mname = prettyname(smethod)
+      message = "$pname with $mname"
       @showprogress desc = message pmap(pool, 1:nreals) do _
         realization()
       end
@@ -110,34 +116,8 @@ function Base.rand(
     end
   end
 
-  Ensemble(domain, setup.varnames, reals, fetch=async ? fetch : identity)
+  # Ensemble(domain, setup.varnames, reals, fetch=async ? fetch : identity)
 end
-
-struct RandSetup{D<:Domain,T}
-  domain::D
-  geotable::T
-  varnames::Vector{Symbol}
-  vartypes::Vector{DataType}
-  threads::Int
-end
-
-function randsetup(domain::Domain, data, threads)
-  geotable, names, types = _extract(data)
-  RandSetup(domain, geotable, collect(names), collect(types), threads)
-end
-
-function _extract(geotable::AbstractGeoTable)
-  schema = Tables.schema(values(geotable))
-  geotable, schema.names, schema.types
-end
-
-_extract(pair::Pair{Symbol,DataType}) = nothing, [first(pair)], [last(pair)]
-_extract(pair::Pair{T,DataType}) where {T<:AbstractString} = nothing, [Symbol(first(pair))], [last(pair)]
-
-_extract(pairs) = _extract(eltype(pairs), pairs)
-_extract(::Type{Pair{Symbol,DataType}}, pairs) = nothing, first.(pairs), last.(pairs)
-_extract(::Type{Pair{T,DataType}}, pairs) where {T<:AbstractString} = nothing, Symbol.(first.(pairs)), last.(pairs)
-_extract(::Type, pairs) = throw(ArgumentError("the data argument must be a geotable, a pair, or an iterable of pairs"))
 
 #-----------------
 # IMPLEMENTATIONS

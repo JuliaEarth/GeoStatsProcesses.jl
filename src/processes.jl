@@ -9,27 +9,6 @@ A geostatistical process that can be simulated with the `rand` function.
 """
 abstract type GeoStatsProcess end
 
-"""
-    RandMethod
-
-A `rand` method for geostatistical processes.
-"""
-abstract type RandMethod end
-
-"""
-    DefaultRandMethod()
-
-Default `rand` method used by some geostatistical processes.
-"""
-struct DefaultRandMethod <: RandMethod end
-
-"""
-    defaultmethod(process, setup) -> RandMethod
-
-Returns the default method for the `process` and `setup`.
-"""
-defaultmethod(process, setup) = DefaultRandMethod()
-
 # ----------------
 # IMPLEMENTATIONS
 # ----------------

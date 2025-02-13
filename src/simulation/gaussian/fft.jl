@@ -2,48 +2,7 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
-"""
-    FFTMethod(; [options])
-
-The FFT Gaussian process method introduced by Gutjahr 1997.
-The covariance function is perturbed in the frequency domain
-after a fast Fourier transform. White noise is added to the
-phase of the spectrum, and a realization is produced by an
-inverse Fourier transform.
-
-## Options
-
-* `minneighbors` - Minimum number of neighbors (default to `1`)
-* `maxneighbors` - Maximum number of neighbors (default to `10`)
-* `neighborhood` - Search neighborhood (default to `nothing`)
-* `distance`     - Distance used to find nearest neighbors (default to `Euclidean()`)
-
-## References
-
-* Gutjahr 1997. [General joint conditional simulations using a fast
-  Fourier transform method](https://link.springer.com/article/10.1007/BF02769641)
-
-* Gómez-Hernández, J. & Srivastava, R. 2021. [One Step at a Time: The Origins
-  of Sequential Simulation and Beyond](https://link.springer.com/article/10.1007/s11004-021-09926-0)
-
-### Notes
-
-The method is limited to simulations on regular grids, and care must be
-taken to make sure that the correlation length is small enough compared to
-the grid size. As a general rule of thumb, avoid correlation lengths greater
-than 1/3 of the grid.
-
-Visual artifacts can appear near the boundaries of the grid if the correlation
-length is large compared to the grid itself.
-"""
-@kwdef struct FFTMethod{N,D} <: RandMethod
-  minneighbors::Int = 1
-  maxneighbors::Int = 10
-  neighborhood::N = nothing
-  distance::D = Euclidean()
-end
-
-function randprep(::AbstractRNG, process::GaussianProcess, method::FFTMethod, setup::RandSetup)
+function preprocess(::AbstractRNG, process::GaussianProcess, method::FFTSIM, domain, data)
   # retrive function and mean
   f = process.func
   μ = process.mean
@@ -100,7 +59,7 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::FFTMethod, se
   Dict(pairs)
 end
 
-function randsingle(rng::AbstractRNG, process::GaussianProcess, method::FFTMethod, setup::RandSetup, prep)
+function randsingle(rng::AbstractRNG, process::GaussianProcess, method::FFTSIM, domain, data)
   # retrieve domain info
   dom = setup.domain
   data = setup.geotable

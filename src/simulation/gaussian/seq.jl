@@ -2,63 +2,13 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
-"""
-    SEQMethod(; [options])
-
-The sequential process method introduced by Gomez-Hernandez 1993.
-It traverses all locations of the geospatial domain according to a path,
-approximates the conditional Gaussian distribution within a neighborhood
-using simple Kriging, and assigns a value to the center of the neighborhood
-by sampling from this distribution.
-
-## Options
-
-* `path`         - Process path (default to `LinearPath()`)
-* `minneighbors` - Minimum number of neighbors (default to `1`)
-* `maxneighbors` - Maximum number of neighbors (default to `36`)
-* `neighborhood` - Search neighborhood (default to `:range`)
-* `distance`     - Distance used to find nearest neighbors (default to `Euclidean()`)
-* `init`         - Data initialization method (default to `NearestInit()`)
-
-For each location in the process `path`, a maximum number of
-neighbors `maxneighbors` is used to fit the conditional Gaussian
-distribution. The neighbors are searched according to a `neighborhood`.
-
-The `neighborhood` can be a `MetricBall`, the symbol `:range` or `nothing`.
-The symbol `:range` is converted to `MetricBall(range(f))` where `f` is the
-geostatistical function of the Gaussian process. If `neighborhood` is `nothing`,
-the nearest neighbors are used without additional constraints.
-
-## References
-
-* Gomez-Hernandez & Journel 1993. [Joint Sequential Simulation of
-  MultiGaussian Fields](https://link.springer.com/chapter/10.1007/978-94-011-1739-5_8)
-
-### Notes
-
-This method is very sensitive to the neighbor search options.
-Care must be taken to make sure that enough neighbors are used
-in the underlying Kriging model.
-"""
-@kwdef struct SEQMethod{P,N,D,I} <: RandMethod
-  path::P = LinearPath()
-  minneighbors::Int = 1
-  maxneighbors::Int = 36 # 6x6 grid cells
-  neighborhood::N = :range
-  distance::D = Euclidean()
-  init::I = NearestInit()
-end
-
-function randprep(::AbstractRNG, process::GaussianProcess, method::SEQMethod, setup::RandSetup)
-  # retrieve options
-  (; minneighbors, maxneighbors, neighborhood, distance) = method
-
+function preprocess(::AbstractRNG, process::GaussianProcess, method::SEQSIM, domain, data)
   # function and mean
   f = process.func
   μ = process.mean
 
   # scale domains for numerical stability
-  finv, dom, data = _scaledomains(setup)
+  finv, dom, data = _scaledomains(domain, data)
 
   # scale function accordingly
   f̄ = GeoStatsFunctions.scale(f, finv)
@@ -97,7 +47,7 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::SEQMethod, se
   (; dom, data, probmodel, marginal, minneighbors, maxneighbors, searcher)
 end
 
-function randsingle(rng::AbstractRNG, ::GaussianProcess, method::SEQMethod, setup::RandSetup, prep)
+function randsingle(rng::AbstractRNG, ::GaussianProcess, method::SEQSIM, domain, data)
   # retrieve parameters
   (; path, init) = method
   (; varnames, vartypes) = setup
@@ -161,9 +111,9 @@ function randsingle(rng::AbstractRNG, ::GaussianProcess, method::SEQMethod, setu
   (; pairs...)
 end
 
-function _scaledomains(setup)
-  sdom = setup.domain
-  sdat = setup.geotable
+function _scaledomains(domain, data)
+  sdom = domain
+  sdat = data
   fdom = _scalefactor(sdom)
   fdat = isnothing(sdat) ? 1 : _scalefactor(domain(sdat))
   fmax = max(fdom, fdat)
