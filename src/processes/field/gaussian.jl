@@ -3,16 +3,23 @@
 # ------------------------------------------------------------------
 
 """
-    GaussianProcess(variogram=GaussianVariogram(), mean=0.0)
+    GaussianProcess(function, mean=0.0)
 
-Gaussian process with given theoretical `variogram` and global `mean`.
+Gaussian process with given geostatistical `function` and global `mean`.
+
+## Examples
+
+```
+GaussianProcess(GaussianVariogram())
+GaussianProcess(SphericalCovariance(), 0.5)
+```
 """
-struct GaussianProcess{V,T} <: FieldProcess
-  variogram::V
+struct GaussianProcess{F,T} <: FieldProcess
+  func::F
   mean::T
 end
 
-GaussianProcess(variogram) = GaussianProcess(variogram, 0.0)
+GaussianProcess(func) = GaussianProcess(func, 0.0)
 GaussianProcess() = GaussianProcess(GaussianVariogram(), 0.0)
 
 #---------
@@ -24,11 +31,11 @@ include("gaussian/fft.jl")
 include("gaussian/seq.jl")
 
 function defaultmethod(process::GaussianProcess, setup::RandSetup)
-  γ = process.variogram
+  f = process.func
   d = setup.domain
   p = parent(d)
   b = boundingbox(p)
-  if p isa Grid && range(γ) ≤ minimum(sides(b)) / 3
+  if p isa Grid && range(f) ≤ minimum(sides(b)) / 3
     FFTMethod()
   elseif nelements(d) < 100 * 100
     LUMethod()

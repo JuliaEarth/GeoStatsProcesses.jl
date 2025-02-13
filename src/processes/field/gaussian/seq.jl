@@ -25,9 +25,9 @@ neighbors `maxneighbors` is used to fit the conditional Gaussian
 distribution. The neighbors are searched according to a `neighborhood`.
 
 The `neighborhood` can be a `MetricBall`, the symbol `:range` or `nothing`.
-The symbol `:range` is converted to `MetricBall(range(γ))` where `γ` is the
-variogram of the Gaussian process. If `neighborhood` is `nothing`, the nearest
-neighbors are used without additional constraints.
+The symbol `:range` is converted to `MetricBall(range(f))` where `f` is the
+geostatistical function of the Gaussian process. If `neighborhood` is `nothing`,
+the nearest neighbors are used without additional constraints.
 
 ## References
 
@@ -36,9 +36,9 @@ neighbors are used without additional constraints.
 
 ### Notes
 
-* This method is very sensitive to the various parameters.
-  Care must be taken to make sure that enough neighbors
-  are used in the underlying Kriging model.
+This method is very sensitive to the neighbor search options.
+Care must be taken to make sure that enough neighbors are used
+in the underlying Kriging model.
 """
 @kwdef struct SEQMethod{P,N,D,I} <: RandMethod
   path::P = LinearPath()
@@ -50,28 +50,31 @@ neighbors are used without additional constraints.
 end
 
 function randprep(::AbstractRNG, process::GaussianProcess, method::SEQMethod, setup::RandSetup)
-  # retrieve paramaters
-  (; variogram, mean) = process
+  # retrieve options
   (; minneighbors, maxneighbors, neighborhood, distance) = method
+
+  # function and mean
+  f = process.func
+  μ = process.mean
 
   # scale domains for numerical stability
   finv, dom, data = _scaledomains(setup)
 
-  # scale variogram model accordingly
-  gamma = GeoStatsFunctions.scale(variogram, finv)
+  # scale function accordingly
+  f̄ = GeoStatsFunctions.scale(f, finv)
 
   # scale neighborhood accordingly
   neigh = if neighborhood isa MetricBall
     finv * neighborhood
   elseif neighborhood == :range
-    MetricBall(range(gamma))
+    MetricBall(range(f̄))
   else
     nothing
   end
 
   # determine probability model
-  probmodel = Kriging(gamma, mean)
-  marginal = Normal(mean, √sill(gamma))
+  probmodel = Kriging(f̄, μ)
+  marginal = Normal(μ, √sill(f̄))
 
   # adjust min/max neighbors
   nobs = nelements(dom)

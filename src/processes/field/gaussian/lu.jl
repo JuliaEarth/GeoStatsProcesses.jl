@@ -27,12 +27,12 @@ Gaussian are drawn via LU factorization.
 
 ### Notes
 
-* The method is only adequate for domains with relatively small
-  number of elements (e.g. 100x100 grids) where it is feasible to
-  factorize the full covariance.
+The method is only adequate for domains with relatively small
+number of elements (e.g. 100x100 grids) where it is feasible to
+factorize the full covariance.
 
-* For larger domains (e.g. 3D grids), other methods are preferred
-  such as [`SEQMethod`](@ref) and [`FFTMethod`](@ref).
+For larger domains (e.g. 3D grids), other methods are preferred
+such as [`SEQMethod`](@ref) and [`FFTMethod`](@ref).
 """
 @kwdef struct LUMethod{F,C,I} <: FieldProcess
   factorization::F = cholesky
@@ -49,10 +49,10 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::LUMethod, set
   @assert nvars ∈ (1, 2) "only 1 or 2 variables can be simulated simultaneously"
 
   # check process paramaters
-  _checkparam(process.variogram, nvars)
+  _checkparam(process.func, nvars)
   _checkparam(process.mean, nvars)
 
-  # retrieve method parameters
+  # retrieve method options
   fact = method.factorization
   init = method.init
 
@@ -63,11 +63,11 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::LUMethod, set
   # preprocess parameters for individual variables
   pairs = map(enumerate(varnames)) do (i, var)
     # get variable specific parameters
-    γ = _getparam(process.variogram, i)
+    f = _getparam(process.func, i)
     μ = _getparam(process.mean, i)
 
     # check stationarity
-    @assert isstationary(γ) "variogram model must be stationary"
+    @assert isstationary(f) "geostatistical function must be stationary"
 
     # retrieve data locations and data values in domain
     dlocs = findall(mask[var])
@@ -80,19 +80,16 @@ function randprep(::AbstractRNG, process::GaussianProcess, method::LUMethod, set
     𝒟d = [centroid(domain, i) for i in dlocs]
     𝒟s = [centroid(domain, i) for i in slocs]
 
-    # retrieve total sill
-    s = ustrip(sill(γ))
-
     # covariance between simulation locations
-    C₂₂ = s .- GeoStatsFunctions.pairwise(γ, 𝒟s)
+    C₂₂ = _pairwise(f, 𝒟s)
 
     if isempty(dlocs)
       d₂ = zero(eltype(z₁))
       L₂₂ = fact(Symmetric(C₂₂)).L
     else
       # covariance beween data locations
-      C₁₁ = s .- GeoStatsFunctions.pairwise(γ, 𝒟d)
-      C₁₂ = s .- GeoStatsFunctions.pairwise(γ, 𝒟d, 𝒟s)
+      C₁₁ = _pairwise(f, 𝒟d)
+      C₁₂ = _pairwise(f, 𝒟d, 𝒟s)
 
       L₁₁ = fact(Symmetric(C₁₁)).L
       B₁₂ = L₁₁ \ C₁₂

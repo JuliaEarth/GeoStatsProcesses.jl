@@ -200,10 +200,10 @@
 
     @testset "show" begin
       process = GaussianProcess()
-      @test sprint(show, process) == "GaussianProcess(variogram: GaussianVariogram(range: 1.0 m, sill: 1.0, nugget: 0.0), mean: 0.0)"
+      @test sprint(show, process) == "GaussianProcess(func: GaussianVariogram(range: 1.0 m, sill: 1.0, nugget: 0.0), mean: 0.0)"
       @test sprint(show, MIME("text/plain"), process) == """
       GaussianProcess
-      ├─ variogram: GaussianVariogram(range: 1.0 m, sill: 1.0, nugget: 0.0)
+      ├─ func: GaussianVariogram(range: 1.0 m, sill: 1.0, nugget: 0.0)
       └─ mean: 0.0"""
     end
   end
