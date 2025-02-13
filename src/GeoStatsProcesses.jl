@@ -58,7 +58,7 @@ export
   LindgrenProcess,
   QuiltingProcess,
   TuringProcess,
-  StrataProcess
+  StrataProcess,
 
   # point operations
   RandomThinning,

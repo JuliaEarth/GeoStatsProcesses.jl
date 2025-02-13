@@ -70,7 +70,7 @@ function preprocess(::AbstractRNG, process::LindgrenProcess, method::DefaultSimu
   Dict(pairs)
 end
 
-function randsingle(rng::AbstractRNG, ::LindgrenProcess, ::DefaultRandMethod, setup::RandSetup, prep)
+function randsingle(rng::AbstractRNG, ::LindgrenProcess, ::DefaultSimulation, domain, data, preproc)
   # retrieve setup paramaters
   (; domain, geotable, varnames, vartypes) = setup
 
