@@ -6,8 +6,11 @@
     rand([rng], process::PointProcess, geometry, [n])
     rand([rng], process::PointProcess, domain, [n])
 
-Simulate `n` realizations of the point `process` inside `geometry` or `domain`.
-Optionally specify the random number generator `rng`.
+Simulate `n` realizations of the point `process` inside `geometry` or `domain`
+using the random number generator `rng`.
+
+The number of realizations `n` can be omitted, in which case the result is a single
+point set. If `n` is provided, the result becomes a vector with multiple realizations.
 """
 Base.rand(process::PointProcess, geomdom) = rand(Random.default_rng(), process, geomdom)
 
