@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------
 
 """
-    FFTMethod(; [paramaters])
+    FFTMethod(; [options])
 
 The FFT Gaussian process method introduced by Gutjahr 1997.
 The covariance function is perturbed in the frequency domain
@@ -11,7 +11,7 @@ after a fast Fourier transform. White noise is added to the
 phase of the spectrum, and a realization is produced by an
 inverse Fourier transform.
 
-## Parameters
+## Options
 
 * `minneighbors` - Minimum number of neighbors (default to `1`)
 * `maxneighbors` - Maximum number of neighbors (default to `10`)

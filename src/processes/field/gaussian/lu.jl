@@ -3,14 +3,14 @@
 # ------------------------------------------------------------------
 
 """
-    LUMethod(; [paramaters])
+    LUMethod(; [options])
 
 The LU Gaussian process method introduced by Alabert 1987.
 The full covariance matrix is built to include all locations
 of the process domain, and samples from the multivariate
 Gaussian are drawn via LU factorization.
 
-## Parameters
+## Options
 
 * `factorization` - Factorization method (default to `cholesky`)
 * `correlation`   - Correlation coefficient between two covariates (default to `0`)

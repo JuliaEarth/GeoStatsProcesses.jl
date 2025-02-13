@@ -10,17 +10,17 @@ Parent type of all field processes.
 abstract type FieldProcess <: GeoStatsProcess end
 
 """
-    rand([rng], process::FieldProcess, domain, data, [nreals], [method]; [parameters])
+    rand([rng], process::FieldProcess, domain, data, [nreals], [method]; [options])
 
 Generate one or `nreals` realizations of the field `process` with `method`
 over the `domain` with `data` and optional `paramaters`. Optionally, specify
-the random number generator `rng` and global `parameters`.
+the random number generator `rng` and global `options`.
 
 The `data` can be a geotable, a pair, or an iterable of pairs of the form `var => T`,
 where `var` is a symbol or string with the variable name and `T` is the corresponding
 data type.
 
-## Parameters
+## Options
 
 * `workers` - Worker processes (default to `workers()`)
 * `threads` - Number of threads (default to `cpucores()`)

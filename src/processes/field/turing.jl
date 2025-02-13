@@ -3,11 +3,11 @@
 # ------------------------------------------------------------------
 
 """
-    TuringProcess(; [paramaters])
+    TuringProcess(; [options])
 
 Turing process as described in Turing 1952.
 
-## Parameters
+## Options
 
 * `params` - basic parameters (default to `nothing`)
 * `blur`   - blur algorithm (default to `nothing`)

@@ -3,12 +3,12 @@
 # ------------------------------------------------------------------
 
 """
-    QuiltingProcess(trainimg, tilesize; [paramaters])
+    QuiltingProcess(trainimg, tilesize; [options])
 
 Image quilting process with training image `trainimg` and tile size `tilesize`
 as described in Hoffimann et al. 2017.
 
-## Parameters
+## Options
 
 * `overlap`  - Overlap size (default to (1/6, 1/6, ..., 1/6))
 * `path`     - Process path (`:raster` (default), `:dilation`, or `:random`)

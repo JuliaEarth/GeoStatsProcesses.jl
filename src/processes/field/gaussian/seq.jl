@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------
 
 """
-    SEQMethod(; [paramaters])
+    SEQMethod(; [options])
 
 The sequential process method introduced by Gomez-Hernandez 1993.
 It traverses all locations of the geospatial domain according to a path,
@@ -11,7 +11,7 @@ approximates the conditional Gaussian distribution within a neighborhood
 using simple Kriging, and assigns a value to the center of the neighborhood
 by sampling from this distribution.
 
-## Parameters
+## Options
 
 * `path`         - Process path (default to `LinearPath()`)
 * `minneighbors` - Minimum number of neighbors (default to `1`)

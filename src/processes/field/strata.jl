@@ -3,12 +3,12 @@
 # ------------------------------------------------------------------
 
 """
-    StrataProcess(environment; [paramaters])
+    StrataProcess(environment; [options])
 
 Strata process with given geological `environment`
 as described in Hoffimann 2018.
 
-## Parameters
+## Options
 
 * `state`       - Initial geological state
 * `stack`       - Stacking scheme (:erosional or :depositional)
