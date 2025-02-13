@@ -15,6 +15,11 @@ function preprocess(::AbstractRNG, process::LindgrenProcess, method::DefaultSimu
   @assert 𝓁 > zero(𝓁) "range must be positive"
   @assert σ > zero(σ) "sill must be positive"
 
+  # initialize buffers
+  pset = PointSet(vertices(domain))
+  vars = Dict(zip(varnames, vartypes))
+  buff, mask = initbuff(pset, vars, init, data=data)
+
   # Laplace-Beltrami operator
   W = laplacematrix(domain)
   M = measurematrix(domain)
@@ -36,11 +41,6 @@ function preprocess(::AbstractRNG, process::LindgrenProcess, method::DefaultSimu
   # factorization
   F = cholesky(Array(Q))
   L = inv(Array(F.U))
-
-  # initialize buffers for realizations and simulation mask
-  pset = PointSet(vertices(domain))
-  vars = Dict(zip(varnames, vartypes))
-  buff, mask = initbuff(pset, vars, init, data=geotable)
 
   # result of preprocessing
   pairs = map(varnames) do var
@@ -71,13 +71,10 @@ function preprocess(::AbstractRNG, process::LindgrenProcess, method::DefaultSimu
 end
 
 function randsingle(rng::AbstractRNG, ::LindgrenProcess, ::DefaultSimulation, domain, data, preproc)
-  # retrieve setup paramaters
-  (; domain, geotable, varnames, vartypes) = setup
-
   # simulation at vertices
   pairs = map(varnames, vartypes) do var, V
     # unpack preprocessed parameters
-    (; Q, L, i₁, i₂, z̄) = prep[var]
+    (; Q, L, i₁, i₂, z̄) = preproc[var]
 
     # unconditional realization
     w = randn(rng, V, nvertices(domain))
@@ -119,8 +116,8 @@ end
 # HELPER FUNCTIONS
 # -----------------
 
-# Integrate geospatial `data` for variables `vars` over geometries of
-# given `rank`. Default rank is the parametric dimension of the
+# Integrate geospatial `data` for variables `vars` over geometries
+# of given `rank`. Default rank is the parametric dimension of the
 # underlying geospatial domain.
 function _integrate(t::AbstractGeoTable, vars...; rank=nothing)
   # domain and vertex table

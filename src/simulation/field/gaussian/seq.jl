@@ -47,11 +47,10 @@ function preprocess(::AbstractRNG, process::GaussianProcess, method::SEQSIM, dom
   (; dom, data, probmodel, marginal, minneighbors, maxneighbors, searcher)
 end
 
-function randsingle(rng::AbstractRNG, ::GaussianProcess, method::SEQSIM, domain, data)
+function randsingle(rng::AbstractRNG, ::GaussianProcess, method::SEQSIM, domain, data, preproc)
   # retrieve parameters
   (; path, init) = method
-  (; varnames, vartypes) = setup
-  (; dom, data, probmodel, marginal, minneighbors, maxneighbors, searcher) = prep
+  (; dom, data, probmodel, marginal, minneighbors, maxneighbors, searcher) = preproc
 
   # initialize buffers for realization and simulation mask
   vars = Dict(zip(varnames, vartypes))
