@@ -16,17 +16,16 @@ Initialize buffers for all variables `vars` with given `method`
 based on the location of elements in `domain` and (optionally) `data`.
 """
 function initbuff(domain, vars, method::InitMethod; data=nothing)
-  nelem = nelements(domain)
-  buff = Dict(var => Vector{V}(undef, nelem) for (var, V) in pairs(vars))
-  mask = Dict(var => falses(nelem) for (var, V) in pairs(vars))
+  nelm = nelements(domain)
+  buff = Dict(var => Vector{V}(undef, nelm) for (var, V) in pairs(vars))
+  mask = Dict(var => falses(nelm) for (var, V) in pairs(vars))
 
   if !isnothing(data)
     ivars = keys(vars)
     dvars = setdiff(propertynames(data), [:geometry])
     preproc = preprocess(data, domain, method)
     for var in ivars ∩ dvars
-      table = values(data)
-      cols = Tables.columns(table)
+      cols = Tables.columns(values(data))
       vals = Tables.getcolumn(cols, var)
       initbuff!(buff[var], mask[var], vals, method, preproc)
     end
