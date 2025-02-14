@@ -113,9 +113,9 @@ end
 """
     randinit(process, domain, data; init=NearestInit())
 
-Initialize realization (geotable) based on the field `process`,
-the geospatial `domain` and the geospatial `data`. Optionally,
-specify an `init`alization method.
+Initialize attribute table of realization based on the field `process`,
+the geospatial `domain` and the geospatial `data`. Optionally, specify
+an `init`alization method.
 """
 function randinit(process::FieldProcess, domain, data; init=NearestInit())
   # retrieve appropriate schema

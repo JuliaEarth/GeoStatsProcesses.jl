@@ -15,10 +15,15 @@ function preprocess(::AbstractRNG, process::LindgrenProcess, method::DefaultSimu
   @assert 𝓁 > zero(𝓁) "range must be positive"
   @assert σ > zero(σ) "sill must be positive"
 
-  # initialize buffers
+  # initialize realization and mask
   pset = PointSet(vertices(domain))
-  vars = Dict(zip(varnames, vartypes))
-  buff, mask = initbuff(pset, vars, init, data=data)
+  real, mask = randinit(process, pset, data, init=init)
+
+  # multivariate simulation is not supported
+  @assert length(keys(real)) == 1 "Lindgren's process does not support multivariate simulation"
+
+  # retrieve variable name
+  var = first(keys(real))
 
   # Laplace-Beltrami operator
   W = laplacematrix(domain)
@@ -42,74 +47,62 @@ function preprocess(::AbstractRNG, process::LindgrenProcess, method::DefaultSimu
   F = cholesky(Array(Q))
   L = inv(Array(F.U))
 
-  # result of preprocessing
-  pairs = map(varnames) do var
-    # retrieve buffer and mask for variable
-    z = buff[var]
-    m = mask[var]
+  # realization and mask for (single) variable
+  z = real[var]
+  m = mask[var]
 
-    # retrieve data locations and data values
-    i₁ = findall(m)
-    z₁ = view(z, i₁)
+  # retrieve data locations and data values
+  i₁ = findall(m)
+  z₁ = view(z, i₁)
 
-    # retrieve simulation locations
-    i₂ = setdiff(1:nvertices(domain), i₁)
+  # retrieve simulation locations
+  i₂ = setdiff(1:nvertices(domain), i₁)
 
-    # interpolate at simulation locations if necessary
-    z̄ = if isempty(i₁)
-      nothing
-    else
-      z[i₂] .= -Q[i₂,i₂] \ (Q[i₂,i₁] * z₁)
-      z
-    end
-
-    # save preprocessed inputs for variable
-    var => (; Q, L, i₁, i₂, z̄)
+  # interpolate at simulation locations if necessary
+  z̄ = if isempty(i₁)
+    nothing
+  else
+    z[i₂] .= -Q[i₂,i₂] \ (Q[i₂,i₁] * z₁)
+    z
   end
 
-  Dict(pairs)
+  (; var, Q, L, i₁, i₂, z̄)
 end
 
 function randsingle(rng::AbstractRNG, ::LindgrenProcess, ::DefaultSimulation, domain, data, preproc)
-  # simulation at vertices
-  pairs = map(varnames, vartypes) do var, V
-    # unpack preprocessed parameters
-    (; Q, L, i₁, i₂, z̄) = preproc[var]
+  # unpack preprocessed parameters
+  (; var, Q, L, i₁, i₂, z̄) = preproc
 
-    # unconditional realization
-    w = randn(rng, V, nvertices(domain))
-    zᵤ = L * w
+  # unconditional realization at vertices
+  w = randn(rng, eltype(L), size(L, 2))
+  zᵤ = L * w
 
-    # perform conditioning if necessary
-    z = if isempty(i₁)
-      zᵤ # we are all set
-    else
-      # view realization at data locations
-      zᵤ₁ = view(zᵤ, i₁)
+  # perform conditioning if necessary
+  z = if isempty(i₁)
+    zᵤ # we are all set
+  else
+    # view realization at data locations
+    zᵤ₁ = view(zᵤ, i₁)
 
-      # interpolate at simulation locations
-      z̄ᵤ = similar(zᵤ)
-      zᵤ₂ = -Q[i₂,i₂] \ (Q[i₂,i₁] * zᵤ₁)
-      z̄ᵤ[i₁] .= zᵤ₁
-      z̄ᵤ[i₂] .= zᵤ₂
+    # interpolate at simulation locations
+    z̄ᵤ = similar(zᵤ)
+    zᵤ₂ = -Q[i₂,i₂] \ (Q[i₂,i₁] * zᵤ₁)
+    z̄ᵤ[i₁] .= zᵤ₁
+    z̄ᵤ[i₂] .= zᵤ₂
 
-      # add residual field
-      z̄ .+ (zᵤ .- z̄ᵤ)
-    end
-
-    var => z
+    # add residual field
+    z̄ .+ (zᵤ .- z̄ᵤ)
   end
 
   # vertex table
-  vtable = (; pairs...)
+  vtable = (; var => z)
 
   # change of support
   vdata = GeoTable(domain; vtable)
-  edata = _integrate(vdata, varnames...)
+  edata = _integrate(vdata, var)
 
-  # columns of element table
-  cols = Tables.columns(values(edata))
-  (; (var => Tables.getcolumn(cols, var) for var in varnames)...)
+  # return attribute table
+  values(edata)
 end
 
 # -----------------
