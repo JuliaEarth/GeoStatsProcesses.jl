@@ -99,7 +99,6 @@ function randsingle(rng::AbstractRNG, process::GaussianProcess, method::SEQSIM, 
           ndom = view(pointset, ninds)
           nmat = view(realization, :, ninds)
           ntab = (; zip(vars, eachrow(nmat))...)
-          # ntab = (; vars[1] => nmat[1,:])
           georef(ntab, ndom)
         end
 
