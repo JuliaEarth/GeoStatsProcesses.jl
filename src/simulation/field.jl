@@ -161,7 +161,7 @@ include("field/lindgren.jl")
 
 Default schema of realizations of field `process`.
 """
-function defaultschema end
+defaultschema(::FieldProcess) = Tables.Schema((:Z,), (Float64,))
 
 function defaultschema(process::GaussianProcess)
   nvars = nvariates(process.func)
@@ -170,14 +170,10 @@ function defaultschema(process::GaussianProcess)
   Tables.Schema(names, types)
 end
 
-defaultschema(::LindgrenProcess) = Tables.Schema((:Z,), (Float64,))
-
 function defaultschema(process::QuiltingProcess)
   table = process.trainimg |> values
   table |> Tables.columns |> Tables.schema
 end
-
-defaultschema(::TuringProcess) = Tables.Schema((:Z,), (Float64,))
 
 """
     defaultsimulation(process, domain)
