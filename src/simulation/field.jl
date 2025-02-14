@@ -177,6 +177,8 @@ function defaultschema(process::QuiltingProcess)
   table |> Tables.columns |> Tables.schema
 end
 
+defaultschema(::TuringProcess) = Tables.Schema((:Z,), (Float64,))
+
 """
     defaultsimulation(process, domain)
 
