@@ -64,10 +64,11 @@ function Base.rand(
   process::FieldProcess,
   domain::Domain,
   nreals::Int;
+  data=nothing,
+  method=nothing,
   workers=workers(),
   async=false,
   showprogress=true,
-  kwargs...
 )
   # perform preprocessing step
   smethod = isnothing(method) ? defaultsimulation(process, domain) : method
