@@ -4,9 +4,8 @@
 
 """
     rand([rng], process::FieldProcess, domain, [n];
-         data=nothing, method=nothing,
-         workers=workers(), async=false,
-         showprogress=true)
+         data=nothing, method=nothing, init=NearestInit(),
+         workers=workers(), async=false, showprogress=true)
 
 Simulate `n` random realizations of the field `process` over the geospatial `domain`,
 using the random number generator `rng`. If a geotable is provided as `data`, perform
@@ -18,6 +17,10 @@ geotable. If `n` is provided, the result becomes an ensemble with multiple reali
 Some processes like the [`GaussianProcess`](@ref) can be simulated with alternative
 simulation `method`s from the literature such as [`LUSIM`](@ref), [`SEQSIM`](@ref)
 and [`FFTSIM`](@ref). Other processes can only be simulated with a default method.
+
+In the presence of `data`, the realizations are initialized with a `init`ialization
+method. By default, the data is assigned to the nearest geometry of the simulation
+domain.
 
 Multiple `workers` created with the `Distributed` standard library can be used for
 parallel simulation. The function can be called `async`hrounously, in which case it
@@ -46,11 +49,12 @@ function Base.rand(
   domain::Domain;
   data=nothing,
   method=nothing,
+  init=NearestInit(),
   kwargs...
 )
   # perform processing step
   smethod = isnothing(method) ? defaultsimulation(process, domain) : method
-  preproc = preprocess(rng, process, smethod, domain, data)
+  preproc = preprocess(rng, process, smethod, init, domain, data)
 
   # simulate a single realization
   table = randsingle(rng, process, smethod, domain, data, preproc)
@@ -66,13 +70,14 @@ function Base.rand(
   nreals::Int;
   data=nothing,
   method=nothing,
+  init=NearestInit(),
   workers=workers(),
   async=false,
   showprogress=true,
 )
   # perform preprocessing step
   smethod = isnothing(method) ? defaultsimulation(process, domain) : method
-  preproc = preprocess(rng, process, smethod, domain, data)
+  preproc = preprocess(rng, process, smethod, init, domain, data)
 
   # simulate a single realization
   realization() = randsingle(rng, process, smethod, domain, data, preproc)
@@ -112,13 +117,13 @@ function Base.rand(
 end
 
 """
-    randinit(process, domain, data; init=NearestInit())
+    randinit(process, domain, data, init)
 
 Initialize attribute table of realization based on the field `process`,
-the geospatial `domain` and the geospatial `data`. Optionally, specify
-an `init`alization method.
+the geospatial `domain` and the geospatial `data` using an `init`ialization
+method.
 """
-function randinit(process::FieldProcess, domain, data; init=NearestInit())
+function randinit(process::FieldProcess, domain, data, init)
   # retrieve appropriate schema
   schema = isnothing(data) ? defaultschema(process) : dataschema(data) 
 

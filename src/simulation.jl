@@ -10,13 +10,11 @@ A method for simulating geostatistical processes.
 abstract type SimulationMethod end
 
 """
-    DefaultSimulation(init=NearestInit())
+    DefaultSimulation()
 
-Default simulation method with given data `init`ialization.
+Default method used for simulation of geostatistical processes.
 """
-@kwdef struct DefaultSimulation{I<:InitMethod} <: SimulationMethod
-  init::I = NearestInit()
-end
+struct DefaultSimulation <: SimulationMethod end
 
 """
     LUSIM(; [options])
@@ -25,13 +23,11 @@ The LU simulation method introduced by Alabert 1987.
 
 The full covariance matrix is built to include all locations
 of the data, and samples from the multivariate Gaussian are
-drawn via LU factorization.
+drawn via a lower-upper (LU) matrix factorization.
 
 ## Options
 
-* `factorization` - Factorization method (default to `cholesky`)
-* `correlation`   - Correlation coefficient between two covariates (default to `0`)
-* `init`          - Data initialization method (default to `NearestInit()`)
+`factorization` - Factorization method (default to `cholesky`)
 
 ## References
 
@@ -51,10 +47,8 @@ factorize the full covariance.
 For larger domains (e.g. 3D grids), other methods are preferred
 such as [`SEQSIM`](@ref) and [`FFTSIM`](@ref).
 """
-@kwdef struct LUSIM{F,C,I} <: SimulationMethod
+@kwdef struct LUSIM{F} <: SimulationMethod
   factorization::F = cholesky
-  correlation::C = 0.0
-  init::I = NearestInit()
 end
 
 """
@@ -71,10 +65,9 @@ neighborhood by sampling from this distribution.
 
 * `path`         - Process path (default to `LinearPath()`)
 * `minneighbors` - Minimum number of neighbors (default to `1`)
-* `maxneighbors` - Maximum number of neighbors (default to `36`)
+* `maxneighbors` - Maximum number of neighbors (default to `26`)
 * `neighborhood` - Search neighborhood (default to `:range`)
 * `distance`     - Distance used to find nearest neighbors (default to `Euclidean()`)
-* `init`         - Data initialization method (default to `NearestInit()`)
 
 For each location in the process `path`, a maximum number of
 neighbors `maxneighbors` is used to fit the conditional Gaussian
@@ -96,13 +89,12 @@ This method is very sensitive to the neighbor search options.
 Care must be taken to make sure that enough neighbors are used
 in the underlying geostatistical model.
 """
-@kwdef struct SEQSIM{P,N,D,I} <: SimulationMethod
+@kwdef struct SEQSIM{P,N,D} <: SimulationMethod
   path::P = LinearPath()
   minneighbors::Int = 1
-  maxneighbors::Int = 36 # 6x6 grid cells
+  maxneighbors::Int = 26
   neighborhood::N = :range
   distance::D = Euclidean()
-  init::I = NearestInit()
 end
 
 """
@@ -118,9 +110,10 @@ inverse Fourier transform.
 ## Options
 
 * `minneighbors` - Minimum number of neighbors (default to `1`)
-* `maxneighbors` - Maximum number of neighbors (default to `10`)
+* `maxneighbors` - Maximum number of neighbors (default to `26`)
 * `neighborhood` - Search neighborhood (default to `nothing`)
 * `distance`     - Distance used to find nearest neighbors (default to `Euclidean()`)
+* `nthreads`     - Number of threads used in underlying FFT (default to `cpucores()`)
 
 ## References
 
@@ -142,9 +135,10 @@ length is large compared to the grid itself.
 """
 @kwdef struct FFTSIM{N,D} <: SimulationMethod
   minneighbors::Int = 1
-  maxneighbors::Int = 10
+  maxneighbors::Int = 26
   neighborhood::N = nothing
   distance::D = Euclidean()
+  nthreads::Int = cpucores()
 end
 
 # ----------------

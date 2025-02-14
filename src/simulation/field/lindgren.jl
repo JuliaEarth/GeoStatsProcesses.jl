@@ -2,13 +2,10 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
-function preprocess(::AbstractRNG, process::LindgrenProcess, method::DefaultSimulation, domain, data)
+function preprocess(::AbstractRNG, process::LindgrenProcess, method::DefaultSimulation, init, domain, data)
   # process parameters
   𝓁 = process.range
   σ = process.sill
-
-  # method parameters
-  init = method.init
 
   # sanity checks
   @assert domain isa Mesh "domain must be a `Mesh`"
@@ -17,7 +14,7 @@ function preprocess(::AbstractRNG, process::LindgrenProcess, method::DefaultSimu
 
   # initialize realization and mask
   pset = PointSet(vertices(domain))
-  real, mask = randinit(process, pset, data, init=init)
+  real, mask = randinit(process, pset, data, init)
 
   # multivariate simulation is not supported
   @assert length(keys(real)) == 1 "Lindgren's process does not support multivariate simulation"
@@ -70,7 +67,7 @@ function preprocess(::AbstractRNG, process::LindgrenProcess, method::DefaultSimu
 end
 
 function randsingle(rng::AbstractRNG, ::LindgrenProcess, ::DefaultSimulation, domain, data, preproc)
-  # unpack preprocessed parameters
+  # unpack preprocessing results
   (; var, Q, L, i₁, i₂, z̄) = preproc
 
   # unconditional realization at vertices
