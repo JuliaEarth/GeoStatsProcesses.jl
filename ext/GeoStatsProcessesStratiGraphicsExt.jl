@@ -9,61 +9,52 @@ using Meshes
 
 using StratiGraphics: LandState, Strata, simulate, voxelize
 
-using GeoStatsProcesses: StrataProcess, DefaultSimulation
+using GeoStatsProcesses: StrataProcess
+using GeoStatsProcesses: DefaultSimulation
 
 import GeoStatsProcesses: preprocess, randsingle
 
-function preprocess(::AbstractRNG, process::StrataProcess, ::DefaultSimulation, domain, data)
-  # retrieve domain info
-  domain = setup.domain
+function preprocess(::AbstractRNG, process::StrataProcess, ::DefaultSimulation, init, domain, data)
+  # sanity checks
+  @assert paramdim(domain) == 3 "Stratigraphy process only implemented for 3D domains"
+  @assert isnothing(data) "Stratigraphy process does not support conditional simulation"
 
-  @assert embeddim(domain) == 3 "process implemented for 3D domain only"
-
-  pairs = map(setup.varnames) do var
-    # determine initial state
-    state = if isnothing(process.state)
-      nx, ny, _ = size(domain)
-      land = zeros(nx, ny)
-      LandState(land)
-    else
-      process.state
-    end
-
-    # save preprocessed input
-    var => state
+  # determine initial state
+  state = if isnothing(process.state)
+    nx, ny, _ = size(domain)
+    land = zeros(nx, ny)
+    LandState(land)
+  else
+    process.state
   end
 
-  Dict(pairs)
+  state
 end
 
 function randsingle(::AbstractRNG, process::StrataProcess, ::DefaultSimulation, domain, data, preproc)
-  # retrieve domain info
-  domain = setup.domain
-  _, __, nz = size(domain)
+  # unpack preprocessed results
+  state = preproc
 
-  # retrieve process parameters
+  # process parameters
   (; environment, stack, nepochs) = process
 
-  pairs = map(setup.varnames) do var
-    # get parameters for the variable
-    state = prep[var]
+  # retrieve domain size
+  _, __, nz = size(domain)
 
-    # simulate the environment
-    record = simulate(environment, state, nepochs)
+  # simulate the environment
+  record = simulate(environment, state, nepochs)
 
-    # build stratigraphy
-    strata = Strata(record, stack)
+  # build stratigraphy
+  strata = Strata(record, stack)
 
-    # return voxel model
-    model = voxelize(strata, nz)
+  # return voxel model
+  model = voxelize(strata, nz)
 
-    # replace NaN with missing
-    vals = [isnan(v) ? missing : v for v in model]
-    # flatten result
-    var => vec(vals)
-  end
+  # replace NaN with missing
+  vals = [isnan(v) ? missing : v for v in model]
 
-  (; pairs...)
+  # flatten result
+  (; Z=vec(vals))
 end
 
 end

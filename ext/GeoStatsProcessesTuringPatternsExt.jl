@@ -52,10 +52,10 @@ function randsingle(::AbstractRNG, process::TuringProcess, ::DefaultSimulation, 
   for _ in 1:iter
     step!(sim)
   end
-  real = scale01(sim.fluid)
+  vals = scale01(sim.fluid)
 
   # flatten result
-  (; Z=vec(real))
+  (; Z=vec(vals))
 end
 
 end

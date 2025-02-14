@@ -165,7 +165,7 @@ defaultschema(::FieldProcess) = Tables.Schema((:Z,), (Float64,))
 
 function defaultschema(process::GaussianProcess)
   nvars = nvariates(process.func)
-  names = ntuple(i -> Symbol(:Z, i), nvars)
+  names = nvars > 1 ? ntuple(i -> Symbol(:Z, i), nvars) : (:Z,)
   types = ntuple(i -> Float64, nvars)
   Tables.Schema(names, types)
 end
