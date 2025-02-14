@@ -27,7 +27,7 @@ drawn via a lower-upper (LU) matrix factorization.
 
 ## Options
 
-`factorization` - Factorization method (default to `cholesky`)
+`factorization` - Factorization function from LinearAlgebra (default to `cholesky`)
 
 ## References
 

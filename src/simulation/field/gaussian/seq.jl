@@ -59,6 +59,9 @@ function randsingle(rng::AbstractRNG, process::GaussianProcess, method::SEQSIM, 
   # retrieve preprocessing results
   (; dom, dat, init, probmodel, marginal, minneighbors, maxneighbors, searcher) = preproc
 
+  # process parameters
+  func = process.func
+
   # method options
   path = method.path
 
@@ -67,6 +70,11 @@ function randsingle(rng::AbstractRNG, process::GaussianProcess, method::SEQSIM, 
 
   # retrieve variable names
   vars = keys(real)
+
+  # sanity checks
+  if length(vars) != nvariates(func)
+    throw(ArgumentError("incompatible number of variables for geostatistical function"))
+  end
 
   # consider point set with centroids for now
   pointset = PointSet([centroid(dom, ind) for ind in 1:nelements(dom)])
