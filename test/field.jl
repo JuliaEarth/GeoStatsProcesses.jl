@@ -1,34 +1,4 @@
 @testset "FieldProcess" begin
-  @testset "data argument" begin
-    grid = CartesianGrid(10, 10)
-    gtb = georef((; z=rand(100)), grid)
-    # geotable
-    setup = GeoStatsProcesses.randsetup(grid, gtb, 1)
-    @test setup.geotable == gtb
-    @test setup.varnames == [:z]
-    @test setup.vartypes == [Float64]
-    # pair
-    setup = GeoStatsProcesses.randsetup(grid, :z => Float64, 1)
-    @test isnothing(setup.geotable)
-    @test setup.varnames == [:z]
-    @test setup.vartypes == [Float64]
-    setup = GeoStatsProcesses.randsetup(grid, "z" => Float64, 1)
-    @test isnothing(setup.geotable)
-    @test setup.varnames == [:z]
-    @test setup.vartypes == [Float64]
-    # iterable of pairs
-    setup = GeoStatsProcesses.randsetup(grid, [:a => Float64, :b => Int], 1)
-    @test isnothing(setup.geotable)
-    @test setup.varnames == [:a, :b]
-    @test setup.vartypes == [Float64, Int]
-    setup = GeoStatsProcesses.randsetup(grid, ["a" => Float64, "b" => Int], 1)
-    @test isnothing(setup.geotable)
-    @test setup.varnames == [:a, :b]
-    @test setup.vartypes == [Float64, Int]
-    # error: invalid iterator
-    @test_throws ArgumentError GeoStatsProcesses.randsetup(grid, [:a, :b], 1)
-  end
-
   @testset "async" begin
     addprocs(2)
 
@@ -64,7 +34,7 @@
       @test GeoStatsProcesses.defaultsimulation(process, pset2) isa SEQSIM
     end
 
-    @testset "FFTMethod" begin
+    @testset "FFTSIM" begin
       # isotropic simulation
       rng = StableRNG(2019)
       dom = CartesianGrid(100, 100)
@@ -101,7 +71,7 @@
       sim = rand(rng, process, sdomain, samples, method)
     end
 
-    @testset "SEQMethod" begin
+    @testset "SEQSIM" begin
       𝒮 = georef((; z=[1.0, 0.0, 1.0]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
       𝒟 = CartesianGrid((100, 100), (0.5, 0.5), (1.0, 1.0))
       N = 3
@@ -122,7 +92,7 @@
       @test all(sims₁[i].z[inds[75, 50]] == 1.0 for i in 1:N)
     end
 
-    @testset "LUMethod" begin
+    @testset "LUSIM" begin
       𝒮 = georef((; z=[0.0, 1.0, 0.0, 1.0, 0.0]), [(0.0,), (25.0,), (50.0,), (75.0,), (100.0,)])
       𝒟 = CartesianGrid(100)
 
