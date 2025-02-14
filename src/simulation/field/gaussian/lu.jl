@@ -2,109 +2,125 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
-function preprocess(::AbstractRNG, process::GaussianProcess, method::LUSIM, domain, data)
+function preprocess(::AbstractRNG, process::GaussianProcess, method::LUSIM, init, domain, data)
   # process parameters
   f = process.func
   μ = process.mean
 
   # method options
-  fact = method.factorization
-  init = method.init
-
-  # variable names
-  vars = if isnothing(data)
-    ntuple(i -> Symbol(:Z, i), nvariates(f))
-  else
-    data |> values |> Tables.columns |> Tables.columnnames
-  end
+  factorization = method.factorization
 
   # sanity checks
-  if length(vars) != nvariates(f)
-    throw(ArgumentError("incompatible number of variables for geostatistical function"))
+  isvalid(f) = isstationary(f) && issymmetric(f) && isbanded(f)
+  if !isvalid(f)
+    throw(ArgumentError("""
+      LUSIM requires a geostatistical function that is stationary, symmetric and banded.
+      Covariances or composite functions of covariances satisfy these properties.
+    """))
   end
 
-  # initialize buffers for realizations and simulation mask
-  buff, mask = initbuff(domain, vars, init, data=data)
+  # initialize realization and mask
+  real, mask = randinit(process, domain, data, init)
 
-  # preprocess parameters for individual variables
-  pairs = map(enumerate(varnames)) do (i, var)
-    # get variable specific parameters
-    f = _getparam(process.func, i)
-    μ = _getparam(process.mean, i)
+  # variable names
+  vars = keys(real)
 
-    # check stationarity
-    @assert isstationary(f) "geostatistical function must be stationary"
+  # sanity checks
+  @assert length(vars) == nvariates(f) "incompatible number of variables for geostatistical function"
+  @assert length(vars) ∈ (1, 2) "LUSIM only supports univariate and bivariate simulation"
 
-    # retrieve data locations and data values in domain
+  # number of variables
+  nvars = length(vars)
+
+  # preprocess parameters for variable
+  preproc = map(1:nvars) do j
+    # current variable
+    var = vars[j]
+
+    # retrieve data and simulation locations
     dlocs = findall(mask[var])
-    z₁ = view(buff[var], dlocs)
-
-    # retrieve simulation locations
     slocs = setdiff(1:nelements(domain), dlocs)
 
-    # create views of the domain
-    𝒟d = [centroid(domain, i) for i in dlocs]
-    𝒟s = [centroid(domain, i) for i in slocs]
+    # data for variable
+    z₁ = view(real[var], dlocs)
+
+    # centroids for data and simulation locations
+    ddom = [centroid(domain, i) for i in dlocs]
+    sdom = [centroid(domain, i) for i in slocs]
+
+    # marginalize function into covariance for variable
+    cov = nvars > 1 ? _marginalize(f, j) : f
 
     # covariance between simulation locations
-    C₂₂ = _pairwise(f, 𝒟s)
+    C₂₂ = _pairwise(cov, sdom)
 
     if isempty(dlocs)
       d₂ = zero(eltype(z₁))
-      L₂₂ = fact(Symmetric(C₂₂)).L
+      L₂₂ = factorization(Symmetric(C₂₂)).L
     else
       # covariance beween data locations
-      C₁₁ = _pairwise(f, 𝒟d)
-      C₁₂ = _pairwise(f, 𝒟d, 𝒟s)
+      C₁₁ = _pairwise(cov, ddom)
+      C₁₂ = _pairwise(cov, ddom, sdom)
 
-      L₁₁ = fact(Symmetric(C₁₁)).L
+      L₁₁ = factorization(Symmetric(C₁₁)).L
       B₁₂ = L₁₁ \ C₁₂
-      A₂₁ = B₁₂'
+      A₂₁ = transpose(B₁₂)
 
       d₂ = A₂₁ * (L₁₁ \ z₁)
-      L₂₂ = fact(Symmetric(C₂₂ - A₂₁ * B₁₂)).L
+      L₂₂ = factorization(Symmetric(C₂₂ - A₂₁ * B₁₂)).L
     end
 
-    # save preprocessed parameters for variable
-    var => (z₁, d₂, L₂₂, μ, dlocs, slocs)
+    (var, (; z₁, d₂, L₂₂, μ, dlocs, slocs))
   end
 
-  Dict(pairs)
+  preproc
 end
 
-function randsingle(rng::AbstractRNG, ::GaussianProcess, method::LUSIM, domain, data)
-  # list of variable names
-  vars = setup.varnames
+function randsingle(rng::AbstractRNG, process::GaussianProcess, method::LUSIM, domain, data, preproc)
+  # unpack preprocessing results
+  var₁, params₁ = first(preproc)
+  var₂, params₂ = last(preproc)
 
   # simulate first variable
-  v₁ = first(vars)
-  Y₁, w₁ = _lusim(rng, prep[v₁])
-  pairs = [v₁ => Y₁]
+  Y₁, w₁ = _lusim(rng, params₁)
+  cols = [var₁ => Y₁]
 
   # simulate second variable
-  if length(vars) == 2
-    ρ = method.correlation
-    v₂ = last(vars)
-    Y₂, _ = _lusim(rng, prep[v₂], ρ, w₁)
-    push!(pairs, v₂ => Y₂)
+  if length(preproc) > 1
+    ρ = _rho(process.func)
+    Y₂, _ = _lusim(rng, params₂, ρ, w₁)
+    push!(cols, var₂ => Y₂)
   end
 
-  (; pairs...)
+  (; cols...)
 end
 
-#-----------
-# UTILITIES
-#-----------
+#------------------
+# HELPER FUNCTIONS
+#------------------
+
+function _marginalize(cov, j)
+  cₒ, cs, covs = structures(cov)
+  cnug = cₒ[j, j]
+  csum = sum(c[j, j] * cov for (c, cov) in zip(cs, covs))
+  iszero(cnug) ? csum : NuggetEffect(cnug) + csum
+end
+
+function _rho(cov)
+  c₁₂ = cov(0)[1, 2]
+  s₁, s₂ = diag(sill(cov))
+  c₁₂ / √(s₁ * s₂)
+end
 
 function _lusim(rng, params, ρ=nothing, w₁=nothing)
   # unpack parameters
   z₁, d₂, L₂₂, μ, dlocs, slocs = params
 
-  # number of points in domain
-  npts = length(dlocs) + length(slocs)
+  # number of elements in simulation domain
+  n = length(dlocs) + length(slocs)
 
   # allocate memory for result
-  y = Vector{eltype(z₁)}(undef, npts)
+  y = Vector{eltype(z₁)}(undef, n)
 
   # conditional simulation
   w₂ = randn(rng, size(L₂₂, 2))
