@@ -172,6 +172,11 @@ end
 
 defaultschema(::LindgrenProcess) = Tables.Schema((:Z,), (Float64,))
 
+function defaultschema(process::QuiltingProcess)
+  table = process.trainimg |> values
+  table |> Tables.columns |> Tables.schema
+end
+
 """
     defaultsimulation(process, domain)
 
