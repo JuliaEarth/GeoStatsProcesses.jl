@@ -52,16 +52,16 @@
   end
 
   @testset "GaussianProcess" begin
-    @testset "defaultmethod" begin
+    @testset "defaultsimulation" begin
       process = GaussianProcess()
       grid = CartesianGrid(100, 100)
       vgrid = view(grid, 1:1000)
       pset1 = PointSet(rand(Point, 1000))
       pset2 = PointSet(rand(Point, 10000))
-      @test GeoStatsProcesses.defaultmethod(process, grid, nothing) isa FFTMethod
-      @test GeoStatsProcesses.defaultmethod(process, vgrid, nothing) isa FFTMethod
-      @test GeoStatsProcesses.defaultmethod(process, pset1, nothing) isa LUMethod
-      @test GeoStatsProcesses.defaultmethod(process, pset2, nothing) isa SEQMethod
+      @test GeoStatsProcesses.defaultsimulation(process, grid) isa FFTSIM
+      @test GeoStatsProcesses.defaultsimulation(process, vgrid) isa FFTSIM
+      @test GeoStatsProcesses.defaultsimulation(process, pset1) isa LUSIM
+      @test GeoStatsProcesses.defaultsimulation(process, pset2) isa SEQSIM
     end
 
     @testset "FFTMethod" begin

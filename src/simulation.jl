@@ -147,32 +147,6 @@ length is large compared to the grid itself.
   distance::D = Euclidean()
 end
 
-# ---------
-# DEFAULTS
-# ---------
-
-"""
-    defaultmethod(process, domain, data)
-
-Default method used for the simulation of geostatistical `process`
-over given geospatial `domain` with (optional) geospatial `data`.
-"""
-defaultmethod(::FieldProcess, domain, data) = DefaultSimulation()
-
-function defaultmethod(process::GaussianProcess, domain, data)
-  d = domain
-  p = parent(d)
-  b = boundingbox(p)
-  f = process.func
-  if p isa Grid && range(f) ≤ minimum(sides(b)) / 3
-    FFTSIM()
-  elseif nelements(d) < 100 * 100
-    LUSIM()
-  else
-    SEQSIM()
-  end
-end
-
 # ----------------
 # IMPLEMENTATIONS
 # ----------------

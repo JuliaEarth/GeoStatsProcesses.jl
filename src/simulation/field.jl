@@ -49,7 +49,7 @@ function Base.rand(
   kwargs...
 )
   # perform processing step
-  smethod = isnothing(method) ? defaultmethod(process, domain, data) : method
+  smethod = isnothing(method) ? defaultsimulation(process, domain) : method
   preproc = preprocess(rng, process, smethod, domain, data)
 
   # simulate a single realization
@@ -70,7 +70,7 @@ function Base.rand(
   kwargs...
 )
   # perform preprocessing step
-  smethod = isnothing(method) ? defaultmethod(process, domain, data) : method
+  smethod = isnothing(method) ? defaultsimulation(process, domain) : method
   preproc = preprocess(rng, process, smethod, domain, data)
 
   # simulate a single realization
@@ -110,9 +110,80 @@ function Base.rand(
   Ensemble(domain, reals, fetch=async ? fetch : identity)
 end
 
+"""
+    randinit(process, domain, data; init=NearestInit())
+
+Initialize realization (geotable) based on the field `process`,
+the geospatial `domain` and the geospatial `data`. Optionally,
+specify an `init`alization method.
+"""
+function randinit(process::FieldProcess, domain, data; init=NearestInit())
+  # retrieve appropriate schema
+  schema = isnothing(data) ? defaultschema(process) : dataschema(data) 
+
+  # allocate memory for realization and simulation mask
+  nelm = nelements(domain)
+  buff = map(T -> Vector{T}(undef, nelm), schema.types)
+  bits = map(_ -> falses(nelm), schema.types)
+  real = (; zip(schema.names, buff)...)
+  mask = (; zip(schema.names, bits)...)
+
+  # initialize realization and mask with data
+  isnothing(data) || initialize!(real, mask, domain, data, init)
+
+  real, mask
+end
+
+function dataschema(data)
+  schema = data |> values |> Tables.columns |> Tables.schema
+  Tables.Schema(schema.names, map(nonmissingtype, schema.types))
+end
+
 # ----------------
 # IMPLEMENTATIONS
 # ----------------
 
 include("field/gaussian.jl")
 include("field/lindgren.jl")
+
+# ---------
+# DEFAULTS
+# ---------
+
+"""
+    defaultschema(process)
+
+Default schema of realizations of field `process`.
+"""
+function defaultschema end
+
+function defaultschema(process::GaussianProcess)
+  nvars = nvariates(process.func)
+  names = ntuple(i -> Symbol(:Z, i), nvars)
+  types = ntuple(i -> Float64, nvars)
+  Tables.Schema(names, types)
+end
+
+defaultschema(::LindgrenProcess) = Tables.Schema((:Z,), (Float64,))
+
+"""
+    defaultsimulation(process, domain)
+
+Default method used for the simulation of geostatistical `process`
+over given geospatial `domain`.
+"""
+defaultsimulation(::FieldProcess, domain) = DefaultSimulation()
+
+function defaultsimulation(process::GaussianProcess, domain)
+  d = domain
+  p = parent(d)
+  b = boundingbox(p)
+  f = process.func
+  if p isa Grid && range(f) ≤ minimum(sides(b)) / 3
+    FFTSIM()
+  elseif nelements(d) < 100 * 100
+    LUSIM()
+  else
+    SEQSIM()
+  end
+end

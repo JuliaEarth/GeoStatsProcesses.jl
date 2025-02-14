@@ -27,17 +27,13 @@ import Distributions: mean, var, cdf, quantile
 import Base: ==
 
 include("utils.jl")
-include("initbuff.jl")
 include("ensembles.jl")
 include("processes.jl")
 include("operations.jl")
+include("initialization.jl")
 include("simulation.jl")
 
 export
-  # initialization
-  NearestInit,
-  ExplicitInit,
-
   # ensembles
   Ensemble,
   mean,
@@ -63,6 +59,10 @@ export
   # point operations
   RandomThinning,
   thin,
+
+  # initialization
+  NearestInit,
+  ExplicitInit,
 
   # field simulation
   LUSIM,
