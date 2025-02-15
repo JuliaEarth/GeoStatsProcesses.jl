@@ -196,7 +196,7 @@
     proc = GaussianProcess()
 
     # synchronous
-    real = rand(rng, proc, grid, 3)
+    real = rand(rng, proc, grid, 3, showprogress=false)
     @test length(real) == 3
     @test domain(real[1]) == grid
     @test eltype(real[1].Z) <: Float64
