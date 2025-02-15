@@ -140,19 +140,17 @@ end
 # HELPER FUNCTIONS
 # -----------------
 
-function _scaledomains(domain, data)
-  sdom = domain
-  sdat = data
-  fdom = _scalefactor(sdom)
-  fdat = isnothing(sdat) ? 1 : _scalefactor(domain(sdat))
+function _scaledomains(dom, dat)
+  fdom = _scalefactor(dom)
+  fdat = isnothing(dat) ? 1 : _scalefactor(domain(dat))
   fmax = max(fdom, fdat)
   finv = 1 / fmax
   func = Scale(finv)
 
-  dom = func(sdom)
-  dat = isnothing(sdat) ? nothing : func(sdat)
+  sdom = func(dom)
+  sdat = isnothing(dat) ? nothing : func(dat)
 
-  finv, dom, dat
+  finv, sdom, sdat
 end
 
 function _scalefactor(domain)

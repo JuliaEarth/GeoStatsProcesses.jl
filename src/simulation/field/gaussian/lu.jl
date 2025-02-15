@@ -76,7 +76,7 @@ function preprocess(::AbstractRNG, process::GaussianProcess, method::LUSIM, init
   preproc
 end
 
-function randsingle(rng::AbstractRNG, process::GaussianProcess, method::LUSIM, domain, data, preproc)
+function randsingle(rng::AbstractRNG, process::GaussianProcess, ::LUSIM, domain, data, preproc)
   # unpack preprocessing results
   var₁, params₁ = first(preproc)
   var₂, params₂ = last(preproc)
