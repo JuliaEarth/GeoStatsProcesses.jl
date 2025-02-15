@@ -28,10 +28,10 @@
       vgrid = view(grid, 1:1000)
       pset1 = PointSet(rand(Point, 1000))
       pset2 = PointSet(rand(Point, 10000))
-      @test GeoStatsProcesses.defaultsimulation(proc, grid, nothing) isa FFTSIM
-      @test GeoStatsProcesses.defaultsimulation(proc, vgrid, nothing) isa FFTSIM
-      @test GeoStatsProcesses.defaultsimulation(proc, pset1, nothing) isa LUSIM
-      @test GeoStatsProcesses.defaultsimulation(proc, pset2, nothing) isa SEQSIM
+      @test GeoStatsProcesses.defaultsimulation(proc, grid) isa FFTSIM
+      @test GeoStatsProcesses.defaultsimulation(proc, vgrid) isa FFTSIM
+      @test GeoStatsProcesses.defaultsimulation(proc, pset1) isa LUSIM
+      @test GeoStatsProcesses.defaultsimulation(proc, pset2) isa SEQSIM
     end
 
     @testset "LUSIM" begin

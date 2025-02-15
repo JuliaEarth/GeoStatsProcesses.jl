@@ -53,7 +53,7 @@ function Base.rand(
   kwargs...
 )
   # perform processing step
-  smethod = isnothing(method) ? defaultsimulation(process, domain, data) : method
+  smethod = isnothing(method) ? defaultsimulation(process, domain; data) : method
   preproc = preprocess(rng, process, smethod, init, domain, data)
 
   # simulate a single realization
@@ -76,7 +76,7 @@ function Base.rand(
   showprogress=true,
 )
   # perform preprocessing step
-  smethod = isnothing(method) ? defaultsimulation(process, domain, data) : method
+  smethod = isnothing(method) ? defaultsimulation(process, domain; data) : method
   preproc = preprocess(rng, process, smethod, init, domain, data)
 
   # simulate a single realization
@@ -176,21 +176,21 @@ function defaultschema(process::QuiltingProcess)
 end
 
 """
-    defaultsimulation(process, domain, data)
+    defaultsimulation(process, domain; [data])
 
 Default method used for the simulation of geostatistical `process`
-over given geospatial `domain` and `data`.
+over given geospatial `domain` and optional `data`.
 """
-defaultsimulation(::FieldProcess, domain, data) = nothing
+defaultsimulation(::FieldProcess, domain; data=nothing) = nothing
 
-function defaultsimulation(process::GaussianProcess, domain, data)
+function defaultsimulation(process::GaussianProcess, domain; data=nothing)
   d = domain
   p = parent(d)
   b = boundingbox(p)
   f = process.func
-  if p isa Grid && range(f) ≤ minimum(sides(b)) / 3 && isnothing(data)
+  if p isa Grid && nvariates(f) == 1 && range(f) ≤ minimum(sides(b)) / 3 && isnothing(data)
     FFTSIM()
-  elseif nelements(d) < 100 * 100
+  elseif nelements(d) < 100 * 100 && isstationary(f) && issymmetric(f)
     LUSIM()
   else
     SEQSIM()
