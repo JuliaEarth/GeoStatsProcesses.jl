@@ -6,79 +6,32 @@
 
     rng = StableRNG(2019)
     grid = CartesianGrid(100, 100)
-    process = GaussianProcess()
-    sims = rand(rng, process, grid, :z => Float64, 3, async=true)
-    @test length(sims) == 3
-    @test domain(sims[1]) == grid
-    @test eltype(sims[1].z) <: Float64
-    @test domain(sims[2]) == grid
-    @test eltype(sims[2].z) <: Float64
-    @test domain(sims[3]) == grid
-    @test eltype(sims[3].z) <: Float64
+    proc = GaussianProcess()
+    real = rand(rng, proc, grid, 3, async=true)
+    @test length(real) == 3
+    @test domain(real[1]) == grid
+    @test eltype(real[1].Z) <: Float64
+    @test domain(real[2]) == grid
+    @test eltype(real[2].Z) <: Float64
+    @test domain(real[3]) == grid
+    @test eltype(real[3].Z) <: Float64
     # error: the `async` option is not allowed when the master process is in the `workers`
-    @test_throws ArgumentError rand(rng, process, grid, :z => Float64, 3, workers=[myid()], async=true)
+    @test_throws ArgumentError rand(rng, proc, grid, 3, workers=[myid()], async=true)
 
     rmprocs(workers()...)
   end
 
   @testset "GaussianProcess" begin
     @testset "defaultsimulation" begin
-      process = GaussianProcess()
+      proc = GaussianProcess()
       grid = CartesianGrid(100, 100)
       vgrid = view(grid, 1:1000)
       pset1 = PointSet(rand(Point, 1000))
       pset2 = PointSet(rand(Point, 10000))
-      @test GeoStatsProcesses.defaultsimulation(process, grid) isa FFTSIM
-      @test GeoStatsProcesses.defaultsimulation(process, vgrid) isa FFTSIM
-      @test GeoStatsProcesses.defaultsimulation(process, pset1) isa LUSIM
-      @test GeoStatsProcesses.defaultsimulation(process, pset2) isa SEQSIM
-    end
-
-    @testset "FFTSIM" begin
-      # basic simulation
-      rng = StableRNG(2019)
-      proc = GaussianProcess(GaussianVariogram(range=10.0))
-      grid = CartesianGrid(100, 100)
-      real = rand(rng, proc, grid, 3, method=FFTSIM())
-      @test eltype(real[1].Z) <: Float64
-
-      # simulation on view of grid
-      rng = StableRNG(2022)
-      proc = GaussianProcess(GaussianVariogram(range=10.0))
-      grid = CartesianGrid(100, 100)
-      vgrid = view(grid, 1:5000)
-      real = rand(rng, proc, vgrid, method=FFTSIM())
-      @test domain(real) == vgrid
-      @test length(real.geometry) == 5000
-
-      # conditional simulation
-      rng = StableRNG(2022)
-      proc = GaussianProcess(GaussianVariogram(range=35.0))
-      grid = CartesianGrid((100, 100), (0.5, 0.5), (1.0, 1.0))
-      data = georef((; Z=[1.0, 0.0, 1.0]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
-      real = rand(rng, process, sdomain, method=FFTSIM(maxneighbors=3), data=data)
-    end
-
-    @testset "SEQSIM" begin
-      proc = GaussianProcess(SphericalVariogram(range=35.0))
-      grid = CartesianGrid((100, 100), (0.5, 0.5), (1.0, 1.0))
-      data = georef((; Z=[1.0, 0.0, 1.0]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
-      nreal = 3
-
-      method = SEQSIM(neighborhood=MetricBall(35.0), maxneighbors=3)
-
-      # unconditional simulation
-      rng = StableRNG(2017)
-      real = rand(rng, proc, grid, nreal; method)
-      @test eltype(real[1].Z) <: Float64
-
-      # conditional simulation
-      real = rand(rng, proc, grid, nreal; method, data)
-      @test eltype(real[1].Z) <: Float64
-      inds = LinearIndices(size(grid))
-      @test all(real[i].Z[inds[25, 25]] == 1.0 for i in 1:nreal)
-      @test all(real[i].Z[inds[50, 75]] == 0.0 for i in 1:nreal)
-      @test all(real[i].Z[inds[75, 50]] == 1.0 for i in 1:nreal)
+      @test GeoStatsProcesses.defaultsimulation(proc, grid) isa FFTSIM
+      @test GeoStatsProcesses.defaultsimulation(proc, vgrid) isa FFTSIM
+      @test GeoStatsProcesses.defaultsimulation(proc, pset1) isa LUSIM
+      @test GeoStatsProcesses.defaultsimulation(proc, pset2) isa SEQSIM
     end
 
     @testset "LUSIM" begin
@@ -121,10 +74,57 @@
       real = rand(rng, proc, grid; method)
     end
 
+    @testset "SEQSIM" begin
+      proc = GaussianProcess(SphericalVariogram(range=35.0))
+      grid = CartesianGrid((100, 100), (0.5, 0.5), (1.0, 1.0))
+      data = georef((; Z=[1.0, 0.0, 1.0]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
+      nreal = 3
+
+      method = SEQSIM(neighborhood=MetricBall(35.0), maxneighbors=3)
+
+      # unconditional simulation
+      rng = StableRNG(2017)
+      real = rand(rng, proc, grid, nreal; method)
+      @test eltype(real[1].Z) <: Float64
+
+      # conditional simulation
+      real = rand(rng, proc, grid, nreal; method, data)
+      @test eltype(real[1].Z) <: Float64
+      inds = LinearIndices(size(grid))
+      @test all(real[i].Z[inds[25, 25]] == 1.0 for i in 1:nreal)
+      @test all(real[i].Z[inds[50, 75]] == 0.0 for i in 1:nreal)
+      @test all(real[i].Z[inds[75, 50]] == 1.0 for i in 1:nreal)
+    end
+
+    @testset "FFTSIM" begin
+      # basic simulation
+      rng = StableRNG(2019)
+      proc = GaussianProcess(GaussianVariogram(range=10.0))
+      grid = CartesianGrid(100, 100)
+      real = rand(rng, proc, grid, 3, method=FFTSIM())
+      @test eltype(real[1].Z) <: Float64
+
+      # simulation on view of grid
+      rng = StableRNG(2022)
+      proc = GaussianProcess(GaussianVariogram(range=10.0))
+      grid = CartesianGrid(100, 100)
+      vgrid = view(grid, 1:5000)
+      real = rand(rng, proc, vgrid, method=FFTSIM())
+      @test domain(real) == vgrid
+      @test length(real.geometry) == 5000
+
+      # conditional simulation
+      rng = StableRNG(2022)
+      proc = GaussianProcess(GaussianVariogram(range=35.0))
+      grid = CartesianGrid((100, 100), (0.5, 0.5), (1.0, 1.0))
+      data = georef((; Z=[1.0, 0.0, 1.0]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
+      real = rand(rng, proc, grid, method=FFTSIM(maxneighbors=3), data=data)
+    end
+
     @testset "show" begin
-      process = GaussianProcess()
-      @test sprint(show, process) == "GaussianProcess(func: GaussianVariogram(range: 1.0 m, sill: 1.0, nugget: 0.0), mean: 0.0)"
-      @test sprint(show, MIME("text/plain"), process) == """
+      proc = GaussianProcess()
+      @test sprint(show, proc) == "GaussianProcess(func: GaussianVariogram(range: 1.0 m, sill: 1.0, nugget: 0.0), mean: 0.0)"
+      @test sprint(show, MIME("text/plain"), proc) == """
       GaussianProcess
       ├─ func: GaussianVariogram(range: 1.0 m, sill: 1.0, nugget: 0.0)
       └─ mean: 0.0"""
@@ -132,29 +132,29 @@
   end
 
   @testset "LindgrenProcess" begin
-    process = LindgrenProcess()
-    @test process.range == 1u"m"
-    @test process.sill == 1.0
+    proc = LindgrenProcess()
+    @test proc.range == 1u"m"
+    @test proc.sill == 1.0
 
-    process = LindgrenProcess(2.0)
-    @test process.range == 2.0u"m"
-    @test process.sill == 1.0
+    proc = LindgrenProcess(2.0)
+    @test proc.range == 2.0u"m"
+    @test proc.sill == 1.0
 
-    process = LindgrenProcess(2.0u"km")
-    @test process.range == 2.0u"km"
-    @test process.sill == 1.0
+    proc = LindgrenProcess(2.0u"km")
+    @test proc.range == 2.0u"km"
+    @test proc.sill == 1.0
 
-    process = LindgrenProcess(2.0, 2.0)
-    @test process.range == 2.0u"m"
-    @test process.sill == 2.0
+    proc = LindgrenProcess(2.0, 2.0)
+    @test proc.range == 2.0u"m"
+    @test proc.sill == 2.0
 
-    process = LindgrenProcess(2.0u"km", 2.0)
-    @test process.range == 2.0u"km"
-    @test process.sill == 2.0
+    proc = LindgrenProcess(2.0u"km", 2.0)
+    @test proc.range == 2.0u"km"
+    @test proc.sill == 2.0
 
-    process = LindgrenProcess(2, 2)
-    @test Unitful.numtype(process.range) == Float64
-    @test process.sill isa Float64
+    proc = LindgrenProcess(2, 2)
+    @test Unitful.numtype(proc.range) == Float64
+    @test proc.sill isa Float64
 
     # simulation on sphere
     p = LindgrenProcess(0.1)
@@ -174,13 +174,12 @@
       @test isapprox(sum(r[i].Z) / length(r[i].Z), 0.0, atol=1e-3)
     end
 
-    process = LindgrenProcess()
-    @test sprint(show, process) == "LindgrenProcess(range: 1.0 m, sill: 1.0, init: NearestInit())"
-    @test sprint(show, MIME("text/plain"), process) == """
+    proc = LindgrenProcess()
+    @test sprint(show, proc) == "LindgrenProcess(range: 1.0 m, sill: 1.0)"
+    @test sprint(show, MIME("text/plain"), proc) == """
     LindgrenProcess
     ├─ range: 1.0 m
-    ├─ sill: 1.0
-    └─ init: NearestInit()"""
+    └─ sill: 1.0"""
   end
 
   @testset "QuiltingProcess" begin
@@ -190,18 +189,18 @@
     rng = StableRNG(2017)
     trainimg = geostatsimage("Strebelle")
     inactive = [CartesianIndex(i, j) for i in 1:30 for j in 1:30]
-    process = QuiltingProcess(trainimg, (30, 30); inactive)
+    proc = QuiltingProcess(trainimg, (30, 30); inactive)
 
-    real = rand(rng, process, grid, 3; data)
+    real = rand(rng, proc, grid, 3; data)
     @test length(real) == 3
     @test size(domain(real[1])) == (100, 100)
     @test eltype(real[1].facies) <: Union{Float64,Missing}
     @test any(ismissing, real[1].facies)
     @test all(!isnan, skipmissing(real[1].facies))
 
-    process = QuiltingProcess(trainimg, (30, 30))
-    @test sprint(show, process) == "QuiltingProcess(trainimg: 62500×2 GeoTable over 250×250 CartesianGrid, tilesize: (30, 30), overlap: nothing, path: :raster, inactive: nothing, soft: nothing, tol: 0.1, init: NearestInit())"
-    @test sprint(show, MIME("text/plain"), process) == """
+    proc = QuiltingProcess(trainimg, (30, 30))
+    @test sprint(show, proc) == "QuiltingProcess(trainimg: 62500×2 GeoTable over 250×250 CartesianGrid, tilesize: (30, 30), overlap: nothing, path: :raster, inactive: nothing, soft: nothing, tol: 0.1, nthreads: 8)"
+    @test sprint(show, MIME("text/plain"), proc) == """
     QuiltingProcess
     ├─ trainimg: 62500×2 GeoTable over 250×250 CartesianGrid
     ├─ tilesize: (30, 30)
@@ -210,7 +209,7 @@
     ├─ inactive: nothing
     ├─ soft: nothing
     ├─ tol: 0.1
-    └─ init: NearestInit()"""
+    └─ nthreads: 8"""
   end
 
   @testset "TuringProcess" begin
@@ -221,9 +220,9 @@
     @test size(domain(real[1])) == (200, 200)
     @test eltype(real[1].Z) <: Float64
 
-    process = TuringProcess()
-    @test sprint(show, process) == "TuringProcess(params: nothing, blur: nothing, edge: nothing, iter: 100)"
-    @test sprint(show, MIME("text/plain"), process) == """
+    proc = TuringProcess()
+    @test sprint(show, proc) == "TuringProcess(params: nothing, blur: nothing, edge: nothing, iter: 100)"
+    @test sprint(show, MIME("text/plain"), proc) == """
     TuringProcess
     ├─ params: nothing
     ├─ blur: nothing
