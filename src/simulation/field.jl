@@ -176,7 +176,7 @@ function defaultschema(process::QuiltingProcess)
 end
 
 """
-    defaultsimulation(process, domain; [data])
+    defaultsimulation(process, domain; data=nothing)
 
 Default method used for the simulation of geostatistical `process`
 over given geospatial `domain` and optional `data`.
