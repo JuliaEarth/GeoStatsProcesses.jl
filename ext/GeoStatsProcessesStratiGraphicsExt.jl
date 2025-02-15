@@ -10,11 +10,10 @@ using Meshes
 using StratiGraphics: LandState, Strata, simulate, voxelize
 
 using GeoStatsProcesses: StrataProcess
-using GeoStatsProcesses: DefaultSimulation
 
 import GeoStatsProcesses: preprocess, randsingle
 
-function preprocess(::AbstractRNG, process::StrataProcess, ::DefaultSimulation, init, domain, data)
+function preprocess(::AbstractRNG, process::StrataProcess, ::Nothing, init, domain, data)
   # sanity checks
   @assert paramdim(domain) == 3 "Stratigraphy process only implemented for 3D domains"
   @assert isnothing(data) "Stratigraphy process does not support conditional simulation"
@@ -31,7 +30,7 @@ function preprocess(::AbstractRNG, process::StrataProcess, ::DefaultSimulation, 
   state
 end
 
-function randsingle(::AbstractRNG, process::StrataProcess, ::DefaultSimulation, domain, data, preproc)
+function randsingle(::AbstractRNG, process::StrataProcess, ::Nothing, domain, data, preproc)
   # unpack preprocessed results
   state = preproc
 

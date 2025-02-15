@@ -11,14 +11,13 @@ using TuringPatterns: BoxBlur, Clamp, SimplePattern, Sim
 using TuringPatterns: Params, step!, scale01
 
 using GeoStatsProcesses: TuringProcess
-using GeoStatsProcesses: DefaultSimulation
 
 import GeoStatsProcesses: preprocess, randsingle
 
 const PARAMS1 =
   [Params(2, 4, 0.01), Params(5, 10, 0.02), Params(10, 20, 0.03), Params(20, 40, 0.04), Params(50, 100, 0.05)]
 
-function preprocess(::AbstractRNG, process::TuringProcess, ::DefaultSimulation, init, domain, data)
+function preprocess(::AbstractRNG, process::TuringProcess, ::Nothing, init, domain, data)
   # sanity checks
   @assert domain isa Grid "Turing process only defined for grids"
   @assert isnothing(data) "Turing process does not support conditional simulation"
@@ -35,7 +34,7 @@ function preprocess(::AbstractRNG, process::TuringProcess, ::DefaultSimulation, 
   patterns
 end
 
-function randsingle(::AbstractRNG, process::TuringProcess, ::DefaultSimulation, domain, data, preproc)
+function randsingle(::AbstractRNG, process::TuringProcess, ::Nothing, domain, data, preproc)
   # unpack preprocessed results
   patterns = preproc
 

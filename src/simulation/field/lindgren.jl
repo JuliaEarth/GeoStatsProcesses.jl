@@ -2,7 +2,7 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
-function preprocess(::AbstractRNG, process::LindgrenProcess, method::DefaultSimulation, init, domain, data)
+function preprocess(::AbstractRNG, process::LindgrenProcess, method::Nothing, init, domain, data)
   # process parameters
   𝓁 = process.range
   σ = process.sill
@@ -66,7 +66,7 @@ function preprocess(::AbstractRNG, process::LindgrenProcess, method::DefaultSimu
   (; var, Q, L, i₁, i₂, z̄)
 end
 
-function randsingle(rng::AbstractRNG, ::LindgrenProcess, ::DefaultSimulation, domain, data, preproc)
+function randsingle(rng::AbstractRNG, ::LindgrenProcess, ::Nothing, domain, data, preproc)
   # unpack preprocessing results
   (; var, Q, L, i₁, i₂, z̄) = preproc
 

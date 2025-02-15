@@ -12,12 +12,11 @@ using GeoTables
 using ImageQuilting: iqsim
 
 using GeoStatsProcesses: QuiltingProcess
-using GeoStatsProcesses: DefaultSimulation
 using GeoStatsProcesses: randinit
 
 import GeoStatsProcesses: preprocess, randsingle
 
-function preprocess(::AbstractRNG, process::QuiltingProcess, ::DefaultSimulation, init, dom, data)
+function preprocess(::AbstractRNG, process::QuiltingProcess, ::Nothing, init, dom, data)
   # sanity checks
   @assert dom isa Grid "image quilting only defined for grids"
 
@@ -71,7 +70,7 @@ function preprocess(::AbstractRNG, process::QuiltingProcess, ::DefaultSimulation
   (; var, trainimg, simsize, overlap, soft, hard)
 end
 
-function randsingle(rng::AbstractRNG, process::QuiltingProcess, ::DefaultSimulation, domain, data, preproc)
+function randsingle(rng::AbstractRNG, process::QuiltingProcess, ::Nothing, domain, data, preproc)
   # unpack preprocessing results
   (; var, trainimg, simsize, overlap, soft, hard) = preproc
 

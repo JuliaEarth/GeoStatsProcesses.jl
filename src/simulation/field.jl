@@ -102,8 +102,8 @@ function Base.rand(
     if showprogress
       pname = prettyname(process)
       mname = prettyname(smethod)
-      message = "$pname with $mname"
-      @showprogress desc = message pmap(pool, 1:nreals) do _
+      desc = isnothing(smethod) ? "$pname" : "$pname ($mname)"
+      @showprogress desc = desc pmap(pool, 1:nreals) do _
         realization()
       end
     else
@@ -181,7 +181,7 @@ end
 Default method used for the simulation of geostatistical `process`
 over given geospatial `domain`.
 """
-defaultsimulation(::FieldProcess, domain) = DefaultSimulation()
+defaultsimulation(::FieldProcess, domain) = nothing
 
 function defaultsimulation(process::GaussianProcess, domain)
   d = domain

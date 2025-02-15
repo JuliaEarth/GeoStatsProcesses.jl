@@ -10,13 +10,6 @@ A method for simulating geostatistical processes.
 abstract type SimulationMethod end
 
 """
-    DefaultSimulation()
-
-Default method used for simulation of geostatistical processes.
-"""
-struct DefaultSimulation <: SimulationMethod end
-
-"""
     LUSIM(; [options])
 
 The LU simulation method introduced by Alabert 1987.
