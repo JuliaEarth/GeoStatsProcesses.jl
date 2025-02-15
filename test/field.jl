@@ -194,15 +194,20 @@
     rng = StableRNG(2019)
     grid = CartesianGrid(100, 100)
     proc = GaussianProcess()
+
+    # synchronous
     real = rand(rng, proc, grid, 3)
     @test length(real) == 3
     @test domain(real[1]) == grid
     @test eltype(real[1].Z) <: Float64
+
+    # asynchronous
     real = rand(rng, proc, grid, 3, async=true)
     @test length(real) == 3
     @test domain(real[1]) == grid
     @test eltype(real[1].Z) <: Float64
-    # error: the `async` option is not allowed when the master process is in the `workers`
+
+    # async option is not allowed when the master is in the workers
     @test_throws ArgumentError rand(rng, proc, grid, 3, workers=[myid()], async=true)
 
     rmprocs(workers()...)
