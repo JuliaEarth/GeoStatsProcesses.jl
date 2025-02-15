@@ -53,7 +53,7 @@ function Base.rand(
   kwargs...
 )
   # perform processing step
-  smethod = isnothing(method) ? defaultsimulation(process, domain) : method
+  smethod = isnothing(method) ? defaultsimulation(process, domain, data) : method
   preproc = preprocess(rng, process, smethod, init, domain, data)
 
   # simulate a single realization
@@ -76,7 +76,7 @@ function Base.rand(
   showprogress=true,
 )
   # perform preprocessing step
-  smethod = isnothing(method) ? defaultsimulation(process, domain) : method
+  smethod = isnothing(method) ? defaultsimulation(process, domain, data) : method
   preproc = preprocess(rng, process, smethod, init, domain, data)
 
   # simulate a single realization
@@ -176,19 +176,19 @@ function defaultschema(process::QuiltingProcess)
 end
 
 """
-    defaultsimulation(process, domain)
+    defaultsimulation(process, domain, data)
 
 Default method used for the simulation of geostatistical `process`
-over given geospatial `domain`.
+over given geospatial `domain` and `data`.
 """
-defaultsimulation(::FieldProcess, domain) = nothing
+defaultsimulation(::FieldProcess, domain, data) = nothing
 
-function defaultsimulation(process::GaussianProcess, domain)
+function defaultsimulation(process::GaussianProcess, domain, data)
   d = domain
   p = parent(d)
   b = boundingbox(p)
   f = process.func
-  if p isa Grid && range(f) ≤ minimum(sides(b)) / 3
+  if p isa Grid && range(f) ≤ minimum(sides(b)) / 3 && isnothing(data)
     FFTSIM()
   elseif nelements(d) < 100 * 100
     LUSIM()
