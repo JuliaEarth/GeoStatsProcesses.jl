@@ -75,10 +75,7 @@ function randsingle(rng::AbstractRNG, process::QuiltingProcess, ::Nothing, domai
   (; var, trainimg, simsize, overlap, soft, hard) = preproc
 
   # process parameters
-  (; tilesize, path, tol, nthreads) = process
-
-  # temporary adjustments
-  threads = nthreads
+  (; tilesize, path, tol) = process
 
   # run image quilting main function
   real = iqsim(
@@ -90,7 +87,6 @@ function randsingle(rng::AbstractRNG, process::QuiltingProcess, ::Nothing, domai
     soft,
     hard,
     tol,
-    threads,
     rng
   ) |> first
 

@@ -15,7 +15,6 @@ as described in Hoffimann et al. 2017.
 * `inactive` - Vector of inactive voxels (i.e. `CartesianIndex`) in the grid
 * `soft`     - A pair `(data,dataTI)` of geospatial data objects (default to `nothing`)
 * `tol`      - Initial relaxation tolerance in (0,1] (default to `0.1`)
-* `nthreads` - Number of threads used in underlying FFT (default to `cpucores()`)
 
 ## References
 
@@ -33,7 +32,6 @@ struct QuiltingProcess{TR,TS,O,P,IN,S,T} <: FieldProcess
   inactive::IN
   soft::S
   tol::T
-  nthreads::Int
 end
 
 QuiltingProcess(
@@ -43,6 +41,5 @@ QuiltingProcess(
   path=:raster,
   inactive=nothing,
   soft=nothing,
-  tol=0.1,
-  nthreads=cpucores()
-) = QuiltingProcess(trainimg, tilesize, overlap, path, inactive, soft, tol, nthreads)
+  tol=0.1
+) = QuiltingProcess(trainimg, tilesize, overlap, path, inactive, soft, tol)

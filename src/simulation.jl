@@ -106,7 +106,6 @@ inverse Fourier transform.
 * `maxneighbors` - Maximum number of neighbors (default to `26`)
 * `neighborhood` - Search neighborhood (default to `nothing`)
 * `distance`     - Distance used to find nearest neighbors (default to `Euclidean()`)
-* `nthreads`     - Number of threads used in underlying FFT (default to `cpucores()`)
 
 ## References
 
@@ -131,7 +130,6 @@ length is large compared to the grid itself.
   maxneighbors::Int = 26
   neighborhood::N = nothing
   distance::D = Euclidean()
-  nthreads::Int = cpucores()
 end
 
 # ----------------

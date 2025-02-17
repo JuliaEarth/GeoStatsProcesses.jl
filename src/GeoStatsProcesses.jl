@@ -11,12 +11,12 @@ using GeoStatsFunctions
 using GeoStatsModels
 
 using FFTW
-using CpuId
 using Tables
 using Distances
 using Distributions
 using ProgressMeter
 using Bessels: gamma
+using CpuId: cpucores
 
 using Random
 using Statistics

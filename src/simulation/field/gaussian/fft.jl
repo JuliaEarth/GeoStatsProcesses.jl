@@ -7,9 +7,6 @@ function preprocess(::AbstractRNG, process::GaussianProcess, method::FFTSIM, ini
   f = process.func
   μ = process.mean
 
-  # number of threads
-  nthreads = method.nthreads
-
   # sanity checks
   @assert isstationary(f) "geostatistical function must be stationary"
 
@@ -26,7 +23,7 @@ function preprocess(::AbstractRNG, process::GaussianProcess, method::FFTSIM, ini
   var = first(keys(real))
 
   # set number of threads in FFTW
-  FFTW.set_num_threads(nthreads)
+  FFTW.set_num_threads(cpucores())
 
   # index of grid center
   grid = parent(sdom)
