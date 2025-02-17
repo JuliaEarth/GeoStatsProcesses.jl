@@ -161,11 +161,11 @@ include("field/lindgren.jl")
 
 Default schema of realizations of field `process`.
 """
-defaultschema(::FieldProcess) = Tables.Schema((:Z,), (Float64,))
+defaultschema(::FieldProcess) = Tables.Schema((:field,), (Float64,))
 
 function defaultschema(process::GaussianProcess)
   nvars = nvariates(process.func)
-  names = nvars > 1 ? ntuple(i -> Symbol(:Z, i), nvars) : (:Z,)
+  names = nvars > 1 ? ntuple(i -> Symbol(:field, i), nvars) : (:field,)
   types = ntuple(i -> Float64, nvars)
   Tables.Schema(names, types)
 end

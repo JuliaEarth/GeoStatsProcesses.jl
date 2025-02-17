@@ -54,7 +54,7 @@ function randsingle(::AbstractRNG, process::TuringProcess, ::Nothing, domain, da
   vals = scale01(sim.fluid)
 
   # flatten result
-  (; Z=vec(vals))
+  (; field=vec(vals))
 end
 
 end

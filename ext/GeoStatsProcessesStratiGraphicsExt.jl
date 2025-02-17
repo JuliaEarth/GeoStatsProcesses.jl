@@ -53,7 +53,7 @@ function randsingle(::AbstractRNG, process::StrataProcess, ::Nothing, domain, da
   vals = [isnan(v) ? missing : v for v in model]
 
   # flatten result
-  (; Z=vec(vals))
+  (; field=vec(vals))
 end
 
 end

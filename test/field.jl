@@ -24,7 +24,7 @@
       rng = StableRNG(123)
       proc = GaussianProcess(SphericalCovariance(range=10.0))
       real = rand(rng, proc, grid; method)
-      @test eltype(real.Z) <: Float64
+      @test eltype(real.field) <: Float64
 
       # conditional simulation
       rng = StableRNG(123)
@@ -39,8 +39,8 @@
       mean = [0.0, 0.0]
       proc = GaussianProcess(cov, mean)
       real = rand(rng, proc, grid; method)
-      @test eltype(real.Z1) <: Float64
-      @test eltype(real.Z2) <: Float64
+      @test eltype(real.field1) <: Float64
+      @test eltype(real.field2) <: Float64
 
       # custom factorization
       rng = StableRNG(123)
@@ -66,7 +66,7 @@
       # unconditional simulation
       rng = StableRNG(2017)
       real = rand(rng, proc, grid; method)
-      @test eltype(real.Z) <: Float64
+      @test eltype(real.field) <: Float64
 
       # conditional simulation
       real = rand(rng, proc, grid; method, data)
@@ -81,7 +81,7 @@
       proc = GaussianProcess(GaussianVariogram(range=10.0))
       grid = CartesianGrid(100, 100)
       real = rand(rng, proc, grid, method=FFTSIM())
-      @test eltype(real.Z) <: Float64
+      @test eltype(real.field) <: Float64
 
       # simulation on view of grid
       rng = StableRNG(2022)
@@ -139,12 +139,12 @@
     data = georef((Z=[0.0, 1.0],), [(0, 0, -1), (0, 0, 1)])
     # unconditional realization
     rng = StableRNG(2024)
-    r = rand(rng, proc, mesh)
-    @test isapprox(sum(r.Z) / length(r.Z), 0.0, atol=1e-3)
+    real = rand(rng, proc, mesh)
+    @test isapprox(sum(real.field) / length(real.field), 0.0, atol=1e-3)
     # conditional realization
     rng = StableRNG(2024)
-    r = rand(rng, proc, mesh; data)
-    @test isapprox(sum(r.Z) / length(r.Z), 0.0, atol=1e-3)
+    real = rand(rng, proc, mesh; data)
+    @test isapprox(sum(real.Z) / length(real.Z), 0.0, atol=1e-3)
 
     proc = LindgrenProcess()
     @test sprint(show, proc) == "LindgrenProcess(range: 1.0 m, sill: 1.0)"
@@ -175,7 +175,7 @@
     grid = CartesianGrid(200, 200)
     real = rand(rng, TuringProcess(), grid)
     @test size(domain(real)) == (200, 200)
-    @test eltype(real.Z) <: Float64
+    @test eltype(real.field) <: Float64
   end
 
   @testset "StrataProcess" begin
@@ -185,9 +185,9 @@
     grid = CartesianGrid(50, 50, 20)
     real = rand(StrataProcess(env), grid)
     @test size(domain(real)) == (50, 50, 20)
-    @test eltype(real.Z) <: Union{Float64,Missing}
-    @test any(ismissing, real.Z)
-    @test all(!isnan, skipmissing(real.Z))
+    @test eltype(real.field) <: Union{Float64,Missing}
+    @test any(ismissing, real.field)
+    @test all(!isnan, skipmissing(real.field))
   end
 
   @testset "parallel simulation" begin
@@ -203,13 +203,13 @@
     real = rand(rng, proc, grid, 3, showprogress=false)
     @test length(real) == 3
     @test domain(real[1]) == grid
-    @test eltype(real[1].Z) <: Float64
+    @test eltype(real[1].field) <: Float64
 
     # asynchronous
     real = rand(rng, proc, grid, 3, async=true)
     @test length(real) == 3
     @test domain(real[1]) == grid
-    @test eltype(real[1].Z) <: Float64
+    @test eltype(real[1].field) <: Float64
 
     # async option is not allowed when the master is in the workers
     @test_throws ArgumentError rand(rng, proc, grid, 3, workers=[myid()], async=true)
