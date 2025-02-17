@@ -17,7 +17,7 @@ using StratiGraphics: SmoothingProcess, Environment, ExponentialDuration
 datadir = joinpath(@__DIR__, "data")
 
 # list of tests
-testfiles = ["ensembles.jl", "initbuff.jl", "point.jl", "field.jl"]
+testfiles = ["ensembles.jl", "initialization.jl", "point.jl", "field.jl"]
 
 @testset "GeoStatsProcesses.jl" begin
   for testfile in testfiles

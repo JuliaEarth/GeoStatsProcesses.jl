@@ -1,7 +1,7 @@
 @testset "Ensembles" begin
   d = PointSet(rand(Point, 100))
   r = [(; z=1:100) for _ in 1:10]
-  s = Ensemble(d, [:z], r)
+  s = Ensemble(d, r)
   for i in 1:10
     @test s[i] == georef((z=1:100,), d)
   end
@@ -12,7 +12,7 @@
 
   d = CartesianGrid(10, 10)
   r = [(; z=1:100) for _ in 1:10]
-  s = Ensemble(d, [:z], r)
+  s = Ensemble(d, r)
   for i in 1:10
     @test s[i] == georef((z=1:100,), d)
   end
@@ -23,7 +23,7 @@
 
   grid = CartesianGrid(3, 3)
   reals = [(; z=i * ones(nelements(grid))) for i in 1:3]
-  ensemble = Ensemble(grid, [:z], reals)
+  ensemble = Ensemble(grid, reals)
 
   # mean
   mean2D = mean(ensemble)

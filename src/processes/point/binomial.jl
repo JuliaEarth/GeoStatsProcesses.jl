@@ -12,5 +12,3 @@ struct BinomialProcess <: PointProcess
 end
 
 ishomogeneous(p::BinomialProcess) = true
-
-randsingle(rng::AbstractRNG, p::BinomialProcess, g) = PointSet(sample(rng, g, HomogeneousSampling(p.n)))

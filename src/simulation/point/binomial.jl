@@ -2,4 +2,4 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
-include("operations/point.jl")
+randsingle(rng::AbstractRNG, p::BinomialProcess, g) = PointSet(sample(rng, g, HomogeneousSampling(p.n)))

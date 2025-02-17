@@ -11,12 +11,12 @@ using GeoStatsFunctions
 using GeoStatsModels
 
 using FFTW
-using CpuId
 using Tables
 using Distances
 using Distributions
 using ProgressMeter
 using Bessels: gamma
+using CpuId: cpucores
 
 using Random
 using Statistics
@@ -27,11 +27,11 @@ import Distributions: mean, var, cdf, quantile
 import Base: ==
 
 include("utils.jl")
-include("ioutils.jl")
 include("ensembles.jl")
-include("initbuff.jl")
 include("processes.jl")
 include("operations.jl")
+include("initialization.jl")
+include("simulation.jl")
 
 export
   # ensembles
@@ -41,12 +41,6 @@ export
   cdf,
   quantile,
 
-  # initialization
-  InitMethod,
-  NearestInit,
-  ExplicitInit,
-  initbuff,
-
   # point processes
   BinomialProcess,
   ClusterProcess,
@@ -55,10 +49,6 @@ export
   UnionProcess,
   ishomogeneous,
 
-  # point operations
-  RandomThinning,
-  thin,
-
   # field processes
   GaussianProcess,
   LindgrenProcess,
@@ -66,9 +56,17 @@ export
   TuringProcess,
   StrataProcess,
 
-  # field methods
-  LUMethod,
-  FFTMethod,
-  SEQMethod
+  # point operations
+  RandomThinning,
+  thin,
+
+  # initialization
+  NearestInit,
+  ExplicitInit,
+
+  # field simulation
+  LUSIM,
+  SEQSIM,
+  FFTSIM
 
 end
