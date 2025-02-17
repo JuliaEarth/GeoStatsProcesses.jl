@@ -3,7 +3,7 @@
   data2D = georef(CSV.File(joinpath(datadir, "data2D.tsv")), (:x, :y))
 
   @testset "NearestInit" begin
-    proc = GaussianProcess()
+    proc = GaussianProcess(GaussianVariogram())
     init = NearestInit()
 
     grid = CartesianGrid((100,), (-0.5,), (1.0,))
@@ -29,7 +29,7 @@
   end
 
   @testset "ExplicitInit" begin
-    proc = GaussianProcess()
+    proc = GaussianProcess(GaussianVariogram())
     grid = CartesianGrid(10, 10, 10)
     data = georef((z=rand(10),), rand(Point, 10))
 

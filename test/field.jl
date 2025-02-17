@@ -1,15 +1,17 @@
 @testset "FieldProcess" begin
   @testset "GaussianProcess" begin
     @testset "defaultsimulation" begin
-      proc = GaussianProcess()
+      proc1 = GaussianProcess(GaussianVariogram())
+      proc2 = GaussianProcess(GaussianCovariance())
       grid = CartesianGrid(100, 100)
       vgrid = view(grid, 1:1000)
       pset1 = PointSet(rand(Point, 1000))
       pset2 = PointSet(rand(Point, 10000))
-      @test GeoStatsProcesses.defaultsimulation(proc, grid) isa FFTSIM
-      @test GeoStatsProcesses.defaultsimulation(proc, vgrid) isa FFTSIM
-      @test GeoStatsProcesses.defaultsimulation(proc, pset1) isa LUSIM
-      @test GeoStatsProcesses.defaultsimulation(proc, pset2) isa SEQSIM
+      @test GeoStatsProcesses.defaultsimulation(proc1, grid) isa FFTSIM
+      @test GeoStatsProcesses.defaultsimulation(proc1, vgrid) isa FFTSIM
+      @test GeoStatsProcesses.defaultsimulation(proc1, pset1) isa SEQSIM
+      @test GeoStatsProcesses.defaultsimulation(proc1, pset2) isa SEQSIM
+      @test GeoStatsProcesses.defaultsimulation(proc2, pset1) isa LUSIM
     end
 
     @testset "LUSIM" begin
@@ -33,7 +35,9 @@
       # cosimulation
       rng = StableRNG(123)
       grid = CartesianGrid(500)
-      proc = GaussianProcess([1.0 0.95; 0.95 1.0] * GaussianCovariance(range=10.0))
+      cov = [1.0 0.95; 0.95 1.0] * GaussianCovariance(range=10.0)
+      mean = [0.0, 0.0]
+      proc = GaussianProcess(cov, mean)
       real = rand(rng, proc, grid; method)
       @test eltype(real.Z1) <: Float64
       @test eltype(real.Z2) <: Float64
@@ -96,7 +100,7 @@
       real = rand(rng, proc, grid, method=FFTSIM(maxneighbors=3), data=data)
     end
 
-    proc = GaussianProcess()
+    proc = GaussianProcess(GaussianVariogram())
     @test sprint(show, proc) == "GaussianProcess(func: GaussianVariogram(range: 1.0 m, sill: 1.0, nugget: 0.0), mean: 0.0)"
     @test sprint(show, MIME("text/plain"), proc) == """
     GaussianProcess
@@ -193,7 +197,7 @@
 
     rng = StableRNG(2019)
     grid = CartesianGrid(100, 100)
-    proc = GaussianProcess()
+    proc = GaussianProcess(GaussianVariogram())
 
     # synchronous
     real = rand(rng, proc, grid, 3, showprogress=false)

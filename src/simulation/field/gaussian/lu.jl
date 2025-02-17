@@ -37,16 +37,19 @@ function preprocess(::AbstractRNG, process::GaussianProcess, method::LUSIM, init
     # current variable
     var = vars[j]
 
-    # retrieve data and simulation locations
-    dlocs = findall(mask[var])
-    slocs = setdiff(1:nelements(domain), dlocs)
+    # retrieve data and simulation indices
+    dinds = findall(mask[var])
+    sinds = setdiff(1:nelements(domain), dinds)
 
     # data for variable
-    z₁ = view(real[var], dlocs)
+    z₁ = view(real[var], dinds)
+
+    # mean for variable
+    μ₁ = μ[j]
 
     # centroids for data and simulation locations
-    ddom = [centroid(domain, i) for i in dlocs]
-    sdom = [centroid(domain, i) for i in slocs]
+    ddom = [centroid(domain, i) for i in dinds]
+    sdom = [centroid(domain, i) for i in sinds]
 
     # marginalize function into covariance for variable
     cov = nvars > 1 ? _marginalize(f, j) : f
@@ -54,7 +57,7 @@ function preprocess(::AbstractRNG, process::GaussianProcess, method::LUSIM, init
     # covariance between simulation locations
     C₂₂ = _pairwise(cov, sdom)
 
-    if isempty(dlocs)
+    if isempty(dinds)
       d₂ = zero(eltype(z₁))
       L₂₂ = factorization(Symmetric(C₂₂)).L
     else
@@ -70,25 +73,21 @@ function preprocess(::AbstractRNG, process::GaussianProcess, method::LUSIM, init
       L₂₂ = factorization(Symmetric(C₂₂ - A₂₁ * B₁₂)).L
     end
 
-    (var, (; z₁, d₂, L₂₂, μ, dlocs, slocs))
+    (; var, z₁, μ₁, d₂, L₂₂, dinds, sinds)
   end
 
   preproc
 end
 
 function randsingle(rng::AbstractRNG, process::GaussianProcess, ::LUSIM, domain, data, preproc)
-  # unpack preprocessing results
-  var₁, params₁ = first(preproc)
-  var₂, params₂ = last(preproc)
-
   # simulate first variable
-  Y₁, w₁ = _lusim(rng, params₁)
+  var₁, Y₁, w₁ = _lusim(rng, preproc[1])
   cols = [var₁ => Y₁]
 
   # simulate second variable
   if length(preproc) > 1
     ρ = _rho(process.func)
-    Y₂, _ = _lusim(rng, params₂, ρ, w₁)
+    var₂, Y₂, _ = _lusim(rng, preproc[2], ρ, w₁)
     push!(cols, var₂ => Y₂)
   end
 
@@ -112,12 +111,12 @@ function _rho(cov)
   c₁₂ / √(s₁ * s₂)
 end
 
-function _lusim(rng, params, ρ=nothing, w₁=nothing)
+function _lusim(rng, preprocⱼ, ρ=nothing, w₁=nothing)
   # unpack parameters
-  z₁, d₂, L₂₂, μ, dlocs, slocs = params
+  var, z₁, μ₁, d₂, L₂₂, dinds, sinds = preprocⱼ
 
   # number of elements in simulation domain
-  n = length(dlocs) + length(slocs)
+  n = length(dinds) + length(sinds)
 
   # allocate memory for result
   y = Vector{eltype(z₁)}(undef, n)
@@ -131,11 +130,11 @@ function _lusim(rng, params, ρ=nothing, w₁=nothing)
   end
 
   # hard data and simulated values
-  y[dlocs] = z₁
-  y[slocs] = y₂
+  y[dinds] = z₁
+  y[sinds] = y₂
 
   # adjust mean in case of unconditional simulation
-  isempty(dlocs) && (y .+= μ)
+  isempty(dinds) && (y .+= μ₁)
 
-  y, w₂
+  var, y, w₂
 end
