@@ -29,10 +29,9 @@ function preprocess(::AbstractRNG, process::GaussianProcess, method::SEQSIM, ini
   end
 
   # determine probability model
-  μ̄, σ̄ = μ, _std(f̄)
+  μ̄, Σ̄ = μ, ustrip.(sill(f̄))
   probmodel = Kriging(f̄, μ̄)
-  gaussians = map((μ̄ᵢ, σ̄ᵢ) -> Normal(μ̄ᵢ, σ̄ᵢ), μ̄, σ̄)
-  marginal = product_distribution(gaussians)
+  marginal = nvariates(f̄) > 1 ? MvNormal(μ̄, Σ̄) : Normal(μ̄, √Σ̄)
 
   # adjust min/max neighbors
   nelm = nelements(dom)
@@ -115,8 +114,7 @@ function randsingle(rng::AbstractRNG, process::GaussianProcess, method::SEQSIM, 
 
         # draw from conditional
         conditional = if GeoStatsModels.status(fitted)
-          dists = GeoStatsModels.predictprob(fitted, vars, center)
-          product_distribution(dists)
+          GeoStatsModels.predictprob(fitted, vars, center)
         else
           marginal
         end
@@ -159,7 +157,3 @@ function _scalefactor(domain)
   cmax = abs.(to(pmax))
   ustrip(max(cmin..., cmax...))
 end
-
-_std(f) = ustrip.(sqrt.(_diag(sill(f))))
-_diag(M::Matrix) = diag(M)
-_diag(M) = M
