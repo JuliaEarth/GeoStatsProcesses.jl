@@ -17,6 +17,7 @@ geotable. If `n` is provided, the result becomes an ensemble with multiple reali
 Some processes like the [`GaussianProcess`](@ref) can be simulated with alternative
 simulation `method`s from the literature such as [`LUSIM`](@ref), [`SEQSIM`](@ref)
 and [`FFTSIM`](@ref). Other processes can only be simulated with a default method.
+A suitable `method` is automatically chosen based on the `process`, `domain` and `data`.
 
 In the presence of `data`, the realizations are initialized with a `init`ialization
 method. By default, the data is assigned to the nearest geometry of the simulation
@@ -36,6 +37,11 @@ rand(process, domain, 3) # ensemble of realizations
 rand(process, domain, 10, data=data) # ensemble of realizations
 rand(rng, process, domain, 3) # specify random number generator
 ```
+
+### Notes
+
+If you are not an expert in random fields, avoid setting the `method` manually.
+There are good heuristics in place to maximize performance in any given setup.
 """
 Base.rand(process::FieldProcess, domain::Domain; kwargs...) =
   rand(Random.default_rng(), process, domain; kwargs...)
