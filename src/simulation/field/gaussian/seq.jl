@@ -31,7 +31,7 @@ function preprocess(::AbstractRNG, process::GaussianProcess, method::SEQSIM, ini
   # determine probability model
   μ̄, Σ̄ = μ, ustrip.(sill(f̄))
   probmodel = Kriging(f̄, μ̄)
-  marginal = nvariates(f̄) > 1 ? MvNormal(μ̄, Σ̄) : Normal(μ̄, √Σ̄)
+  prior = nvariates(f̄) > 1 ? MvNormal(μ̄, Σ̄) : Normal(μ̄, √Σ̄)
 
   # adjust min/max neighbors
   nelm = nelements(dom)
@@ -51,12 +51,12 @@ function preprocess(::AbstractRNG, process::GaussianProcess, method::SEQSIM, ini
     KBallSearch(dom, maxneighbors, neigh)
   end
 
-  (; dom, dat, init, probmodel, marginal, minneighbors, maxneighbors, searcher)
+  (; dom, dat, init, probmodel, prior, minneighbors, maxneighbors, searcher)
 end
 
 function randsingle(rng::AbstractRNG, process::GaussianProcess, method::SEQSIM, domain, data, preproc)
   # retrieve preprocessing results
-  (; dom, dat, init, probmodel, marginal, minneighbors, maxneighbors, searcher) = preproc
+  (; dom, dat, init, probmodel, prior, minneighbors, maxneighbors, searcher) = preproc
 
   # process parameters
   func = process.func
@@ -97,8 +97,8 @@ function randsingle(rng::AbstractRNG, process::GaussianProcess, method::SEQSIM, 
       nneigh = search!(neighbors, center, searcher, mask=simulated)
 
       if nneigh < minneighbors
-        # draw from marginal
-        realization[:,ind] .= rand(rng, marginal)
+        # draw from prior
+        realization[:,ind] .= rand(rng, prior)
       else
         # neighborhood with data
         neigh = let
@@ -116,7 +116,7 @@ function randsingle(rng::AbstractRNG, process::GaussianProcess, method::SEQSIM, 
         conditional = if GeoStatsModels.status(fitted)
           GeoStatsModels.predictprob(fitted, vars, center)
         else
-          marginal
+          prior
         end
         realization[:,ind] .= rand(rng, conditional)
       end
