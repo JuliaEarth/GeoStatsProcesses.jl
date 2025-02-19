@@ -42,9 +42,9 @@ function printfields(io, obj, fnames; singleline=false)
   end
 end
 
-# -----------
-# SIMULATION
-# -----------
+# ---------
+# PAIRWISE
+# ---------
 
 function _pairwise(fun, dom₁, dom₂)
   s = ustrip(sill(fun))
@@ -59,6 +59,10 @@ function _pairwise(fun, dom)
   isbanded(fun) || (F .= s .- F)
   F
 end
+
+# --------
+# SCALING
+# --------
 
 function _scale(dom, dat, fun)
   α₁ = _scalefactor(dom)
@@ -81,3 +85,21 @@ function _scalefactor(domain::Domain)
 end
 
 _scalefactor(fun::GeoStatsFunction) = ustrip(range(fun))
+
+# --------
+# DRAWING
+# --------
+
+function _draw!(rng, dist::Distribution, buffer)
+  val = rand(rng, dist)
+  @inbounds for i in eachindex(buffer)
+    buffer[i] = val[i]
+  end
+end
+
+function _draw!(rng, dist::Categorical, buffer)
+  j = rand(rng, dist)
+  @inbounds for i in eachindex(buffer)
+    buffer[i] = (i == j)
+  end
+end

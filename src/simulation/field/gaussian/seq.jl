@@ -8,6 +8,7 @@ function preprocess(::AbstractRNG, process::GaussianProcess, method::SEQSIM, ini
   mean = process.mean
 
   # method options
+  path = method.path
   minneighbors = method.minneighbors
   maxneighbors = method.maxneighbors
   neighborhood = method.neighborhood
@@ -24,11 +25,6 @@ function preprocess(::AbstractRNG, process::GaussianProcess, method::SEQSIM, ini
   else
     nothing
   end
-
-  # determine probability model
-  μ̄, Σ̄ = mean, ustrip.(sill(f̄))
-  model = Kriging(f̄, μ̄)
-  prior = nvariates(f̄) > 1 ? MvNormal(μ̄, Σ̄) : Normal(μ̄, √Σ̄)
 
   # adjust min/max neighbors
   nelm = nelements(dom)
@@ -48,32 +44,36 @@ function preprocess(::AbstractRNG, process::GaussianProcess, method::SEQSIM, ini
     KBallSearch(dom, maxneighbors, neigh)
   end
 
-  (; dom, dat, init, model, prior, minneighbors, maxneighbors, searcher)
+  # store adjusted parameters
+  params = (; path, minneighbors, maxneighbors, searcher)
+
+  # determine probability model
+  μ̄, Σ̄ = mean, ustrip.(sill(f̄))
+  model = Kriging(f̄, μ̄)
+  prior = nvariates(f̄) > 1 ? MvNormal(μ̄, Σ̄) : Normal(μ̄, √Σ̄)
+
+  # additional transformations
+  sdom = PointSet([centroid(dom, ind) for ind in 1:nelements(dom)])
+  sdat = dat
+
+  (; params, model, prior, init, sdom, sdat)
 end
 
-function randsingle(rng::AbstractRNG, process::GaussianProcess, method::SEQSIM, domain, data, preproc)
+function randsingle(rng::AbstractRNG, process::GaussianProcess, ::SEQSIM, domain, data, preproc)
   # retrieve preprocessing results
-  (; dom, dat, init, model, prior, minneighbors, maxneighbors, searcher) = preproc
+  (; params, model, prior, init, sdom, sdat) = preproc
 
-  # process parameters
-  func = process.func
-
-  # method options
-  path = method.path
+  # retrieve search parameters
+  (; path, minneighbors, maxneighbors, searcher) = params
 
   # initialize realization and mask
-  real, mask = randinit(process, dom, dat, init)
+  real, mask = randinit(process, domain, data, init)
 
   # retrieve variable names
   vars = keys(real)
 
-  # sanity checks
-  if length(vars) != nvariates(func)
-    throw(ArgumentError("incompatible number of variables for geostatistical function"))
-  end
-
-  # consider point set with centroids for now
-  pointset = PointSet([centroid(dom, ind) for ind in 1:nelements(dom)])
+  # variables passed to probability model
+  mvars = length(vars) == 1 ? first(vars) : vars
 
   # pre-allocate memory for neighbors
   neighbors = Vector{Int}(undef, maxneighbors)
@@ -85,22 +85,25 @@ function randsingle(rng::AbstractRNG, process::GaussianProcess, method::SEQSIM, 
   simulated = map(all, Tables.rowtable(mask))
 
   # simulation loop
-  @inbounds for ind in traverse(dom, path)
+  @inbounds for ind in traverse(domain, path)
     if !simulated[ind]
       # center of target location
-      center = pointset[ind]
+      center = centroid(sdom, ind)
+
+      # buffer at target location
+      buffer = view(realization, :, ind)
 
       # search neighbors with simulated data
       nneigh = search!(neighbors, center, searcher, mask=simulated)
 
       if nneigh < minneighbors
         # draw from prior
-        realization[:,ind] .= rand(rng, prior)
+        _draw!(rng, prior, buffer)
       else
         # neighborhood with data
         neigh = let
           ninds = view(neighbors, 1:nneigh)
-          ndom = view(pointset, ninds)
+          ndom = view(sdom, ninds)
           nmat = view(realization, :, ninds)
           ntab = (; zip(vars, eachrow(nmat))...)
           georef(ntab, ndom)
@@ -111,11 +114,11 @@ function randsingle(rng::AbstractRNG, process::GaussianProcess, method::SEQSIM, 
 
         # draw from conditional
         conditional = if GeoStatsModels.status(fitted)
-          GeoStatsModels.predictprob(fitted, vars, center)
+          GeoStatsModels.predictprob(fitted, mvars, center)
         else
           prior
         end
-        realization[:,ind] .= rand(rng, conditional)
+        _draw!(rng, conditional, buffer)
       end
 
       # mark location as simulated and continue
