@@ -16,6 +16,7 @@ abstract type FieldProcess <: GeoStatsProcess end
 #-----------------
 
 include("field/gaussian.jl")
+include("field/indicator.jl")
 include("field/lindgren.jl")
 include("field/quilting.jl")
 include("field/turing.jl")

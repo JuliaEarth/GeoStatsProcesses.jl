@@ -51,6 +51,7 @@ export
 
   # field processes
   GaussianProcess,
+  IndicatorProcess,
   LindgrenProcess,
   QuiltingProcess,
   TuringProcess,
