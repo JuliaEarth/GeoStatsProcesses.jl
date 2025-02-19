@@ -151,12 +151,12 @@ function dataschema(data)
   Tables.Schema(schema.names, map(nonmissingtype, schema.types))
 end
 
-# ----------------
-# IMPLEMENTATIONS
-# ----------------
+# --------
+# METHODS
+# --------
 
-include("field/gaussian.jl")
-include("field/lindgren.jl")
+include("field/methods.jl")
+include("field/generic.jl")
 
 # ---------
 # DEFAULTS
@@ -202,3 +202,10 @@ function defaultsimulation(process::GaussianProcess, domain; data=nothing)
     SEQSIM()
   end
 end
+
+# ----------------
+# IMPLEMENTATIONS
+# ----------------
+
+include("field/gaussian.jl")
+include("field/lindgren.jl")
