@@ -2,7 +2,7 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
-function preprocess(::AbstractRNG, process::LindgrenProcess, method::Nothing, init, domain, data)
+function preprocess(::AbstractRNG, process::LindgrenProcess, ::Nothing, init, domain, data)
   # process parameters
   𝓁 = process.range
   σ = process.sill
