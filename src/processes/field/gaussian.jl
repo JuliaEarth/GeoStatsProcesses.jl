@@ -3,13 +3,14 @@
 # ------------------------------------------------------------------
 
 """
-    GaussianProcess(function, mean=0.0)
+    GaussianProcess(function, [mean])
 
-Gaussian process with given geostatistical `function` (e.g. variogram) and `mean`.
+Gaussian process with given geostatistical `function` (e.g. variogram)
+and `mean` (default to zero mean).
 
 ## Examples
 
-```
+```julia
 # univariate processes
 GaussianProcess(GaussianVariogram())
 GaussianProcess(SphericalCovariance(), 0.5)
@@ -23,7 +24,9 @@ struct GaussianProcess{F,M} <: FieldProcess
   mean::M
 
   function GaussianProcess{F,M}(func, mean) where {F,M}
-    @assert nvariates(func) == length(mean) "incompatible size of function and mean"
+    nm = length(mean)
+    nf = nvariates(func)
+    @assert nm == nf "mean must have $nf components, received $nm"
     new(func, mean)
   end
 end

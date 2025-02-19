@@ -4,8 +4,8 @@
 
 function preprocess(::AbstractRNG, process::GaussianProcess, method::SEQSIM, init, domain, data)
   # function and mean
-  f = process.func
-  μ = process.mean
+  func = process.func
+  mean = process.mean
 
   # method options
   minneighbors = method.minneighbors
@@ -13,15 +13,12 @@ function preprocess(::AbstractRNG, process::GaussianProcess, method::SEQSIM, ini
   neighborhood = method.neighborhood
   distance = method.distance
 
-  # scale domains for numerical stability
-  finv, dom, dat = _scaledomains(domain, data)
-
-  # scale function accordingly
-  f̄ = GeoStatsFunctions.scale(f, finv)
+  # scale domains and function for numerical stability
+  dom, dat, f̄, α = _scale(domain, data, func)
 
   # scale neighborhood accordingly
   neigh = if neighborhood isa MetricBall
-    finv * neighborhood
+    α * neighborhood
   elseif neighborhood == :range
     MetricBall(range(f̄))
   else
@@ -29,8 +26,8 @@ function preprocess(::AbstractRNG, process::GaussianProcess, method::SEQSIM, ini
   end
 
   # determine probability model
-  μ̄, Σ̄ = μ, ustrip.(sill(f̄))
-  probmodel = Kriging(f̄, μ̄)
+  μ̄, Σ̄ = mean, ustrip.(sill(f̄))
+  model = Kriging(f̄, μ̄)
   prior = nvariates(f̄) > 1 ? MvNormal(μ̄, Σ̄) : Normal(μ̄, √Σ̄)
 
   # adjust min/max neighbors
@@ -51,12 +48,12 @@ function preprocess(::AbstractRNG, process::GaussianProcess, method::SEQSIM, ini
     KBallSearch(dom, maxneighbors, neigh)
   end
 
-  (; dom, dat, init, probmodel, prior, minneighbors, maxneighbors, searcher)
+  (; dom, dat, init, model, prior, minneighbors, maxneighbors, searcher)
 end
 
 function randsingle(rng::AbstractRNG, process::GaussianProcess, method::SEQSIM, domain, data, preproc)
   # retrieve preprocessing results
-  (; dom, dat, init, probmodel, prior, minneighbors, maxneighbors, searcher) = preproc
+  (; dom, dat, init, model, prior, minneighbors, maxneighbors, searcher) = preproc
 
   # process parameters
   func = process.func
@@ -110,7 +107,7 @@ function randsingle(rng::AbstractRNG, process::GaussianProcess, method::SEQSIM, 
         end
 
         # fit probabilistic model
-        fitted = GeoStatsModels.fit(probmodel, neigh)
+        fitted = GeoStatsModels.fit(model, neigh)
 
         # draw from conditional
         conditional = if GeoStatsModels.status(fitted)
@@ -132,28 +129,4 @@ function randsingle(rng::AbstractRNG, process::GaussianProcess, method::SEQSIM, 
   end
 
   real
-end
-
-# -----------------
-# HELPER FUNCTIONS
-# -----------------
-
-function _scaledomains(dom, dat)
-  fdom = _scalefactor(dom)
-  fdat = isnothing(dat) ? 1 : _scalefactor(domain(dat))
-  fmax = max(fdom, fdat)
-  finv = 1 / fmax
-  func = Scale(finv)
-
-  sdom = func(dom)
-  sdat = isnothing(dat) ? nothing : func(dat)
-
-  finv, sdom, sdat
-end
-
-function _scalefactor(domain)
-  pmin, pmax = extrema(boundingbox(domain))
-  cmin = abs.(to(pmin))
-  cmax = abs.(to(pmax))
-  ustrip(max(cmin..., cmax...))
 end

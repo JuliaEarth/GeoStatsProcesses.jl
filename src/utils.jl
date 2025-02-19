@@ -46,16 +46,38 @@ end
 # SIMULATION
 # -----------
 
-function _pairwise(f::GeoStatsFunction, dom₁, dom₂)
-  s = ustrip(sill(f))
-  F = GeoStatsFunctions.pairwise(f, dom₁, dom₂)
-  isbanded(f) || (F .= s .- F)
+function _pairwise(fun, dom₁, dom₂)
+  s = ustrip(sill(fun))
+  F = GeoStatsFunctions.pairwise(fun, dom₁, dom₂)
+  isbanded(fun) || (F .= s .- F)
   F
 end
 
-function _pairwise(f::GeoStatsFunction, dom)
-  s = ustrip(sill(f))
-  F = GeoStatsFunctions.pairwise(f, dom)
-  isbanded(f) || (F .= s .- F)
+function _pairwise(fun, dom)
+  s = ustrip(sill(fun))
+  F = GeoStatsFunctions.pairwise(fun, dom)
+  isbanded(fun) || (F .= s .- F)
   F
 end
+
+function _scale(dom, dat, fun)
+  α₁ = _scalefactor(dom)
+  α₂ = isnothing(dat) ? 1 : _scalefactor(domain(dat))
+  α₃ = _scalefactor(fun)
+  α = inv(max(α₁, α₂, α₃))
+
+  sdom = dom |> Scale(α)
+  sdat = isnothing(dat) ? nothing : (dat |> Scale(α))
+  sfun = GeoStatsFunctions.scale(fun, α)
+
+  sdom, sdat, sfun, α
+end
+
+function _scalefactor(domain::Domain)
+  pmin, pmax = extrema(boundingbox(domain))
+  cmin = abs.(to(pmin))
+  cmax = abs.(to(pmax))
+  ustrip(max(cmin..., cmax...))
+end
+
+_scalefactor(fun::GeoStatsFunction) = ustrip(range(fun))
