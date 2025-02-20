@@ -3,9 +3,8 @@
 # ------------------------------------------------------------------
 
 function preprocess(::AbstractRNG, process, method::SEQSIM, init, domain, data)
-  # function and mean
+  # geostatistical function
   func = process.func
-  mean = process.mean
 
   # scale objects for numerical stability
   dom, dat, fun, neigh = _scale(domain, data, func, method.neighborhood)
@@ -17,39 +16,38 @@ function preprocess(::AbstractRNG, process, method::SEQSIM, init, domain, data)
   params = (; path, searcher, nmin, nmax)
 
   # determine probability model
-  model, prior = _probmodel(process, fun, mean)
+  model, prior = _probmodel(process, fun)
 
-  # additional transformations
-  sdom = PointSet([centroid(dom, ind) for ind in 1:nelements(dom)])
-  sdat = dat
+  # transform process and data
+  sproc, sdom, sdat, cache = _transform(process, dom, dat)
 
-  (; params, model, prior, init, sdom, sdat)
+  (; params, model, prior, sproc, sdom, sdat, cache, init)
 end
 
 function randsingle(rng::AbstractRNG, process, ::SEQSIM, domain, data, preproc)
   # retrieve preprocessing results
-  (; params, model, prior, init, sdom, sdat) = preproc
+  (; params, model, prior, sproc, sdom, sdat, cache, init) = preproc
 
   # retrieve search parameters
   (; path, searcher, nmin, nmax) = params
 
   # initialize realization and mask
-  real, mask = randinit(process, domain, data, init)
+  real, mask = randinit(sproc, sdom, sdat, init)
+
+  # realization in matrix form for efficient updates
+  realization = stack(Tables.rowtable(real))
+
+  # locations with all variables already simulated
+  simulated = map(all, Tables.rowtable(mask))
+
+  # pre-allocate memory for neighbors
+  neighbors = Vector{Int}(undef, nmax)
 
   # retrieve variable names
   vars = keys(real)
 
   # variables passed to probability model
   mvars = length(vars) == 1 ? first(vars) : vars
-
-  # pre-allocate memory for neighbors
-  neighbors = Vector{Int}(undef, nmax)
-
-  # matrix buffer for realization
-  realization = stack(Tables.rowtable(real))
-
-  # locations with all variables already simulated
-  simulated = map(all, Tables.rowtable(mask))
 
   # simulation loop
   @inbounds for ind in traverse(domain, path)
@@ -98,7 +96,11 @@ function randsingle(rng::AbstractRNG, process, ::SEQSIM, domain, data, preproc)
     real[var] .= realization[i,:]
   end
 
-  real
+  # undo data transformations
+  rdat = _bwdtransform(process, georef(real, sdom), cache)
+
+  # return realization values
+  values(rdat)
 end
 
 # --------
@@ -165,23 +167,81 @@ function _search(dom, neigh, method)
   path, searcher, nmin, nmax
 end
 
+# ----------------
+# TRANSFORMATIONS
+# ----------------
+
+function _transform(process, dom, dat)
+  # transformed process for sequential simulation
+  sproc = _transformed(process)
+
+  # consider point set of centroids for now
+  sdom = PointSet([centroid(dom, ind) for ind in 1:nelements(dom)])
+
+  # transform data and always produce valid cache
+  sdat, cache = if isnothing(dat)
+    dat, _cache(process)
+  else
+    _fwdtransform(process, dat)
+  end
+
+  sproc, sdom, sdat, cache
+end
+
+_transformed(process::GaussianProcess) = process
+
+_transformed(process::IndicatorProcess) = GaussianProcess(process.func, process.prob)
+
+_fwdtransform(::GaussianProcess, dat) = apply(Identity(), dat)
+
+_fwdtransform(::IndicatorProcess, dat) = apply(OneHot(1), dat)
+
+_bwdtransform(::GaussianProcess, rdat, cache) = revert(Identity(), rdat, cache)
+
+_bwdtransform(::IndicatorProcess, rdat, cache) = revert(OneHot(1), rdat, cache)
+
+_cache(::GaussianProcess) = nothing
+
+function _cache(process::IndicatorProcess)
+  f = process.func
+  n = nvariates(f)
+  t = (field = 1:n,)
+  apply(OneHot(1), t) |> last
+end
+
 # ------------------
 # PROBABILITY MODEL
 # ------------------
 
-function _probmodel(::GaussianProcess, fun, mean)
-  f̄ = fun
-  μ̄ = mean
-  Σ̄ = ustrip.(sill(f̄))
+function _probmodel(process::GaussianProcess, func)
+  f = func
+  μ = process.mean
+  Σ = ustrip.(sill(f))
 
-  model = Kriging(f̄, μ̄)
-  prior = nvariates(f̄) > 1 ? MvNormal(μ̄, Σ̄) : Normal(μ̄, √Σ̄)
+  model = Kriging(f, μ)
+  prior = nvariates(f) > 1 ? MvNormal(μ, Σ) : Normal(μ, √Σ)
+
+  model, prior
+end
+
+function _probmodel(process::IndicatorProcess, func)
+  f = func
+  p = process.prob
+
+  model = Kriging(f, p)
+  prior = Categorical(p)
 
   model, prior
 end
 
 function _conditional(::GaussianProcess, fitted, vars, geom)
   GeoStatsModels.predictprob(fitted, vars, geom)
+end
+
+function _conditional(::IndicatorProcess, fitted, vars, geom)
+  p = GeoStatsModels.predict(fitted, vars, geom)
+  p̂ = normalize(clamp.(p, 0, 1), 1)
+  Categorical(p̂)
 end
 
 # --------

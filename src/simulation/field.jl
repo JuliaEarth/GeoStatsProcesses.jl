@@ -176,6 +176,8 @@ function defaultschema(process::GaussianProcess)
   Tables.Schema(names, types)
 end
 
+defaultschema(::IndicatorProcess) = Tables.Schema((:field,), (Int,))
+
 function defaultschema(process::QuiltingProcess)
   table = process.trainimg |> values
   table |> Tables.columns |> Tables.schema
@@ -202,6 +204,8 @@ function defaultsimulation(process::GaussianProcess, domain; data=nothing)
     SEQSIM()
   end
 end
+
+defaultsimulation(::IndicatorProcess, domain; data=nothing) = SEQSIM()
 
 # ----------------
 # IMPLEMENTATIONS

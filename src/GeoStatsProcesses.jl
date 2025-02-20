@@ -14,6 +14,7 @@ using FFTW
 using Tables
 using Distances
 using Distributions
+using TableTransforms
 using ProgressMeter
 using Bessels: gamma
 using CpuId: cpucores
