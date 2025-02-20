@@ -108,6 +108,28 @@
     └─ mean: 0.0"""
   end
 
+  @testset "IndicatorProcess" begin
+    rng = StableRNG(2025)
+    data = georef((; C=[1, 2, 1]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
+    grid = CartesianGrid(100, 100)
+
+    # unconditional simulation
+    proc = IndicatorProcess(SphericalTransiogram(range=35.0))
+    real = rand(proc, grid)
+    @test eltype(real.field) == Int
+    @test Set(real.field) == Set([1,2])
+
+    # conditional simulation
+    real = rand(proc, grid, data=data)
+    @test eltype(real.C) == Int
+    @test Set(real.C) == Set([1, 2])
+
+    # three categorical values
+    proc = IndicatorProcess(SphericalTransiogram(range=35.0, proportions=(0.7, 0.2, 0.1)))
+    real = rand(proc, grid)
+    @test Set(real.field) == Set([1,2,3])
+  end
+
   @testset "LindgrenProcess" begin
     proc = LindgrenProcess()
     @test proc.range == 1u"m"

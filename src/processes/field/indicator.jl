@@ -33,8 +33,9 @@ struct IndicatorProcess{F,P} <: FieldProcess
   function IndicatorProcess{F,P}(func, prob) where {F,P}
     np = length(prob)
     nf = nvariates(func)
-    @assert np == nf "probabilities must have $nf components, received $np"
-    @assert all(p -> 0 ≤ p ≤ 1, prob) "probabilities are outside [0, 1] range"
+    @assert nf > 1 "indicator process requires multivariate function"
+    @assert nf == np "probabilities must have $nf components, received $np"
+    @assert all(p -> 0 ≤ p ≤ 1, prob) "probabilities must be in [0, 1]"
     @assert sum(prob) ≈ 1 "probabilities must sum up to one"
     new(func, prob)
   end
