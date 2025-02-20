@@ -12,7 +12,6 @@ as described in Hoffimann et al. 2017.
 
 * `overlap`  - Overlap size (default to (1/6, 1/6, ..., 1/6))
 * `path`     - Process path (`:raster` (default), `:dilation`, or `:random`)
-* `inactive` - Vector of inactive voxels (i.e. `CartesianIndex`) in the grid
 * `soft`     - A pair `(data,dataTI)` of geospatial data objects (default to `nothing`)
 * `tol`      - Initial relaxation tolerance in (0,1] (default to `0.1`)
 
@@ -24,12 +23,11 @@ as described in Hoffimann et al. 2017.
 * Hoffimann et al 2015. [Geostatistical modeling of evolving landscapes
   by means of image quilting](https://www.researchgate.net/publication/295902985_Geostatistical_Modeling_of_Evolving_Landscapes_by_Means_of_Image_Quilting)
 """
-struct QuiltingProcess{TR,TS,O,P,IN,S,T} <: FieldProcess
+struct QuiltingProcess{TR,TS,O,P,S,T} <: FieldProcess
   trainimg::TR
   tilesize::TS
   overlap::O
   path::P
-  inactive::IN
   soft::S
   tol::T
 end
@@ -39,7 +37,6 @@ QuiltingProcess(
   tilesize;
   overlap=nothing,
   path=:raster,
-  inactive=nothing,
   soft=nothing,
   tol=0.1
-) = QuiltingProcess(trainimg, tilesize, overlap, path, inactive, soft, tol)
+) = QuiltingProcess(trainimg, tilesize, overlap, path, soft, tol)

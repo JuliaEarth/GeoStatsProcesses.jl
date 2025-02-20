@@ -177,19 +177,22 @@
   end
 
   @testset "QuiltingProcess" begin
+    rng = StableRNG(2017)
     data = georef((; facies=[1.0, 0.0, 1.0]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
     grid = CartesianGrid(100, 100)
-
-    rng = StableRNG(2017)
     trainimg = geostatsimage("Strebelle")
-    inactive = [CartesianIndex(i, j) for i in 1:30 for j in 1:30]
-    proc = QuiltingProcess(trainimg, (30, 30); inactive)
+    proc = QuiltingProcess(trainimg, (30, 30))
 
+    # simulation on full grid
     real = rand(rng, proc, grid; data)
     @test size(domain(real)) == (100, 100)
-    @test eltype(real.facies) <: Union{Float64,Missing}
-    @test any(ismissing, real.facies)
-    @test all(!isnan, skipmissing(real.facies))
+    @test eltype(real.facies) == Float64
+
+    # simulation on grid view
+    vgrid = view(grid, Ball((50, 50), 20))
+    real = rand(rng, proc, vgrid)
+    @test domain(real) == vgrid
+    @test length(real.facies) == nelements(vgrid)
   end
 
   @testset "TuringProcess" begin
