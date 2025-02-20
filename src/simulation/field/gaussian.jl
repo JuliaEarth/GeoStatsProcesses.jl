@@ -3,5 +3,4 @@
 # ------------------------------------------------------------------
 
 include("gaussian/lu.jl")
-include("gaussian/seq.jl")
 include("gaussian/fft.jl")

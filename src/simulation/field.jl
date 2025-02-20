@@ -151,12 +151,12 @@ function dataschema(data)
   Tables.Schema(schema.names, map(nonmissingtype, schema.types))
 end
 
-# ----------------
-# IMPLEMENTATIONS
-# ----------------
+# --------
+# METHODS
+# --------
 
-include("field/gaussian.jl")
-include("field/lindgren.jl")
+include("field/methods.jl")
+include("field/generic.jl")
 
 # ---------
 # DEFAULTS
@@ -175,6 +175,8 @@ function defaultschema(process::GaussianProcess)
   types = ntuple(i -> Float64, nvars)
   Tables.Schema(names, types)
 end
+
+defaultschema(::IndicatorProcess) = Tables.Schema((:field,), (Int,))
 
 function defaultschema(process::QuiltingProcess)
   table = process.trainimg |> values
@@ -202,3 +204,12 @@ function defaultsimulation(process::GaussianProcess, domain; data=nothing)
     SEQSIM()
   end
 end
+
+defaultsimulation(::IndicatorProcess, domain; data=nothing) = SEQSIM()
+
+# ----------------
+# IMPLEMENTATIONS
+# ----------------
+
+include("field/gaussian.jl")
+include("field/lindgren.jl")
