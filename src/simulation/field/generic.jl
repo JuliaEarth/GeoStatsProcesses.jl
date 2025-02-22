@@ -227,9 +227,8 @@ end
 function _probmodel(process::IndicatorProcess, func)
   f = func
   p = process.prob
-  μ = zeros(length(p))
 
-  model = Kriging(f, μ)
+  model = Kriging(f, p)
   prior = Categorical(p)
 
   model, prior
