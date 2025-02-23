@@ -19,20 +19,20 @@ function preprocess(::AbstractRNG, process, method::SEQSIM, init, domain, data)
   model, prior = _probmodel(process, fun)
 
   # transform process and data
-  sproc, sdom, sdat, cache = _transform(process, dom, dat)
+  sdom, sdat, cache = _transform(process, dom, dat)
 
-  (; params, model, prior, sproc, sdom, sdat, cache, init)
+  (; params, model, prior, sdom, sdat, cache, init)
 end
 
 function randsingle(rng::AbstractRNG, process, ::SEQSIM, domain, data, preproc)
   # retrieve preprocessing results
-  (; params, model, prior, sproc, sdom, sdat, cache, init) = preproc
+  (; params, model, prior, sdom, sdat, cache, init) = preproc
 
   # retrieve search parameters
   (; path, searcher, nmin, nmax) = params
 
   # initialize realization and mask
-  real, mask = randinit(sproc, sdom, sdat, init)
+  real, mask = randinit(process, sdom, sdat, init)
 
   # realization in matrix form for efficient updates
   realization = stack(Tables.rowtable(real))
@@ -172,9 +172,6 @@ end
 # ----------------
 
 function _transform(process, dom, dat)
-  # transformed process for sequential simulation
-  sproc = _transformed(process)
-
   # consider point set of centroids for now
   sdom = PointSet([centroid(dom, ind) for ind in 1:nelements(dom)])
 
@@ -185,12 +182,8 @@ function _transform(process, dom, dat)
     _fwdtransform(process, dat)
   end
 
-  sproc, sdom, sdat, cache
+  sdom, sdat, cache
 end
-
-_transformed(process::GaussianProcess) = process
-
-_transformed(process::IndicatorProcess) = GaussianProcess(process.func, process.prob)
 
 _fwdtransform(::GaussianProcess, dat) = apply(Identity(), dat)
 

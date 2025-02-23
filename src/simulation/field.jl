@@ -176,7 +176,12 @@ function defaultschema(process::GaussianProcess)
   Tables.Schema(names, types)
 end
 
-defaultschema(::IndicatorProcess) = Tables.Schema((:field,), (Int,))
+function defaultschema(process::IndicatorProcess)
+  nvars = nvariates(process.func)
+  names = ntuple(i -> Symbol(:field, i), nvars)
+  types = ntuple(i -> Bool, nvars)
+  Tables.Schema(names, types)
+end
 
 function defaultschema(process::QuiltingProcess)
   table = process.trainimg |> values
