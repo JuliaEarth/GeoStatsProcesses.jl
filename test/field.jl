@@ -110,24 +110,31 @@
 
   @testset "IndicatorProcess" begin
     rng = StableRNG(2025)
-    data = georef((; C=[1, 2, 1]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
+    data = georef((; C=[1, 3, 1]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
     grid = CartesianGrid(100, 100)
 
     # unconditional simulation
     proc = IndicatorProcess(SphericalTransiogram(range=35.0))
     real = rand(proc, grid)
     @test eltype(real.field) == Int
-    @test Set(real.field) == Set([1,2])
+    @test Set(real.field) == Set([1, 2])
 
     # conditional simulation
     real = rand(proc, grid, data=data)
     @test eltype(real.C) == Int
-    @test Set(real.C) == Set([1, 2])
+    @test Set(real.C) == Set([1, 3])
 
     # three categorical values
     proc = IndicatorProcess(SphericalTransiogram(range=35.0, proportions=(0.7, 0.2, 0.1)))
     real = rand(proc, grid)
-    @test Set(real.field) == Set([1,2,3])
+    @test Set(real.field) == Set([1, 2, 3])
+
+    # non-integer categorical values
+    data = georef((; C=["a", "b", "c"]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
+    proc = IndicatorProcess(SphericalTransiogram(range=35.0, proportions=(0.7, 0.2, 0.1)))
+    real = rand(proc, grid, data=data)
+    @test eltype(real.C) == String
+    @test Set(real.C) == Set(["a", "b", "c"])
   end
 
   @testset "LindgrenProcess" begin
