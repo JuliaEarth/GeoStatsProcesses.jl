@@ -210,7 +210,7 @@ function defaultsimulation(process::GaussianProcess, domain; data=nothing)
   end
 end
 
-defaultsimulation(::IndicatorProcess, domain; data=nothing) = SEQSIM()
+defaultsimulation(::IndicatorProcess, domain; data=nothing) = SEQSIM(path=RandomPath())
 
 # ----------------
 # IMPLEMENTATIONS
