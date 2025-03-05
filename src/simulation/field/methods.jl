@@ -28,6 +28,10 @@ drawn via a lower-upper (LU) matrix factorization.
   through the LU decomposition of the covariance matrix]
   (https://link.springer.com/article/10.1007/BF00897191)
 
+* Davis 1987. [Production of conditional simulations via the LU
+  triangular decomposition of the covariance matrix]
+  (https://link.springer.com/article/10.1007/BF00898189)
+
 * Oliver 2003. [Gaussian cosimulation: modeling of the cross-covariance]
   (https://link.springer.com/article/10.1023%2FB%3AMATG.0000002984.56637.ef)
 
@@ -111,9 +115,6 @@ inverse Fourier transform.
 
 * Gutjahr 1997. [General joint conditional simulations using a fast
   Fourier transform method](https://link.springer.com/article/10.1007/BF02769641)
-
-* Gómez-Hernández, J. & Srivastava, R. 2021. [One Step at a Time: The Origins
-  of Sequential Simulation and Beyond](https://link.springer.com/article/10.1007/s11004-021-09926-0)
 
 ### Notes
 
