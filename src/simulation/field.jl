@@ -210,7 +210,7 @@ function defaultsimulation(process::GaussianProcess, domain; data=nothing)
   p = parent(d)
   b = boundingbox(p)
   f = process.func
-  if p isa Grid && nvariates(f) == 1 && range(f) ≤ minimum(sides(b)) / 3 && isnothing(data)
+  if p isa Grid && isstationary(f) && nvariates(f) == 1 && range(f) ≤ minimum(sides(b)) / 3 && isnothing(data)
     FFTSIM()
   elseif nelements(d) < 100 * 100 && isstationary(f) && issymmetric(f) && isbanded(f)
     LUSIM()
