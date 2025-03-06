@@ -10,17 +10,13 @@ A method for simulating field processes.
 abstract type FieldSimulationMethod end
 
 """
-    LUSIM(; [options])
+    LUSIM()
 
-The LU simulation method introduced by Alabert 1987.
+The LU simulation method introduced by Alabert 1987 and Davis 1987.
 
 The full covariance matrix is built to include all locations
 of the data, and samples from the multivariate Gaussian are
 drawn via a lower-upper (LU) matrix factorization.
-
-## Options
-
-`factorization` - Factorization function from LinearAlgebra (default to `cholesky`)
 
 ## References
 
@@ -44,9 +40,7 @@ factorize the full covariance.
 For larger domains (e.g. 3D grids), other methods are preferred
 such as [`SEQSIM`](@ref) and [`FFTSIM`](@ref).
 """
-@kwdef struct LUSIM{F} <: FieldSimulationMethod
-  factorization::F = cholesky
-end
+struct LUSIM <: FieldSimulationMethod end
 
 """
     SEQSIM(; [options])
@@ -82,9 +76,9 @@ the nearest neighbors are used without additional constraints.
 
 ### Notes
 
-This method is very sensitive to the neighbor search options.
-Care must be taken to make sure that enough neighbors are used
-in the underlying geostatistical model.
+This method is very sensitive to neighbor search options and
+simulation path. Care must be taken to make sure that enough
+neighbors are used in the underlying geostatistical model.
 """
 @kwdef struct SEQSIM{P,N,D} <: FieldSimulationMethod
   path::P = LinearPath()
@@ -103,6 +97,9 @@ The covariance function is perturbed in the frequency domain
 after a fast Fourier transform. White noise is added to the
 phase of the spectrum, and a realization is produced by an
 inverse Fourier transform.
+
+Data conditioning is currently performed with Kriging, which
+accepts the following neighbor search options.
 
 ## Options
 

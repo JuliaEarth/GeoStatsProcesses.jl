@@ -7,9 +7,6 @@ function preprocess(::AbstractRNG, process::GaussianProcess, method::LUSIM, init
   f = process.func
   μ = process.mean
 
-  # method options
-  factorization = method.factorization
-
   # sanity checks
   isvalid(f) = isstationary(f) && issymmetric(f) && isbanded(f)
   if !isvalid(f)
@@ -59,18 +56,18 @@ function preprocess(::AbstractRNG, process::GaussianProcess, method::LUSIM, init
 
     if isempty(dinds)
       d₂ = zero(eltype(z₁))
-      L₂₂ = factorization(Symmetric(C₂₂)).L
+      L₂₂ = cholesky(Symmetric(C₂₂)).L
     else
       # covariance beween data locations
       C₁₁ = _pairwise(cov, ddom)
       C₁₂ = _pairwise(cov, ddom, sdom)
 
-      L₁₁ = factorization(Symmetric(C₁₁)).L
+      L₁₁ = cholesky(Symmetric(C₁₁)).L
       B₁₂ = L₁₁ \ C₁₂
       A₂₁ = transpose(B₁₂)
 
       d₂ = A₂₁ * (L₁₁ \ z₁)
-      L₂₂ = factorization(Symmetric(C₂₂ - A₂₁ * B₁₂)).L
+      L₂₂ = cholesky(Symmetric(C₂₂ - A₂₁ * B₁₂)).L
     end
 
     (; var, z₁, μ₁, d₂, L₂₂, dinds, sinds)

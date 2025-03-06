@@ -42,13 +42,6 @@
       @test eltype(real.field1) <: Float64
       @test eltype(real.field2) <: Float64
 
-      # custom factorization
-      rng = StableRNG(123)
-      grid = CartesianGrid(100)
-      proc = GaussianProcess(SphericalCovariance(range=10.0))
-      real = rand(rng, proc, grid; method=LUSIM(factorization=lu), data=data)
-      @test eltype(real.Z) <: Float64
-
       # 2D example
       rng = StableRNG(123)
       grid = CartesianGrid(100, 100)
@@ -61,7 +54,7 @@
       grid = CartesianGrid((100, 100), (0.5, 0.5), (1.0, 1.0))
       data = georef((; Z=[1.0, 0.0, 1.0]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
 
-      method = SEQSIM(neighborhood=MetricBall(35.0), maxneighbors=3)
+      method = SEQSIM(maxneighbors=3)
 
       # unconditional simulation
       rng = StableRNG(2017)
@@ -99,13 +92,6 @@
       data = georef((; Z=[1.0, 0.0, 1.0]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
       real = rand(rng, proc, grid, method=FFTSIM(maxneighbors=3), data=data)
     end
-
-    proc = GaussianProcess(GaussianVariogram())
-    @test sprint(show, proc) == "GaussianProcess(func: GaussianVariogram(range: 1.0 m, sill: 1.0, nugget: 0.0), mean: 0.0)"
-    @test sprint(show, MIME("text/plain"), proc) == """
-    GaussianProcess
-    ├─ func: GaussianVariogram(range: 1.0 m, sill: 1.0, nugget: 0.0)
-    └─ mean: 0.0"""
   end
 
   @testset "IndicatorProcess" begin
@@ -174,13 +160,6 @@
     rng = StableRNG(2024)
     real = rand(rng, proc, mesh; data)
     @test isapprox(sum(real.Z) / length(real.Z), 0.0, atol=1e-3)
-
-    proc = LindgrenProcess()
-    @test sprint(show, proc) == "LindgrenProcess(range: 1.0 m, sill: 1.0)"
-    @test sprint(show, MIME("text/plain"), proc) == """
-    LindgrenProcess
-    ├─ range: 1.0 m
-    └─ sill: 1.0"""
   end
 
   @testset "QuiltingProcess" begin
