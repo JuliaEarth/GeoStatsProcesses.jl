@@ -155,8 +155,17 @@ end
 # METHODS
 # --------
 
-include("field/methods.jl")
-include("field/generic.jl")
+"""
+    FieldSimulationMethod
+
+A method for simulating field processes.
+"""
+abstract type FieldSimulationMethod end
+
+include("field/lusim.jl")
+include("field/seqsim.jl")
+include("field/fftsim.jl")
+include("field/defsim.jl")
 
 # ---------
 # DEFAULTS
@@ -211,10 +220,3 @@ function defaultsimulation(process::GaussianProcess, domain; data=nothing)
 end
 
 defaultsimulation(::IndicatorProcess, domain; data=nothing) = SEQSIM()
-
-# ----------------
-# IMPLEMENTATIONS
-# ----------------
-
-include("field/gaussian.jl")
-include("field/lindgren.jl")

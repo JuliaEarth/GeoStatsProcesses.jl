@@ -2,6 +2,52 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
+"""
+    SEQSIM(; [options])
+
+The sequential simulation method introduced by Gomez-Hernandez 1993.
+
+The method traverses all locations of the geospatial domain according to
+a path, approximates the conditional distribution within a neighborhood
+using a geostatistical model, and assigns a value to the center of the
+neighborhood by sampling from this distribution.
+
+## Options
+
+* `path`         - Process path (default to `LinearPath()`)
+* `minneighbors` - Minimum number of neighbors (default to `1`)
+* `maxneighbors` - Maximum number of neighbors (default to `26`)
+* `neighborhood` - Search neighborhood (default to `:range`)
+* `distance`     - Distance used to find nearest neighbors (default to `Euclidean()`)
+
+For each location in the process `path`, a maximum number of
+neighbors `maxneighbors` is used to fit the conditional Gaussian
+distribution. The neighbors are searched according to a `neighborhood`.
+
+The `neighborhood` can be a `MetricBall`, the symbol `:range` or `nothing`.
+The symbol `:range` is converted to `MetricBall(range(f))` where `f` is the
+geostatistical function of the Gaussian process. If `neighborhood` is `nothing`,
+the nearest neighbors are used without additional constraints.
+
+## References
+
+* Gomez-Hernandez & Journel 1993. [Joint Sequential Simulation of
+  MultiGaussian Fields](https://link.springer.com/chapter/10.1007/978-94-011-1739-5_8)
+
+### Notes
+
+This method is very sensitive to neighbor search options and
+simulation path. Care must be taken to make sure that enough
+neighbors are used in the underlying geostatistical model.
+"""
+@kwdef struct SEQSIM{P,N,D} <: FieldSimulationMethod
+  path::P = LinearPath()
+  minneighbors::Int = 1
+  maxneighbors::Int = 26
+  neighborhood::N = :range
+  distance::D = Euclidean()
+end
+
 function preprocess(::AbstractRNG, process, method::SEQSIM, init, domain, data)
   # geostatistical function
   func = process.func
