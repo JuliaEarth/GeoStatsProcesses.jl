@@ -5,7 +5,7 @@
 """
     FFTSIM(; [options])
 
-The FFT simulation method introduced by Gutjahr 1997.
+The FFT simulation method introduced by Oliver 1995 and Ravalec 2000.
 
 The covariance function is perturbed in the frequency domain
 after a fast Fourier transform. White noise is added to the
