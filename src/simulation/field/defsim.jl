@@ -5,12 +5,12 @@
 function preprocess(::AbstractRNG, process::LindgrenProcess, ::Nothing, init, domain, data)
   # process parameters
   𝓁 = process.range
-  σ = process.sill
+  σ² = process.sill
 
   # sanity checks
   @assert domain isa Mesh "domain must be a `Mesh`"
   @assert 𝓁 > zero(𝓁) "range must be positive"
-  @assert σ > zero(σ) "sill must be positive"
+  @assert σ² > zero(σ²) "sill must be positive"
 
   # initialize realization and mask
   pset = PointSet(vertices(domain))
@@ -37,14 +37,13 @@ function preprocess(::AbstractRNG, process::LindgrenProcess, ::Nothing, init, do
   A = κ^2 * I - Δ
 
   # Matérn precision matrix
-  τ² = σ^2 * κ^(2ν) * (4π)^(d / 2) * gamma(α) / gamma(ν)
+  τ² = σ² * κ^(2ν) * (4π)^(d / 2) * gamma(α) / gamma(ν)
   Q = ustrip.(A'A / τ²)
 
   # factorization
-  F = cholesky(Array(Q))
-  L = inv(Array(F.U))
+  F = cholesky(Symmetric(Q))
 
-  # realization and mask for (single) variable
+  # realization and mask for variable
   z = real[var]
   m = mask[var]
 
@@ -63,16 +62,19 @@ function preprocess(::AbstractRNG, process::LindgrenProcess, ::Nothing, init, do
     z
   end
 
-  (; var, Q, L, i₁, i₂, z̄)
+  (; var, Q, F, σ², i₁, i₂, z̄)
 end
 
 function randsingle(rng::AbstractRNG, ::LindgrenProcess, ::Nothing, domain, data, preproc)
   # unpack preprocessing results
-  (; var, Q, L, i₁, i₂, z̄) = preproc
+  (; var, Q, F, σ², i₁, i₂, z̄) = preproc
 
   # unconditional realization at vertices
-  w = randn(rng, eltype(L), size(L, 2))
-  zᵤ = L * w
+  w = randn(rng, eltype(F), size(F, 1))
+  zᵤ = F \ w
+
+  # adjust variance
+  zᵤ .= √(σ² / Statistics.var(zᵤ)) .* zᵤ
 
   # perform conditioning if necessary
   z = if isempty(i₁)
