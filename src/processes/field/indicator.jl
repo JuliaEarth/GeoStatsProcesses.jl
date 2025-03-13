@@ -3,15 +3,14 @@
 # ------------------------------------------------------------------
 
 """
-    IndicatorProcess(function, probabilities)
+    IndicatorProcess(func, prob)
 
-Indicator process with multivariate geostatistical `function`
-(e.g., multivariate covariance) and a priori `probabilities`.
+Indicator process with multivariate geostatistical `func`tion
+(e.g., multivariate covariance) and a priori `prob`abilities.
 
-    IndicatorProcess(transiogram, [probabilities])
+    IndicatorProcess(transiogram, prob=proportions(transiogram))
 
-Alternatively, construct indicator process from transiogram.
-Set the `probabilities` to transiogram proportions by default.
+Alternatively, construct indicator process from `transiogram`.
 
 ## Examples
 

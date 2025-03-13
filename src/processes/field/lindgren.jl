@@ -5,12 +5,10 @@
 """
     LindgrenProcess(range=1.0, sill=1.0)
 
-Lindgren process with given `range` (correlation length)
-and `sill` (total variance) as discussed in Lindgren 2011.
+Lindgren process with given `range` and `sill`.
 
-The process relies on a discretization of the Laplace-Beltrami 
-operator on meshes to solve a specific SPDE. It is also known as
-Gaussian Markov Random Field (GMRF).
+The process relies on the discretization of the Laplace-Beltrami
+operator on meshes and is associated with a specific SPDE.
 
 ## Examples
 
@@ -32,6 +30,9 @@ LindgrenProcess(20.0, 2.0)
 
 * The process is particularly useful in highly curved domains (e.g. surfaces)
   given that it approximates geodesics as opposed to naive Euclidean distances.
+
+* It is also known as Gaussian Markov Random Field (GMRF) in the literature.
+
 """
 struct LindgrenProcess{ℒ<:Len,V} <: FieldProcess
   range::ℒ

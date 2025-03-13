@@ -3,10 +3,10 @@
 # ------------------------------------------------------------------
 
 """
-    GaussianProcess(function, [mean])
+    GaussianProcess(func, mean=0)
 
-Gaussian process with given geostatistical `function` (e.g. variogram)
-and `mean` (default to zero mean).
+Gaussian process with given geostatistical `func`tion
+(e.g. variogram) and `mean`.
 
 ## Examples
 
