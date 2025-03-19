@@ -81,7 +81,10 @@ function randsingle(rng::AbstractRNG, process, ::SEQSIM, domain, data, preproc)
   real, mask = randinit(process, sdom, sdat, init)
 
   # realization in matrix form for efficient updates
-  realization = stack(Tables.rowtable(real))
+  realization = ustrip.(stack(Tables.rowtable(real)))
+
+  # save units of columns to restore later
+  units = isnothing(sdat) ? _units(process) : _units(sdat)
 
   # locations with all variables already simulated
   simulated = map(all, Tables.rowtable(mask))
@@ -139,7 +142,7 @@ function randsingle(rng::AbstractRNG, process, ::SEQSIM, domain, data, preproc)
 
   # convert back to table format
   @inbounds for (i, var) in enumerate(vars)
-    real[var] .= realization[i,:]
+    real[var] .= realization[i,:] * units[i]
   end
 
   # undo data transformations
@@ -255,10 +258,14 @@ end
 function _probmodel(process::GaussianProcess, func)
   f = func
   μ = process.mean
-  Σ = ustrip.(sill(f))
 
-  model = Kriging(f, μ)
-  prior = nvariates(f) > 1 ? MvNormal(μ, Σ) : Normal(μ, √Σ)
+  # https://github.com/JuliaStats/Distributions.jl/issues/1413
+  u = unit(eltype(μ))
+  μᵤ = ustrip.(u, μ)
+  Σᵤ = ustrip.(u^2, sill(f))
+
+  model = Kriging(f, μᵤ)
+  prior = nvariates(f) > 1 ? MvNormal(μᵤ, Σᵤ) : Normal(μᵤ, √Σᵤ)
 
   model, prior
 end
@@ -281,6 +288,25 @@ function _conditional(::IndicatorProcess, fitted, vars, geom)
   p = GeoStatsModels.predict(fitted, vars, geom)
   p̂ = normalize(clamp.(p, 0, 1), 1)
   Categorical(p̂)
+end
+
+# ---------------
+# PHYSICAL UNITS
+# ---------------
+
+function _units(process::GaussianProcess)
+  μ = process.mean
+  ntuple(i -> unit(μ[i]), length(μ))
+end
+
+function _units(process::IndicatorProcess)
+  p = process.prob
+  ntuple(i -> NoUnits, length(p))
+end
+
+function _units(data)
+  types = Tables.schema(values(data)).types
+  ntuple(i -> unit(types[i]), length(types))
 end
 
 # --------

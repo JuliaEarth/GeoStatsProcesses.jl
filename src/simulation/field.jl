@@ -181,7 +181,7 @@ defaultschema(::FieldProcess) = Tables.Schema((:field,), (Float64,))
 function defaultschema(process::GaussianProcess)
   nvars = nvariates(process.func)
   names = nvars > 1 ? ntuple(i -> Symbol(:field, i), nvars) : (:field,)
-  types = ntuple(i -> Float64, nvars)
+  types = ntuple(i -> typeof(process.mean[i]), nvars)
   Tables.Schema(names, types)
 end
 

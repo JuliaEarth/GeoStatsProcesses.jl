@@ -15,110 +15,128 @@
     end
 
     @testset "LUSIM" begin
-      data = georef((; Z=[0.0, 1.0, 0.0, 1.0, 0.0]), [(0.0,), (25.0,), (50.0,), (75.0,), (100.0,)])
-      grid = CartesianGrid(100)
-
       method = LUSIM()
 
-      # unconditional simulation
+      # simulation over 1D domain
       rng = StableRNG(123)
       proc = GaussianProcess(SphericalCovariance(range=10.0))
+      grid = CartesianGrid(100)
+      data = georef((; Z=[0.0, 1.0, 0.0, 1.0, 0.0]), [(0.0,), (25.0,), (50.0,), (75.0,), (100.0,)])
       real = rand(rng, proc, grid; method)
       @test eltype(real.field) <: Float64
-
-      # conditional simulation
-      rng = StableRNG(123)
-      proc = GaussianProcess(SphericalCovariance(range=10.0))
       real = rand(rng, proc, grid; method, data)
       @test eltype(real.Z) <: Float64
 
       # cosimulation
       rng = StableRNG(123)
-      grid = CartesianGrid(500)
-      cov = [1.0 0.95; 0.95 1.0] * GaussianCovariance(range=10.0)
+      func = [1.0 0.95; 0.95 1.0] * GaussianCovariance(range=10.0)
       mean = [0.0, 0.0]
-      proc = GaussianProcess(cov, mean)
+      proc = GaussianProcess(func, mean)
       real = rand(rng, proc, grid; method)
       @test eltype(real.field1) <: Float64
       @test eltype(real.field2) <: Float64
 
-      # 2D example
+      # simulation over 2D domain
       rng = StableRNG(123)
-      grid = CartesianGrid(100, 100)
       proc = GaussianProcess(GaussianCovariance(range=10.0))
+      grid = CartesianGrid(100, 100)
       real = rand(rng, proc, grid; method)
+      @test eltype(real.field) <: Float64
     end
 
     @testset "SEQSIM" begin
+      method = SEQSIM(maxneighbors=3)
+
+      # basic simulation
+      rng = StableRNG(2017)
       proc = GaussianProcess(SphericalVariogram(range=35.0))
       grid = CartesianGrid((100, 100), (0.5, 0.5), (1.0, 1.0))
       data = georef((; Z=[1.0, 0.0, 1.0]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
-
-      method = SEQSIM(maxneighbors=3)
-
-      # unconditional simulation
-      rng = StableRNG(2017)
       real = rand(rng, proc, grid; method)
       @test eltype(real.field) <: Float64
-
-      # conditional simulation
       real = rand(rng, proc, grid; method, data)
       @test eltype(real.Z) <: Float64
       inds = LinearIndices(size(grid))
       @test real.Z[inds[25, 25]] == 1.0
+
+      # simulation with units
+      rng = StableRNG(2017)
+      mean = 0.0u"K"
+      func = SphericalVariogram(range=35.0, sill=1.0u"K^2")
+      proc = GaussianProcess(func, mean)
+      grid = CartesianGrid(10, 10)
+      data = georef((; Z=[1.0, 0.0, 1.0] * u"K"), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
+      real = rand(rng, proc, grid; method)
+      @test unit(eltype(real.field)) == u"K"
+      real = rand(rng, proc, grid; method, data)
+      @test unit(eltype(real.Z)) == u"K"
+
+      # multivariate simulation with units
+      rng = StableRNG(2017)
+      mean = [0.1u"ppm", 0.2u"ppm"]
+      func = [1.0 0.8; 0.8 1.0] * SphericalCovariance(range=35.0, sill=1.0u"ppm^2")
+      proc = GaussianProcess(func, mean)
+      grid = CartesianGrid(10, 10)
+      data = georef((; Cu=[0.0, 0.1, 0.0] * u"ppm", Zn=[0.1, 0.0, 0.1] * u"ppm"), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
+      real = rand(rng, proc, grid; method)
+      @test unit(eltype(real.field1)) == u"ppm"
+      @test unit(eltype(real.field2)) == u"ppm"
+      real = rand(rng, proc, grid; method, data)
+      @test unit(eltype(real.Cu)) == u"ppm"
+      @test unit(eltype(real.Zn)) == u"ppm"
     end
 
     @testset "FFTSIM" begin
+      method = FFTSIM()
+
       # basic simulation
       rng = StableRNG(2019)
       proc = GaussianProcess(GaussianVariogram(range=10.0))
       grid = CartesianGrid(100, 100)
-      real = rand(rng, proc, grid, method=FFTSIM())
+      real = rand(rng, proc, grid; method)
       @test eltype(real.field) <: Float64
 
       # simulation on view of grid
-      rng = StableRNG(2022)
+      rng = StableRNG(2019)
       proc = GaussianProcess(GaussianVariogram(range=10.0))
       grid = CartesianGrid(100, 100)
       vgrid = view(grid, 1:5000)
-      real = rand(rng, proc, vgrid, method=FFTSIM())
+      real = rand(rng, proc, vgrid; method)
       @test domain(real) == vgrid
       @test length(real.geometry) == 5000
 
       # conditional simulation
-      rng = StableRNG(2022)
+      rng = StableRNG(2019)
       proc = GaussianProcess(GaussianVariogram(range=35.0))
       grid = CartesianGrid((100, 100), (0.5, 0.5), (1.0, 1.0))
       data = georef((; Z=[1.0, 0.0, 1.0]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
       real = rand(rng, proc, grid, method=FFTSIM(maxneighbors=3), data=data)
+      @test domain(real) == grid
+      @test nrow(real) == 10000
     end
   end
 
   @testset "IndicatorProcess" begin
-    rng = StableRNG(2025)
-    data = georef((; C=[1, 3, 1]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
-    grid = CartesianGrid(100, 100)
-
-    # unconditional simulation
+    # two categorical values
+    rng = StableRNG(123)
     proc = IndicatorProcess(SphericalTransiogram(range=35.0))
-    real = rand(proc, grid)
+    grid = CartesianGrid(100, 100)
+    data = georef((; C=[1, 3, 1]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
+    real = rand(rng, proc, grid)
     @test eltype(real.field) == Int
     @test Set(real.field) == Set([1, 2])
-
-    # conditional simulation
-    real = rand(proc, grid, data=data)
+    real = rand(rng, proc, grid; data)
     @test eltype(real.C) == Int
     @test Set(real.C) == Set([1, 3])
 
     # three categorical values
+    rng = StableRNG(123)
     proc = IndicatorProcess(SphericalTransiogram(range=35.0, proportions=(0.7, 0.2, 0.1)))
-    real = rand(proc, grid)
-    @test Set(real.field) == Set([1, 2, 3])
-
-    # non-integer categorical values
+    grid = CartesianGrid(100, 100)
     data = georef((; C=["a", "b", "c"]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
-    proc = IndicatorProcess(SphericalTransiogram(range=35.0, proportions=(0.7, 0.2, 0.1)))
-    real = rand(proc, grid, data=data)
+    real = rand(rng, proc, grid)
+    @test Set(real.field) == Set([1, 2, 3])
+    real = rand(rng, proc, grid; data)
     @test eltype(real.C) == String
     @test Set(real.C) == Set(["a", "b", "c"])
   end
