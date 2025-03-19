@@ -205,17 +205,24 @@
     @test proc.sill isa Float64
 
     # simulation on sphere
+    rng = StableRNG(2024)
     proc = LindgrenProcess(0.1)
     mesh = simplexify(Sphere((0, 0, 0)))
     data = georef((Z=[0.0, 1.0],), [(0, 0, -1), (0, 0, 1)])
-    # unconditional realization
-    rng = StableRNG(2024)
     real = rand(rng, proc, mesh)
     @test isapprox(sum(real.field) / length(real.field), 0.0, atol=1e-3)
-    # conditional realization
-    rng = StableRNG(2024)
     real = rand(rng, proc, mesh; data)
     @test isapprox(sum(real.Z) / length(real.Z), 0.0, atol=1e-3)
+
+    # simulation with units
+    rng = StableRNG(2024)
+    proc = LindgrenProcess(0.1, 1.0u"K^2")
+    mesh = simplexify(Sphere((0, 0, 0)))
+    data = georef((Z=[0.0, 1.0] * u"K",), [(0, 0, -1), (0, 0, 1)])
+    real = rand(rng, proc, mesh)
+    @test unit(eltype(real.field)) == u"K"
+    real = rand(rng, proc, mesh; data)
+    @test unit(eltype(real.Z)) == u"K"
   end
 
   @testset "QuiltingProcess" begin

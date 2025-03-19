@@ -43,22 +43,18 @@ function preprocess(::AbstractRNG, process::LindgrenProcess, ::Nothing, init, do
   # factorization
   F = cholesky(Symmetric(Q))
 
-  # realization and mask for variable
-  z = real[var]
-  m = mask[var]
-
-  # retrieve data locations and data values
-  i₁ = findall(m)
-  z₁ = view(z, i₁)
-
-  # retrieve simulation locations
+  # retrieve data and simulation locations
+  i₁ = findall(mask[var])
   i₂ = setdiff(1:nvertices(domain), i₁)
 
   # interpolate at simulation locations if necessary
   z̄ = if isempty(i₁)
     nothing
   else
-    z[i₂] .= -Q[i₂,i₂] \ (Q[i₂,i₁] * z₁)
+    z = ustrip.(real[var])
+    z₁ = view(z, i₁)
+    z₂ = view(z, i₂)
+    z₂ .= -Q[i₂,i₂] \ (Q[i₂,i₁] * z₁)
     z
   end
 
@@ -74,7 +70,8 @@ function randsingle(rng::AbstractRNG, ::LindgrenProcess, ::Nothing, domain, data
   zᵤ = F \ w
 
   # adjust variance
-  zᵤ .= √(σ² / Statistics.var(zᵤ)) .* zᵤ
+  s² = Statistics.var(zᵤ, mean=zero(eltype(zᵤ)))
+  zᵤ .= √(ustrip(σ²) / s²) .* zᵤ
 
   # perform conditioning if necessary
   z = if isempty(i₁)
@@ -84,8 +81,10 @@ function randsingle(rng::AbstractRNG, ::LindgrenProcess, ::Nothing, domain, data
     zᵤ₁ = view(zᵤ, i₁)
 
     # interpolate at simulation locations
-    z̄ᵤ = similar(zᵤ)
     zᵤ₂ = -Q[i₂,i₂] \ (Q[i₂,i₁] * zᵤ₁)
+
+    # merge the above results
+    z̄ᵤ = similar(zᵤ)
     z̄ᵤ[i₁] .= zᵤ₁
     z̄ᵤ[i₂] .= zᵤ₂
 
@@ -94,7 +93,7 @@ function randsingle(rng::AbstractRNG, ::LindgrenProcess, ::Nothing, domain, data
   end
 
   # vertex table
-  vtable = (; var => z)
+  vtable = (; var => z * √unit(σ²))
 
   # change of support
   vdata = GeoTable(domain; vtable)
