@@ -29,8 +29,8 @@
 
       # cosimulation
       rng = StableRNG(123)
-      func = [1.0 0.95; 0.95 1.0] * GaussianCovariance(range=10.0)
       mean = [0.0, 0.0]
+      func = [1.0 0.95; 0.95 1.0] * GaussianCovariance(range=10.0)
       proc = GaussianProcess(func, mean)
       real = rand(rng, proc, grid; method)
       @test eltype(real.field1) <: Float64
@@ -42,6 +42,32 @@
       grid = CartesianGrid(100, 100)
       real = rand(rng, proc, grid; method)
       @test eltype(real.field) <: Float64
+
+      # simulation with units
+      rng = StableRNG(123)
+      mean = 0.0u"K"
+      func = GaussianCovariance(range=35.0, sill=1.0u"K^2")
+      proc = GaussianProcess(func, mean)
+      grid = CartesianGrid(10, 10)
+      data = georef((; Z=[1.0, 0.0, 1.0] * u"K"), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
+      real = rand(rng, proc, grid; method)
+      @test unit(eltype(real.field)) == u"K"
+      real = rand(rng, proc, grid; method, data)
+      @test unit(eltype(real.Z)) == u"K"
+
+      # multivariate simulation with units
+      rng = StableRNG(123)
+      mean = [0.1u"ppm", 0.2u"ppm"]
+      func = [1.0 0.8; 0.8 1.0] * SphericalCovariance(range=35.0, sill=1.0u"ppm^2")
+      proc = GaussianProcess(func, mean)
+      grid = CartesianGrid(10, 10)
+      data = georef((; Cu=[0.0, 0.1, 0.0] * u"ppm", Zn=[0.1, 0.0, 0.1] * u"ppm"), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
+      real = rand(rng, proc, grid; method)
+      @test unit(eltype(real.field1)) == u"ppm"
+      @test unit(eltype(real.field2)) == u"ppm"
+      real = rand(rng, proc, grid; method, data)
+      @test unit(eltype(real.Cu)) == u"ppm"
+      @test unit(eltype(real.Zn)) == u"ppm"
     end
 
     @testset "SEQSIM" begin

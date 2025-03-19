@@ -111,14 +111,15 @@ end
 
 function randsingle(rng::AbstractRNG, process::GaussianProcess, ::LUSIM, domain, data, preproc)
   # simulate first variable
-  var₁, Y₁, w₁ = _lusim(rng, preproc[1])
-  cols = [var₁ => Y₁]
+  var₁, z₁, w₁ = _lusim(rng, preproc[1])
 
-  # simulate second variable
-  if length(preproc) > 1
+  cols = if length(preproc) > 1
+    # simulate second variable
     ρ = _rho(process.func)
-    var₂, Y₂, _ = _lusim(rng, preproc[2], ρ, w₁)
-    push!(cols, var₂ => Y₂)
+    var₂, z₂, _ = _lusim(rng, preproc[2], ρ, w₁)
+    (var₁ => z₁, var₂ => z₂)
+  else
+    (var₁ => z₁,)
   end
 
   (; cols...)
@@ -148,23 +149,27 @@ function _lusim(rng, preprocⱼ, ρ=nothing, w₁=nothing)
   # number of elements in simulation domain
   n = length(dinds) + length(sinds)
 
+  # variable type and unit
+  V = eltype(z₁)
+  u = unit(V)
+
   # allocate memory for result
-  y = Vector{eltype(z₁)}(undef, n)
+  z = Vector{V}(undef, n)
 
   # conditional simulation
-  w₂ = randn(rng, size(L₂₂, 2))
-  if isnothing(ρ)
-    y₂ = d₂ .+ L₂₂ * w₂
+  w₂ = randn(rng, size(L₂₂, 2)) * u
+  z₂ = if isnothing(ρ)
+    d₂ .+ L₂₂ * w₂
   else
-    y₂ = d₂ .+ L₂₂ * (ρ * w₁ + √(1 - ρ^2) * w₂)
+    d₂ .+ L₂₂ * (ρ * w₁ + √(1 - ρ^2) * w₂)
   end
 
   # hard data and simulated values
-  y[dinds] = z₁
-  y[sinds] = y₂
+  z[dinds] = z₁
+  z[sinds] = z₂
 
   # adjust mean in case of unconditional simulation
-  isempty(dinds) && (y .+= μ₁)
+  isempty(dinds) && (z .+= μ₁)
 
-  var, y, w₂
+  var, z, w₂
 end
