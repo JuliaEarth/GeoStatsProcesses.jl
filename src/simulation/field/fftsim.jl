@@ -125,7 +125,7 @@ function randsingle(rng::AbstractRNG, process::GaussianProcess, method::FFTSIM, 
   P = F .* exp.(im .* angle.(fft(w)))
 
   # move back to time domain
-  Z = real(ifft(P))
+  Z = real(ifft(P)) * unit(μ)
 
   # adjust mean and variance
   σ² = Statistics.var(Z, mean=zero(eltype(Z)))

@@ -139,6 +139,18 @@
       real = rand(rng, proc, grid, method=FFTSIM(maxneighbors=3), data=data)
       @test domain(real) == grid
       @test nrow(real) == 10000
+
+      # simulation with units
+      rng = StableRNG(2019)
+      mean = 0.0u"K"
+      func = SphericalVariogram(range=35.0, sill=1.0u"K^2")
+      proc = GaussianProcess(func, mean)
+      grid = CartesianGrid(10, 10)
+      data = georef((; Z=[1.0, 0.0, 1.0] * u"K"), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
+      real = rand(rng, proc, grid; method)
+      @test unit(eltype(real.field)) == u"K"
+      real = rand(rng, proc, grid; method, data)
+      @test unit(eltype(real.Z)) == u"K"
     end
   end
 
