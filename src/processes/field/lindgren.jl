@@ -28,10 +28,10 @@ LindgrenProcess(20.0, 2.0)
 
 ### Notes
 
-* The process is particularly useful in highly curved domains (e.g. surfaces)
-  given that it approximates geodesics as opposed to naive Euclidean distances.
+The process is particularly useful in highly curved domains (e.g. surfaces)
+given that it approximates geodesics as opposed to naive Euclidean distances.
 
-* It is also known as Gaussian Markov Random Field (GMRF) in the literature.
+It is also known as Gaussian Markov Random Field (GMRF) in the literature.
 
 """
 struct LindgrenProcess{ℒ<:Len,V} <: FieldProcess
