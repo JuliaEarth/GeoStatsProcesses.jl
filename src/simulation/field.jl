@@ -219,4 +219,17 @@ function defaultsimulation(process::GaussianProcess, domain; data=nothing)
   end
 end
 
-defaultsimulation(process::IndicatorProcess, domain; data=nothing) = SEQSIM()
+function defaultsimulation(process::IndicatorProcess, dom; data=nothing)
+  path = if isnothing(data)
+    LinearPath()
+  else
+    d = domain(data)
+    s = KNearestSearch(dom, 1)
+    inds = map(1:nelements(d)) do i
+      p = centroid(d, i)
+      first(search(p, s))
+    end
+    SourcePath(unique(inds))
+  end
+  SEQSIM(; path)
+end
