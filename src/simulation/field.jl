@@ -131,7 +131,7 @@ method.
 """
 function randinit(process::FieldProcess, domain, data, init)
   # retrieve appropriate schema
-  schema = isnothing(data) ? defaultschema(process) : dataschema(data) 
+  schema = isnothing(data) ? defaultschema(process) : dataschema(data)
 
   # allocate memory for realization and simulation mask
   nelm = nelements(domain)
