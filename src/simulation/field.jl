@@ -203,7 +203,7 @@ end
 Default method used for the simulation of geostatistical `process`
 over given geospatial `domain` and optional `data`.
 """
-defaultsimulation(::FieldProcess, domain; data=nothing) = nothing
+defaultsimulation(process::FieldProcess, domain; data=nothing) = nothing
 
 function defaultsimulation(process::GaussianProcess, domain; data=nothing)
   d = domain
@@ -219,4 +219,4 @@ function defaultsimulation(process::GaussianProcess, domain; data=nothing)
   end
 end
 
-defaultsimulation(::IndicatorProcess, domain; data=nothing) = SEQSIM()
+defaultsimulation(process::IndicatorProcess, domain; data=nothing) = SEQSIM()
