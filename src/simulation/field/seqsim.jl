@@ -7,27 +7,26 @@
 
 The sequential simulation method introduced by Gomez-Hernandez 1993.
 
-The method traverses all locations of the geospatial domain according to
-a path, approximates the conditional distribution within a neighborhood
-using a geostatistical model, and assigns a value to the center of the
-neighborhood by sampling from this distribution.
+The method traverses all elements (i.e. geometries) of the simulation
+domain according to a path, approximates the conditional distribution
+with a set of neighbors using a geostatistical model, and assigns a
+value to the current element by sampling from the conditional distribution.
 
 ## Options
 
-* `path`         - Process path (default to `LinearPath()`)
+* `path`         - Simulation path (default to `LinearPath()`)
 * `minneighbors` - Minimum number of neighbors (default to `1`)
 * `maxneighbors` - Maximum number of neighbors (default to `26`)
 * `neighborhood` - Search neighborhood (default to `:range`)
-* `distance`     - Distance used to find nearest neighbors (default to `Euclidean()`)
+* `distance`     - Distance for nearest neighbors (default to `Euclidean()`)
 
-For each location in the process `path`, a maximum number of
-neighbors `maxneighbors` is used to fit the conditional Gaussian
-distribution. The neighbors are searched according to a `neighborhood`.
+The conditional distribution is approximated based on a number `n` of
+neighbors such that `minneighbors` ≤ `n` ≤ `maxneighbors`.
 
 The `neighborhood` can be a `MetricBall`, the symbol `:range` or `nothing`.
 The symbol `:range` is converted to `MetricBall(range(f))` where `f` is the
-geostatistical function of the Gaussian process. If `neighborhood` is `nothing`,
-the nearest neighbors are used without additional constraints.
+geostatistical function of the geostatistical process. If `neighborhood` is
+`nothing`, find the nearest neighbors according to the given `distance`.
 
 ## References
 
