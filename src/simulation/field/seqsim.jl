@@ -139,10 +139,7 @@ function randsingle(rng::AbstractRNG, process, ::SEQSIM, domain, data, preproc)
   end
 
   # undo data transformations
-  rdat = _bwdtransform(process, georef(real, sdom), cache)
-
-  # return realization values
-  values(rdat)
+  _bwdtransform(process, real, cache)
 end
 
 # --------
@@ -231,9 +228,9 @@ _fwdtransform(::GaussianProcess, dat) = apply(Identity(), dat)
 
 _fwdtransform(::IndicatorProcess, dat) = apply(OneHot(1), dat)
 
-_bwdtransform(::GaussianProcess, rdat, cache) = revert(Identity(), rdat, cache)
+_bwdtransform(::GaussianProcess, tab, cache) = revert(Identity(), tab, cache)
 
-_bwdtransform(::IndicatorProcess, rdat, cache) = revert(OneHot(1), rdat, cache)
+_bwdtransform(::IndicatorProcess, tab, cache) = revert(OneHot(1), tab, cache)
 
 _cache(::GaussianProcess) = nothing
 
@@ -241,7 +238,8 @@ function _cache(process::IndicatorProcess)
   f = process.func
   n = nvariates(f)
   t = (field = 1:n,)
-  apply(OneHot(1), t) |> last
+  _, c = apply(OneHot(1), t)
+  c
 end
 
 # ------------------
