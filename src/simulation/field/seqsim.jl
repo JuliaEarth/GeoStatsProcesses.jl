@@ -57,24 +57,18 @@ function preprocess(::AbstractRNG, process, method::SEQSIM, init, domain, data)
   # determine search method and min/max neighbors
   path, searcher, nmin, nmax = _search(dom, neigh, method)
 
-  # store adjusted parameters
-  params = (; path, searcher, nmin, nmax)
-
   # determine probability model
   model, prior = _probmodel(process, fun)
 
   # transform process and data
   sdom, sdat, cache = _transform(process, dom, dat)
 
-  (; params, model, prior, sdom, sdat, cache, init)
+  (; path, searcher, nmin, nmax, model, prior, sdom, sdat, cache, init)
 end
 
 function randsingle(rng::AbstractRNG, process, ::SEQSIM, domain, data, preproc)
   # retrieve preprocessing results
-  (; params, model, prior, sdom, sdat, cache, init) = preproc
-
-  # retrieve search parameters
-  (; path, searcher, nmin, nmax) = params
+  (; path, searcher, nmin, nmax, model, prior, sdom, sdat, cache, init) = preproc
 
   # initialize realization and mask
   real, mask = randinit(process, sdom, sdat, init)
