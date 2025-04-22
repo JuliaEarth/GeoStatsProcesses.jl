@@ -112,7 +112,8 @@ function randsingle(rng::AbstractRNG, process, ::SEQSIM, domain, data, preproc)
           inds = view(neighbors, 1:n)
           ndom = view(sdom, inds)
           nmat = view(realization, :, inds)
-          ntab = (; zip(vars, eachrow(nmat))...)
+          ntup = ntuple(i -> view(nmat, i, :), length(vars))
+          ntab = NamedTuple{vars}(ntup)
           georef(ntab, ndom)
         end
 
