@@ -11,16 +11,16 @@ const Len{T} = Quantity{T,u"𝐋"}
 addunit(x::Number, u) = x * u
 addunit(x::Quantity, _) = x
 
+# ---
+# IO
+# ---
+
 prettyname(obj) = prettyname(typeof(obj))
 function prettyname(T::Type)
   name = string(T)
   name = replace(name, r"{.*" => "")
   replace(name, r".*\." => "")
 end
-
-# ---
-# IO
-# ---
 
 printfields(io, obj; kwargs...) = printfields(io, obj, fieldnames(typeof(obj)); kwargs...)
 function printfields(io, obj, fnames; singleline=false)
