@@ -41,6 +41,13 @@
   cdf2D = cdf(ensemble, 3)
   @test cdf2D.z == 3 / 3 * ones(nrow(cdf2D))
 
+  # ccdf
+  for i in 1:3
+    cdf2D = cdf(ensemble, i)
+    ccdf2D = ccdf(ensemble, i)
+    @test ccdf2D.z == 1 .- cdf2D.z
+  end
+
   # quantile (scalar)
   p = 0.5
   quant2D = quantile(ensemble, p)

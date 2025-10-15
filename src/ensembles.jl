@@ -45,6 +45,8 @@ var(e::Ensemble) = ereduce(var, e)
 
 cdf(e::Ensemble, x::Number) = ereduce(vals -> count(≤(x), vals) / length(vals), e)
 
+ccdf(e::Ensemble, x::Number) = ereduce(vals -> count(>(x), vals) / length(vals), e)
+
 quantile(e::Ensemble, p::Number) = ereduce(vals -> quantile(vals, p), e)
 
 quantile(e::Ensemble, ps::AbstractVector) = [quantile(e, p) for p in ps]

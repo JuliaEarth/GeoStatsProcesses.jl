@@ -24,7 +24,9 @@ using Statistics
 using Distributed
 using LinearAlgebra
 
-import Distributions: mean, var, cdf, quantile
+import Distributions: mean, var
+import Distributions: cdf, ccdf
+import Distributions: quantile
 import Base: ==
 
 include("utils.jl")
@@ -40,6 +42,7 @@ export
   mean,
   var,
   cdf,
+  ccdf,
   quantile,
 
   # point processes
