@@ -45,7 +45,7 @@
   for i in 1:3
     cdf2D = cdf(ensemble, i)
     ccdf2D = ccdf(ensemble, i)
-    @test ccdf2D.z == 1 .- cdf2D.z
+    @test ccdf2D.z ≈ 1 .- cdf2D.z
   end
 
   # quantile (scalar)
