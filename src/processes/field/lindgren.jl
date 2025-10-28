@@ -40,4 +40,4 @@ struct LindgrenProcess{ℒ<:Len,V} <: FieldProcess
   LindgrenProcess(range::ℒ, sill::V) where {ℒ<:Len,V} = new{float(ℒ),float(V)}(range, sill)
 end
 
-LindgrenProcess(range=1.0u"m", sill=1.0) = LindgrenProcess(addunit(range, u"m"), sill)
+LindgrenProcess(range=1.0u"m", sill=1.0) = LindgrenProcess(aslen(range), sill)

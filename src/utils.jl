@@ -8,8 +8,9 @@
 
 const Len{T} = Quantity{T,u"𝐋"}
 
-addunit(x::Number, u) = x * u
-addunit(x::Quantity, _) = x
+aslen(x::Number) = x * u"m"
+aslen(x::Len) = x
+aslen(::Quantity) = throw(ArgumentError("invalid units, please check the documentation"))
 
 # ---
 # IO
