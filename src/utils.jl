@@ -8,9 +8,9 @@
 
 const Len{T} = Quantity{T,u"𝐋"}
 
-aslen(x::Number) = x * u"m"
 aslen(x::Len) = x
-aslen(::Quantity) = throw(ArgumentError("invalid units, please check the documentation"))
+aslen(x::Number) = x * u"m"
+aslen(::Quantity) = throw(ArgumentError("invalid length unit"))
 
 # ---
 # IO
