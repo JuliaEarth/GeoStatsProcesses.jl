@@ -16,6 +16,9 @@ using GeoStatsProcesses: randinit
 
 import GeoStatsProcesses: preprocess, randsingle
 
+# helper function
+getarray(gtb, var) = reshape(getproperty(gtb, var), size(domain(gtb)))
+
 function preprocess(::AbstractRNG, process::QuiltingProcess, ::Nothing, init, dom, data)
   # parent domain
   grid = parent(dom)
@@ -43,7 +46,7 @@ function preprocess(::AbstractRNG, process::QuiltingProcess, ::Nothing, init, do
   TI = process.trainimg
 
   # training image as simple array
-  trainimg = asarray(TI, var)
+  trainimg = getarray(TI, var)
 
   # simulation size
   simsize = size(grid)
@@ -59,7 +62,7 @@ function preprocess(::AbstractRNG, process::QuiltingProcess, ::Nothing, init, do
     vars₁ = dat |> values |> Tables.columns |> Tables.columnnames
     vars₂ = datTI |> values |> Tables.columns |> Tables.columnnames
     @assert Set(vars₁) == Set(vars₂) "auxiliary variables for target domain and training image differ"
-    [(asarray(dat, var), asarray(datTI, var)) for var in vars₁]
+    [(getarray(dat, var), getarray(datTI, var)) for var in vars₁]
   else
     []
   end
