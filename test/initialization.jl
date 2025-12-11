@@ -6,14 +6,14 @@
     proc = GaussianProcess(GaussianVariogram())
     init = NearestInit()
 
-    grid = CartesianGrid((100,), (-0.5,), (1.0,))
+    grid = CartesianGrid((-0.5,), (99.5,), dims=(100,))
     real, mask = GeoStatsProcesses.randinit(proc, grid, data1D, init)
     for (i, j) in (100 => 11, 81 => 9, 11 => 2, 21 => 3, 91 => 10, 51 => 6, 61 => 7, 71 => 8, 31 => 4, 41 => 5, 1 => 1)
       @test real[:value][i] == data1D.value[j]
       @test mask[:value][i] == true
     end
 
-    grid = CartesianGrid((100, 100), (-0.5, -0.5), (1.0, 1.0))
+    grid = CartesianGrid((-0.5, -0.5), (99.5, 99.5), dims=(100, 100))
     real, mask = GeoStatsProcesses.randinit(proc, grid, data2D, init)
     for (i, j) in (5076 => 3, 2526 => 1, 7551 => 2)
       @test real[:value][i] == data2D.value[j]
