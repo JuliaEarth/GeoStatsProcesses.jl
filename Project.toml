@@ -1,6 +1,6 @@
 name = "GeoStatsProcesses"
 uuid = "aa102bde-5a27-4b0c-b2c1-e7a7dcc4c3e7"
-version = "0.12.6"
+version = "0.12.7"
 authors = ["Júlio Hoffimann <julio.hoffimann@gmail.com> and contributors"]
 
 [deps]
