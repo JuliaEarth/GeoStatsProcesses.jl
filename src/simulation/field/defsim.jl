@@ -4,13 +4,7 @@
 
 function preprocess(::AbstractRNG, process::LindgrenProcess, ::Nothing, init, domain, data)
   # process parameters
-  𝓁 = process.range
   σ² = process.sill
-
-  # sanity checks
-  @assert domain isa Mesh "domain must be a `Mesh`"
-  @assert 𝓁 > zero(𝓁) "range must be positive"
-  @assert σ² > zero(σ²) "sill must be positive"
 
   # initialize realization and mask
   pset = PointSet(vertices(domain))
@@ -22,25 +16,10 @@ function preprocess(::AbstractRNG, process::LindgrenProcess, ::Nothing, init, do
   # retrieve variable name
   var = first(keys(real))
 
-  # Laplace-Beltrami operator
-  W = laplacematrix(domain)
-  M = measurematrix(domain)
-  Δ = inv(M) * W
-
-  # retrieve parametric dimension
-  d = paramdim(domain)
-
-  # LHS of SPDE (κ² - Δ)Z = τW with Δ = M⁻¹W
-  α = 2
-  ν = α - d / 2
-  κ = 1 / 𝓁
-  A = κ^2 * I - Δ
-
   # Matérn precision matrix
-  τ² = σ² * κ^(2ν) * (4π)^(d / 2) * gamma(α) / gamma(ν)
-  Q = ustrip.(A'A / τ²)
+  Q = precisionmatrix(process, domain)
 
-  # factorization
+  # matrix factorization
   F = cholesky(Symmetric(Q))
 
   # retrieve data and simulation locations

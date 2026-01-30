@@ -37,7 +37,41 @@ It is also known as Gaussian Markov Random Field (GMRF) in the literature.
 struct LindgrenProcess{ℒ<:Len,V} <: FieldProcess
   range::ℒ
   sill::V
-  LindgrenProcess(range::ℒ, sill::V) where {ℒ<:Len,V} = new{float(ℒ),float(V)}(range, sill)
+  function LindgrenProcess(range::ℒ, sill::V) where {ℒ<:Len,V}
+    @assert range > zero(range) "range must be positive"
+    @assert sill > zero(sill) "sill must be positive"
+    new{float(ℒ),float(V)}(range, sill)
+  end
 end
 
 LindgrenProcess(range=1.0u"m", sill=1.0) = LindgrenProcess(aslen(range), sill)
+
+"""
+    precisionmatrix(process::LindgrenProcess, domain::Domain)
+
+Compute the Matérn precision matrix of the Lindgren process at
+the vertices of the given `domain`.
+"""
+function precisionmatrix(process::LindgrenProcess, domain)
+  # process parameters
+  𝓁 = process.range
+  σ² = process.sill
+
+  # Laplace-Beltrami operator
+  W = laplacematrix(domain)
+  M = measurematrix(domain)
+  Δ = inv(M) * W
+
+  # retrieve parametric dimension
+  d = paramdim(domain)
+
+  # LHS of SPDE (κ² - Δ)Z = τW with Δ = M⁻¹W
+  α = 2
+  ν = α - d / 2
+  κ = 1 / 𝓁
+  A = κ^2 * I - Δ
+
+  # Matérn precision matrix
+  τ² = σ² * κ^(2ν) * (4π)^(d / 2) * gamma(α) / gamma(ν)
+  ustrip.(A'A / τ²)
+end
