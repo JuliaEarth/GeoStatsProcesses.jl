@@ -40,3 +40,8 @@ QuiltingProcess(
   soft=nothing,
   tol=0.1
 ) = QuiltingProcess(trainimg, tilesize, overlap, path, soft, tol)
+
+function defaultschema(process::QuiltingProcess)
+  table = process.trainimg |> values
+  table |> Tables.columns |> Tables.schema
+end

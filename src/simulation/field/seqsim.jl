@@ -71,7 +71,7 @@ function randsingle(rng::AbstractRNG, process, ::SEQSIM, domain, data, preproc)
   (; path, searcher, nmin, nmax, model, prior, sdom, sdat, cache, init) = preproc
 
   # initialize realization and mask
-  real, mask = randinit(process, sdom, sdat, init)
+  real, mask = initialize(process, sdom, sdat, init)
 
   # realization in matrix form for efficient updates
   realization = ustrip.(stack(Tables.rowtable(real)))

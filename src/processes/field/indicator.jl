@@ -43,3 +43,10 @@ end
 IndicatorProcess(func, prob) = IndicatorProcess{typeof(func),typeof(prob)}(func, prob)
 
 IndicatorProcess(func::Transiogram) = IndicatorProcess(func, collect(proportions(func)))
+
+function defaultschema(process::IndicatorProcess)
+  nvars = nvariates(process.func)
+  names = ntuple(i -> Symbol(:field, i), nvars)
+  types = ntuple(i -> Bool, nvars)
+  Tables.Schema(names, types)
+end

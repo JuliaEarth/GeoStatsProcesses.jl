@@ -122,35 +122,6 @@ function Base.rand(
   Ensemble(domain, reals, fetch=async ? fetch : identity)
 end
 
-"""
-    randinit(process, domain, data, init)
-
-Initialize attribute table of realization based on the field `process`,
-the geospatial `domain` and the geospatial `data` using an `init`ialization
-method.
-"""
-function randinit(process::FieldProcess, domain, data, init)
-  # retrieve appropriate schema
-  schema = isnothing(data) ? defaultschema(process) : dataschema(data)
-
-  # allocate memory for realization and simulation mask
-  nelm = nelements(domain)
-  buff = map(T -> Vector{T}(undef, nelm), schema.types)
-  bits = map(_ -> falses(nelm), schema.types)
-  real = (; zip(schema.names, buff)...)
-  mask = (; zip(schema.names, bits)...)
-
-  # initialize realization and mask with data
-  isnothing(data) || initialize!(real, mask, domain, data, init)
-
-  real, mask
-end
-
-function dataschema(data)
-  schema = data |> values |> Tables.columns |> Tables.schema
-  Tables.Schema(schema.names, map(nonmissingtype, schema.types))
-end
-
 # --------
 # METHODS
 # --------
@@ -170,32 +141,6 @@ include("field/defsim.jl")
 # ---------
 # DEFAULTS
 # ---------
-
-"""
-    defaultschema(process)
-
-Default schema of realizations of field `process`.
-"""
-defaultschema(::FieldProcess) = Tables.Schema((:field,), (Float64,))
-
-function defaultschema(process::GaussianProcess)
-  nvars = nvariates(process.func)
-  names = nvars > 1 ? ntuple(i -> Symbol(:field, i), nvars) : (:field,)
-  types = ntuple(i -> typeof(process.mean[i]), nvars)
-  Tables.Schema(names, types)
-end
-
-function defaultschema(process::IndicatorProcess)
-  nvars = nvariates(process.func)
-  names = ntuple(i -> Symbol(:field, i), nvars)
-  types = ntuple(i -> Bool, nvars)
-  Tables.Schema(names, types)
-end
-
-function defaultschema(process::QuiltingProcess)
-  table = process.trainimg |> values
-  table |> Tables.columns |> Tables.schema
-end
 
 """
     defaultsimulation(process, domain; data=nothing)

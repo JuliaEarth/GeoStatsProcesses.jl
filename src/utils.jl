@@ -60,3 +60,12 @@ function _pairwise(fun, dom)
   isbanded(fun) || (F .= s .- F)
   F
 end
+
+# -------
+# SCHEMA
+# -------
+
+function dataschema(data)
+  schema = data |> values |> Tables.columns |> Tables.schema
+  Tables.Schema(schema.names, map(nonmissingtype, schema.types))
+end

@@ -7,6 +7,7 @@ module GeoStatsProcesses
 using Meshes
 using Unitful
 using GeoTables
+using GeoStatsBase
 using GeoStatsFunctions
 using GeoStatsModels
 
@@ -35,6 +36,7 @@ include("processes.jl")
 include("operations.jl")
 include("initialization.jl")
 include("simulation.jl")
+include("expectation.jl")
 
 export
   # ensembles
@@ -53,6 +55,10 @@ export
   UnionProcess,
   ishomogeneous,
 
+  # point operations
+  RandomThinning,
+  thin,
+
   # field processes
   GaussianProcess,
   IndicatorProcess,
@@ -60,18 +66,20 @@ export
   QuiltingProcess,
   TuringProcess,
   StrataProcess,
-
-  # point operations
-  RandomThinning,
-  thin,
-
-  # initialization
-  NearestInit,
-  ExplicitInit,
+  iscontinuous,
+  isanalytical,
 
   # field simulation
   LUSIM,
   SEQSIM,
-  FFTSIM
+  FFTSIM,
+
+  # field expectation
+  expectedvalue,
+  mean,
+
+  # initialization
+  NearestInit,
+  ExplicitInit
 
 end

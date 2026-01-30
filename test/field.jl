@@ -152,6 +152,30 @@
       real = rand(rng, proc, grid; method, data)
       @test unit(eltype(real.Z)) == u"K"
     end
+
+    @testset "Expectation" begin
+      # unconditional expectation
+      proc = GaussianProcess(SphericalVariogram(range=35.0))
+      grid = CartesianGrid((0.5, 0.5), (100.5, 100.5), dims=(100, 100))
+      mval = mean(proc, grid)
+      @test all(iszero, mval.field)
+
+      # conditional expectation
+      proc = GaussianProcess(SphericalVariogram(range=35.0))
+      grid = CartesianGrid((0.5, 0.5), (100.5, 100.5), dims=(100, 100))
+      data = georef((; Z=[1.0, 0.0, 1.0]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
+      mval = mean(proc, grid; data)
+      @test mval[(25, 25), "Z"] ≈ 1.0
+      @test mval[(50, 75), "Z"] ≈ 0.0
+      @test mval[(75, 50), "Z"] ≈ 1.0
+
+      # expectedvalue == mean
+      proc = GaussianProcess(SphericalVariogram(range=35.0))
+      grid = CartesianGrid((0.5, 0.5), (100.5, 100.5), dims=(100, 100))
+      data = georef((; Z=[1.0, 0.0, 1.0]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
+      @test expectedvalue(proc, grid) == mean(proc, grid)
+      @test expectedvalue(proc, grid; data) == mean(proc, grid; data)
+    end
   end
 
   @testset "IndicatorProcess" begin
@@ -223,6 +247,26 @@
     @test unit(eltype(real.field)) == u"K"
     real = rand(rng, proc, mesh; data)
     @test unit(eltype(real.Z)) == u"K"
+
+    # unconditional expectation
+    proc = LindgrenProcess(0.1)
+    mesh = simplexify(Sphere((0, 0, 0)))
+    mval = mean(proc, mesh)
+    @test all(iszero, mval.field)
+
+    # conditional expectation
+    proc = LindgrenProcess(0.1)
+    mesh = simplexify(Sphere((0, 0, 0)))
+    data = georef((Z=[0.0, 1.0],), [(0, 0, -1), (0, 0, 1)])
+    mval = mean(proc, mesh; data)
+    @test isapprox(sum(mval.Z) / length(mval.Z), 0.0, atol=1e-3)
+
+    # expectedvalue == mean
+    proc = LindgrenProcess(0.1)
+    mesh = simplexify(Sphere((0, 0, 0)))
+    data = georef((Z=[0.0, 1.0],), [(0, 0, -1), (0, 0, 1)])
+    @test expectedvalue(proc, mesh) == mean(proc, mesh)
+    @test expectedvalue(proc, mesh; data) == mean(proc, mesh; data)
   end
 
   @testset "QuiltingProcess" begin

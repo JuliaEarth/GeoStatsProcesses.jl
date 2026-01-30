@@ -12,12 +12,9 @@ using GeoTables
 using ImageQuilting: iqsim
 
 using GeoStatsProcesses: QuiltingProcess
-using GeoStatsProcesses: randinit
+using GeoStatsProcesses: initialize
 
 import GeoStatsProcesses: preprocess, randsingle
-
-# helper function
-getarray(gtb, var) = reshape(getproperty(gtb, var), size(domain(gtb)))
 
 function preprocess(::AbstractRNG, process::QuiltingProcess, ::Nothing, init, dom, data)
   # parent domain
@@ -31,7 +28,7 @@ function preprocess(::AbstractRNG, process::QuiltingProcess, ::Nothing, init, do
   @assert grid isa Grid "quilting process only defined for grids or views of grids"
 
   # initialize realization and mask
-  real, mask = randinit(process, grid, data, init)
+  real, mask = initialize(process, grid, data, init)
 
   # retrieve variable names
   vars = keys(real)
@@ -110,5 +107,8 @@ function randsingle(rng::AbstractRNG, process::QuiltingProcess, ::Nothing, domai
   # flatten result
   (; var => vec(vals))
 end
+
+# helper function
+getarray(gtb, var) = reshape(getproperty(gtb, var), size(domain(gtb)))
 
 end
