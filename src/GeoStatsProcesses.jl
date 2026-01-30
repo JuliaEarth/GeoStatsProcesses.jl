@@ -7,6 +7,7 @@ module GeoStatsProcesses
 using Meshes
 using Unitful
 using GeoTables
+using GeoStatsBase
 using GeoStatsFunctions
 using GeoStatsModels
 

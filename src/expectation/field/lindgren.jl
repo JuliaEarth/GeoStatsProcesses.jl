@@ -45,5 +45,5 @@ function posteriormean(process::LindgrenProcess, domain, data; init, kwargs...)
 
   # change of support
   vdata = GeoTable(domain; vtable)
-  _integrate(vdata, var)
+  integrate(vdata, var)
 end
