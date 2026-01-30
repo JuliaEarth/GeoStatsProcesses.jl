@@ -14,12 +14,12 @@ function priormean(process::LindgrenProcess, domain; kwargs...)
   georef((; zip(vars, vals)...), domain)
 end
 
-function posteriormean(process::LindgrenProcess, domain, data; kwargs...)
+function posteriormean(process::LindgrenProcess, domain, data; init, kwargs...)
   # process parameters
   σ² = process.sill
 
   # initialize mean and mask at vertices
-  mean, mask = initialize(process, PointSet(vertices(domain)), data, NearestInit())
+  mean, mask = initialize(process, PointSet(vertices(domain)), data, init)
 
   # multivariate expectation is not supported
   @assert length(keys(mean)) == 1 "Lindgren's process does not support multivariate expectation"
