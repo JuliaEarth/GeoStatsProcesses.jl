@@ -21,5 +21,5 @@ end
 function posteriormean(process::GaussianProcess, domain, data; init, kwargs...)
   # posterior mean is equivalent to simple Kriging
   model = Kriging(process.func, process.mean)
-  GeoStatsModels.fitpredict(model, data, domain; neighbors=true, init, kwargs...)
+  GeoStatsModels.fitpredict(model, data, domain; neighbors=true, kwargs...)
 end
