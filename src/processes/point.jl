@@ -12,7 +12,7 @@ abstract type PointProcess <: GeoStatsProcess end
 """
     ishomogeneous(process::PointProcess)
 
-Tells whether or not the spatial point process `process` is homogeneous.
+Tells whether or not the point `process` is homogeneous.
 """
 ishomogeneous(process::PointProcess) = false
 

@@ -11,6 +11,13 @@ in an ensemble, which is an indexable collection of geotables.
 """
 abstract type FieldProcess <: GeoStatsProcess end
 
+"""
+    iscontinuous(process::FieldProcess)
+
+Tells whether or not the field `process` is continuous.
+"""
+iscontinuous(::FieldProcess) = true
+
 #-----------------
 # IMPLEMENTATIONS
 #-----------------
