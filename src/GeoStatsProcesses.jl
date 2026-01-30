@@ -67,6 +67,7 @@ export
   TuringProcess,
   StrataProcess,
   iscontinuous,
+  isanalytical,
 
   # field simulation
   LUSIM,

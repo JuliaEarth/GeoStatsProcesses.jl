@@ -19,6 +19,14 @@ Tells whether or not the field `process` is continuous.
 iscontinuous(::FieldProcess) = false
 
 """
+    isanalytical(process::FieldProcess)
+
+Tells whether or not the field `process` is analytical,
+i.e., has closed-form expressions for conditional mean, etc.
+"""
+isanalytical(::FieldProcess) = false
+
+"""
     defaultschema(process::FieldProcess)
 
 Default schema of realizations of field `process`.

@@ -38,6 +38,8 @@ _zeros(n) = n > 1 ? zeros(n) : 0.0
 
 iscontinuous(process::GaussianProcess) = true
 
+isanalytical(process::GaussianProcess) = true
+
 function defaultschema(process::GaussianProcess)
   nvars = nvariates(process.func)
   names = nvars > 1 ? ntuple(i -> Symbol(:field, i), nvars) : (:field,)

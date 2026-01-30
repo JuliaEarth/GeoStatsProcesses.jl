@@ -13,7 +13,7 @@ but other `init`ialization methods are available. Additional `kwargs` are
 forwarded to specialized implementations.
 """
 function expectedvalue(process::FieldProcess, domain::Domain; kwargs...)
-  if iscontinuous(process)
+  if iscontinuous(process) && isanalytical(process)
     mean(process, domain; kwargs...)
   else
     error("not implemented")
