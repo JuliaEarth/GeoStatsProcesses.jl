@@ -46,6 +46,8 @@ end
 
 LindgrenProcess(range=1.0u"m", sill=1.0) = LindgrenProcess(aslen(range), sill)
 
+iscontinuous(process::LindgrenProcess) = true
+
 """
     precisionmatrix(process::LindgrenProcess, domain::Domain)
 

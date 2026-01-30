@@ -16,9 +16,6 @@ using GeoStatsProcesses: initialize
 
 import GeoStatsProcesses: preprocess, randsingle
 
-# helper function
-getarray(gtb, var) = reshape(getproperty(gtb, var), size(domain(gtb)))
-
 function preprocess(::AbstractRNG, process::QuiltingProcess, ::Nothing, init, dom, data)
   # parent domain
   grid = parent(dom)
@@ -110,5 +107,8 @@ function randsingle(rng::AbstractRNG, process::QuiltingProcess, ::Nothing, domai
   # flatten result
   (; var => vec(vals))
 end
+
+# helper function
+getarray(gtb, var) = reshape(getproperty(gtb, var), size(domain(gtb)))
 
 end

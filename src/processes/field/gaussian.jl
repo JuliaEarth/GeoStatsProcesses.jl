@@ -35,3 +35,12 @@ GaussianProcess(func, mean) = GaussianProcess{typeof(func),typeof(mean)}(func, m
 GaussianProcess(func) = GaussianProcess(func, _zeros(nvariates(func)))
 
 _zeros(n) = n > 1 ? zeros(n) : 0.0
+
+iscontinuous(process::GaussianProcess) = true
+
+function defaultschema(process::GaussianProcess)
+  nvars = nvariates(process.func)
+  names = nvars > 1 ? ntuple(i -> Symbol(:field, i), nvars) : (:field,)
+  types = ntuple(i -> typeof(process.mean[i]), nvars)
+  Tables.Schema(names, types)
+end

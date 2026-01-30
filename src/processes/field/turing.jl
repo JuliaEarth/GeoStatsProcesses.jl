@@ -26,3 +26,5 @@ struct TuringProcess{P,B,E,I} <: FieldProcess
 end
 
 TuringProcess(; params=nothing, blur=nothing, edge=nothing, iter=100) = TuringProcess(params, blur, edge, iter)
+
+iscontinuous(process::TuringProcess) = true
