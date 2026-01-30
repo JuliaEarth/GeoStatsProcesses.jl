@@ -123,13 +123,13 @@ function Base.rand(
 end
 
 """
-    randinit(process, domain, data, init)
+    initialize(process, domain, data, init)
 
 Initialize attribute table of realization based on the field `process`,
 the geospatial `domain` and the geospatial `data` using an `init`ialization
 method.
 """
-function randinit(process::FieldProcess, domain, data, init)
+function initialize(process::FieldProcess, domain, data, init)
   # retrieve appropriate schema
   schema = isnothing(data) ? defaultschema(process) : dataschema(data)
 

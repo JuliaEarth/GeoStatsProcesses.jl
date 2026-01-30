@@ -50,7 +50,7 @@ function preprocess(::AbstractRNG, process::GaussianProcess, method::LUSIM, init
   end
 
   # initialize realization and mask
-  real, mask = randinit(process, domain, data, init)
+  real, mask = initialize(process, domain, data, init)
 
   # variable names
   vars = keys(real)

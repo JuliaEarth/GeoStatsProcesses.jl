@@ -19,7 +19,7 @@ function posteriormean(process::LindgrenProcess, domain, data; kwargs...)
   σ² = process.sill
 
   # initialize mean and mask at vertices
-  mean, mask = randinit(process, PointSet(vertices(domain)), data, NearestInit())
+  mean, mask = initialize(process, PointSet(vertices(domain)), data, NearestInit())
 
   # multivariate expectation is not supported
   @assert length(keys(mean)) == 1 "Lindgren's process does not support multivariate expectation"

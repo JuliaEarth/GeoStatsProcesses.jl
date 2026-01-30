@@ -7,7 +7,7 @@ function preprocess(::AbstractRNG, process::LindgrenProcess, ::Nothing, init, do
   σ² = process.sill
 
   # initialize realization and mask at vertices
-  real, mask = randinit(process, PointSet(vertices(domain)), data, init)
+  real, mask = initialize(process, PointSet(vertices(domain)), data, init)
 
   # multivariate simulation is not supported
   @assert length(keys(real)) == 1 "Lindgren's process does not support multivariate simulation"

@@ -63,7 +63,7 @@ function preprocess(::AbstractRNG, process::GaussianProcess, method::FFTSIM, ini
   sdom = domain
 
   # initialize realization and mask
-  real, mask = randinit(process, sdom, data, init)
+  real, mask = initialize(process, sdom, data, init)
 
   # multivariate simulation is not supported
   @assert length(keys(real)) == 1 "FFTSIM does not support multivariate simulation"

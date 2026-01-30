@@ -12,7 +12,7 @@ using GeoTables
 using ImageQuilting: iqsim
 
 using GeoStatsProcesses: QuiltingProcess
-using GeoStatsProcesses: randinit
+using GeoStatsProcesses: initialize
 
 import GeoStatsProcesses: preprocess, randsingle
 
@@ -31,7 +31,7 @@ function preprocess(::AbstractRNG, process::QuiltingProcess, ::Nothing, init, do
   @assert grid isa Grid "quilting process only defined for grids or views of grids"
 
   # initialize realization and mask
-  real, mask = randinit(process, grid, data, init)
+  real, mask = initialize(process, grid, data, init)
 
   # retrieve variable names
   vars = keys(real)
