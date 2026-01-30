@@ -2,7 +2,7 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
-function priormean(process::GaussianProcess, domain)
+function priormean(process::GaussianProcess, domain; kwargs...)
   # retrieve parameters
   f = process.func
   μ = process.mean
@@ -18,6 +18,7 @@ function priormean(process::GaussianProcess, domain)
   georef((; zip(vars, vals)...), domain)
 end
 
-function posteriormean(process::GaussianProcess, domain, data)
-  error("not implemented")
+function posteriormean(process::GaussianProcess, domain, data; kwargs...)
+  model = Kriging(process.func, process.mean)
+  GeoStatsModels.fitpredict(model, data, domain, neighbors=true, kwargs...)
 end

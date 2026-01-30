@@ -3,28 +3,27 @@
 # ------------------------------------------------------------------
 
 """
-    expectedvalue(process::FieldProcess, domain::Domain; data=nothing)
+    expectedvalue(process::FieldProcess, domain::Domain; data=nothing, kwargs...)
 
 Compute the expected value of the field `process` over the given `domain`,
-conditioned on the `data` values if provided.
+conditioned on the `data` values if provided. Optionally, forward `kwargs`.
 """
-function expectedvalue(process::FieldProcess, domain::Domain; data=nothing)
+function expectedvalue(process::FieldProcess, domain::Domain; data=nothing, kwargs...)
   if iscontinuous(process)
-    mean(process, domain; data)
+    mean(process, domain; data, kwargs...)
   else
     error("not implemented")
   end
 end
 
 """
-    mean(process::FieldProcess, domain::Domain; data=nothing)
+    mean(process::FieldProcess, domain::Domain; data=nothing, kwargs...)
 
-Compute the prior or posterior mean of the continuous field `process`
-over the given `domain`. If `data` is provided, compute the posterior
-mean conditioned on the `data` values; otherwise, compute the prior mean.
+Compute the mean of the continuous field `process` over the given `domain`,
+conditioned on the `data` values if provided. Optionally, forward `kwargs`.
 """
-mean(process::FieldProcess, domain::Domain; data=nothing) =
-  isnothing(data) ? priormean(process, domain) : posteriormean(process, domain, data)
+mean(process::FieldProcess, domain::Domain; data=nothing, kwargs...) =
+  isnothing(data) ? priormean(process, domain; kwargs...) : posteriormean(process, domain, data; kwargs...)
 
 # ----------------
 # IMPLEMENTATIONS

@@ -2,7 +2,7 @@
 # Licensed under the MIT License. See LICENSE in the project root.
 # ------------------------------------------------------------------
 
-function priormean(process::LindgrenProcess, domain)
+function priormean(process::LindgrenProcess, domain; kwargs...)
   # retrieve parameters
   σ² = process.sill
   V = typeof(√σ²)
@@ -14,6 +14,6 @@ function priormean(process::LindgrenProcess, domain)
   georef((; zip(vars, vals)...), domain)
 end
 
-function posteriormean(process::LindgrenProcess, domain, data)
+function posteriormean(process::LindgrenProcess, domain, data; kwargs...)
   error("not implemented")
 end
