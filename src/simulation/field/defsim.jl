@@ -6,9 +6,8 @@ function preprocess(::AbstractRNG, process::LindgrenProcess, ::Nothing, init, do
   # process parameters
   σ² = process.sill
 
-  # initialize realization and mask
-  pset = PointSet(vertices(domain))
-  real, mask = randinit(process, pset, data, init)
+  # initialize realization and mask at vertices
+  real, mask = randinit(process, PointSet(vertices(domain)), data, init)
 
   # multivariate simulation is not supported
   @assert length(keys(real)) == 1 "Lindgren's process does not support multivariate simulation"
@@ -16,15 +15,15 @@ function preprocess(::AbstractRNG, process::LindgrenProcess, ::Nothing, init, do
   # retrieve variable name
   var = first(keys(real))
 
+  # retrieve data and simulation locations
+  i₁ = findall(mask[var])
+  i₂ = setdiff(1:nvertices(domain), i₁)
+
   # Matérn precision matrix
   Q = precisionmatrix(process, domain)
 
   # matrix factorization
   F = cholesky(Symmetric(Q))
-
-  # retrieve data and simulation locations
-  i₁ = findall(mask[var])
-  i₂ = setdiff(1:nvertices(domain), i₁)
 
   # interpolate at simulation locations if necessary
   z̄ = if isempty(i₁)

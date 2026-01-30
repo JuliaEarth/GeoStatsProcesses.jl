@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------
 
 function priormean(process::GaussianProcess, domain; kwargs...)
-  # retrieve parameters
+  # process parameters
   f = process.func
   μ = process.mean
   n = nvariates(f)
@@ -19,6 +19,7 @@ function priormean(process::GaussianProcess, domain; kwargs...)
 end
 
 function posteriormean(process::GaussianProcess, domain, data; kwargs...)
+  # posterior mean is equivalent to simple Kriging
   model = Kriging(process.func, process.mean)
   GeoStatsModels.fitpredict(model, data, domain, neighbors=true, kwargs...)
 end
