@@ -3,7 +3,8 @@
 # ------------------------------------------------------------------
 
 """
-    expectedvalue(process::FieldProcess, domain::Domain; data=nothing, init=NearestInit(), kwargs...)
+    expectedvalue(process::FieldProcess, domain::Domain;
+                  data=nothing, init=NearestInit(), kwargs...)
 
 Compute the expected value of the field `process` over the given `domain`,
 conditioned on the `data` values if provided.
@@ -21,7 +22,8 @@ function expectedvalue(process::FieldProcess, domain::Domain; kwargs...)
 end
 
 """
-    mean(process::FieldProcess, domain::Domain; data=nothing, init=NearestInit(), kwargs...)
+    mean(process::FieldProcess, domain::Domain;
+         data=nothing, init=NearestInit(), kwargs...)
 
 Compute the mean of the continuous field `process` over the given `domain`,
 conditioned on the `data` values if provided.
