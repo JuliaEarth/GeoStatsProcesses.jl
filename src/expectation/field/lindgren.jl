@@ -10,6 +10,7 @@ function priormean(process::LindgrenProcess, domain; kwargs...)
   # fill domain with mean values
   vars = (:field,)
   vals = (fill(zero(V), nelements(domain)),)
+
   # georeference mean values
   georef((; zip(vars, vals)...), domain)
 end
