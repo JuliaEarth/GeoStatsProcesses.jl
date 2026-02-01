@@ -74,8 +74,7 @@ function randsingle(rng::AbstractRNG, ::LindgrenProcess, ::Nothing, domain, data
   vtable = (; var => z * √unit(σ²))
 
   # change of support
-  vdata = GeoTable(domain; vtable)
-  edata = integrate(vdata, var)
+  edata = average(GeoTable(domain; vtable))
 
   # return attribute table
   values(edata)
