@@ -1,6 +1,6 @@
 name = "GeoStatsProcesses"
 uuid = "aa102bde-5a27-4b0c-b2c1-e7a7dcc4c3e7"
-version = "0.12.9"
+version = "0.12.10"
 authors = ["Júlio Hoffimann <julio.hoffimann@gmail.com> and contributors"]
 
 [deps]
@@ -46,7 +46,7 @@ GeoStatsModels = "0.13"
 GeoTables = "1.28"
 ImageQuilting = "1.0"
 LinearAlgebra = "1.10"
-Meshes = "0.56"
+Meshes = "0.57"
 ProgressMeter = "1.9"
 Random = "1.10"
 Statistics = "1.10"
