@@ -35,12 +35,15 @@ struct IndicatorProcess{F,P} <: FieldProcess
     @assert nf > 1 "indicator process requires multivariate function"
     @assert nf == np "probabilities must have $nf components, received $np"
     @assert all(p -> 0 ≤ p ≤ 1, prob) "probabilities must be in [0, 1]"
-    @assert isapprox(sum(prob), 1, atol=1e-2) "probabilities must sum up to one"
+    @assert sum(prob) ≈ 1 "probabilities must sum up to one"
     new(func, prob)
   end
 end
 
-IndicatorProcess(func, prob) = IndicatorProcess{typeof(func),typeof(prob)}(func, prob)
+function IndicatorProcess(func, prob)
+  prob′ = prob ./ sum(prob)
+  IndicatorProcess{typeof(func),typeof(prob′)}(func, prob′)
+end
 
 IndicatorProcess(func::Transiogram) = IndicatorProcess(func, collect(proportions(func)))
 
