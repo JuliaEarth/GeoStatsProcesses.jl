@@ -271,21 +271,21 @@
 
   @testset "QuiltingProcess" begin
     rng = StableRNG(2017)
-    data = georef((; facies=[1.0, 0.0, 1.0]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
+    data = georef((; code=[1, 0, 1]), [(25.0, 25.0), (50.0, 75.0), (75.0, 50.0)])
     grid = CartesianGrid(100, 100)
-    trainimg = geostatsimage("Strebelle")
-    proc = QuiltingProcess(trainimg, (30, 30))
+    timg = geostatsimage("Strebelle")
+    proc = QuiltingProcess(timg, (30, 30))
 
     # simulation on full grid
     real = rand(rng, proc, grid; data)
     @test size(domain(real)) == (100, 100)
-    @test eltype(real.facies) == Float64
+    @test eltype(real.code) == Int
 
     # simulation on grid view
     vgrid = view(grid, Ball((50, 50), 20))
     real = rand(rng, proc, vgrid)
     @test domain(real) == vgrid
-    @test length(real.facies) == nelements(vgrid)
+    @test length(real.code) == nelements(vgrid)
   end
 
   @testset "TuringProcess" begin
