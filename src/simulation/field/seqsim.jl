@@ -237,7 +237,7 @@ _cache(::GaussianProcess) = nothing
 
 function _cache(process::IndicatorProcess)
   f = process.func
-  n = nvariates(f)
+  n = nvariables(f)
   t = (field = 1:n,)
   _, c = apply(OneHot(1), t)
   c
@@ -257,7 +257,7 @@ function _probmodel(process::GaussianProcess, func)
   Σᵤ = ustrip.(u^2, sill(f))
 
   model = Kriging(f, μᵤ)
-  prior = nvariates(f) > 1 ? MvNormal(μᵤ, Σᵤ) : Normal(μᵤ, √Σᵤ)
+  prior = nvariables(f) > 1 ? MvNormal(μᵤ, Σᵤ) : Normal(μᵤ, √Σᵤ)
 
   model, prior
 end

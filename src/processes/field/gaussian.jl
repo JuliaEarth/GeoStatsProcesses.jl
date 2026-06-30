@@ -25,14 +25,14 @@ struct GaussianProcess{F,M} <: FieldProcess
 
   function GaussianProcess{F,M}(func, mean) where {F,M}
     nm = length(mean)
-    nf = nvariates(func)
+    nf = nvariables(func)
     @assert nm == nf "mean must have $nf components, received $nm"
     new(func, mean)
   end
 end
 
 GaussianProcess(func, mean) = GaussianProcess{typeof(func),typeof(mean)}(func, mean)
-GaussianProcess(func) = GaussianProcess(func, _zeros(nvariates(func)))
+GaussianProcess(func) = GaussianProcess(func, _zeros(nvariables(func)))
 
 _zeros(n) = n > 1 ? zeros(n) : 0.0
 
@@ -41,7 +41,7 @@ iscontinuous(process::GaussianProcess) = true
 isanalytical(process::GaussianProcess) = true
 
 function defaultschema(process::GaussianProcess)
-  nvars = nvariates(process.func)
+  nvars = nvariables(process.func)
   names = nvars > 1 ? ntuple(i -> Symbol(:field, i), nvars) : (:field,)
   types = ntuple(i -> typeof(process.mean[i]), nvars)
   Tables.Schema(names, types)

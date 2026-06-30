@@ -56,7 +56,7 @@ function preprocess(::AbstractRNG, process::GaussianProcess, method::LUSIM, init
   vars = keys(real)
 
   # sanity checks
-  @assert length(vars) == nvariates(f) "incompatible number of variables for geostatistical function"
+  @assert length(vars) == nvariables(f) "incompatible number of variables for geostatistical function"
   @assert length(vars) ∈ (1, 2) "LUSIM only supports univariate and bivariate simulation"
 
   # number of variables

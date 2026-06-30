@@ -6,7 +6,7 @@ function priormean(process::GaussianProcess, domain; kwargs...)
   # process parameters
   f = process.func
   μ = process.mean
-  n = nvariates(f)
+  n = nvariables(f)
 
   # fill domain with mean values
   vars = n > 1 ? ntuple(i -> Symbol(:field, i), n) : (:field,)

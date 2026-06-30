@@ -31,7 +31,7 @@ struct IndicatorProcess{F,P} <: FieldProcess
 
   function IndicatorProcess{F,P}(func, prob) where {F,P}
     np = length(prob)
-    nf = nvariates(func)
+    nf = nvariables(func)
     @assert nf > 1 "indicator process requires multivariate function"
     @assert nf == np "probabilities must have $nf components, received $np"
     @assert all(p -> 0 ≤ p ≤ 1, prob) "probabilities must be in [0, 1]"
@@ -48,7 +48,7 @@ end
 IndicatorProcess(func::Transiogram) = IndicatorProcess(func, collect(proportions(func)))
 
 function defaultschema(process::IndicatorProcess)
-  nvars = nvariates(process.func)
+  nvars = nvariables(process.func)
   names = ntuple(i -> Symbol(:field, i), nvars)
   types = ntuple(i -> Bool, nvars)
   Tables.Schema(names, types)
