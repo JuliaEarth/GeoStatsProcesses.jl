@@ -208,14 +208,14 @@ function _search(dom, dat, neigh, method)
   end
 
   # build set of points for neighbor search
-  points = [centroid(dom, i) for i in 1:nelements(dom)]
+  pts = [centroid(dom, i) for i in 1:nelements(dom)]
   if !isnothing(dat)
     ddom = domain(dat) |> Proj(crs(dom))
-    append!(points, [centroid(ddom, i) for i in 1:nelements(ddom)])
+    append!(pts, [centroid(ddom, i) for i in 1:nelements(ddom)])
   end
 
   # consider it as the augmented simulation domain
-  sdom = PointSet(points)
+  sdom = PointSet(pts)
 
   # determine search method
   searcher = if isnothing(neigh)
