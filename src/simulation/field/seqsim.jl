@@ -64,9 +64,7 @@ function preprocess(::AbstractRNG, process, method::SEQSIM, init, domain, data)
   sdat, cache = _transform(process, dat)
 
   # use explicit initialization
-  n = nelements(sdom)
-  k = isnothing(sdat) ? 0 : nrow(sdat)
-  sinit = ExplicitInit(1:k, n - k + 1:n)
+  sinit = _initialization(sdom, sdat)
 
   (; path, searcher, nmin, nmax, model, prior, sdom, sdat, cache, sinit)
 end
@@ -260,6 +258,16 @@ function _cache(process::IndicatorProcess)
   t = (field = 1:n,)
   _, c = apply(OneHot(1), t)
   c
+end
+
+# ---------------
+# INITIALIZATION
+# ---------------
+
+function _initialization(sdom, sdat)
+  n = nelements(sdom)
+  k = isnothing(sdat) ? 0 : nrow(sdat)
+  ExplicitInit(1:k, n - k + 1:n)
 end
 
 # ------------------
