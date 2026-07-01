@@ -262,25 +262,6 @@ function _cache(process::IndicatorProcess)
   c
 end
 
-# ----------------
-# DATA ASSIGNMENT
-
-function _setvalues!(real, mask, sdat)
-  ndat = nrow(sdat)
-  cols = Tables.columns(values(sdat))
-  vars = Tables.columnnames(cols)
-  @inbounds for var in vars
-    vals = Tables.getcolumn(cols, var)
-    for i in eachindex(vals)
-      val = vals[i]
-      if !ismissing(val)
-        real[var][end - ndat + i] = val
-        mask[var][end - ndat + i] = true
-      end
-    end
-  end
-end
-
 # ------------------
 # PROBABILITY MODEL
 # ------------------
