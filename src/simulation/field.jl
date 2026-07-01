@@ -21,7 +21,8 @@ A suitable `method` is automatically chosen based on the `process`, `domain` and
 
 In the presence of `data`, the realizations are initialized with a `init`ialization
 method. By default, the data is assigned to the nearest geometry of the simulation
-domain.
+domain. This option might be ignored by the simulation `method` if it requires a
+specific initialization.
 
 Multiple `workers` created with the `Distributed` standard library can be used for
 parallel simulation. The function can be called `async`hrounously, in which case it

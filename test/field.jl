@@ -83,7 +83,7 @@
       real = rand(rng, proc, grid; method, data)
       @test eltype(real.Z) <: Float64
       inds = LinearIndices(size(grid))
-      @test real.Z[inds[25, 25]] == 1.0
+      @test real.Z[inds[25, 25]] ≈ 1.0 atol=1e-4
 
       # simulation with units
       rng = StableRNG(2017)
