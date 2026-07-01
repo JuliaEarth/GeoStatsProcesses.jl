@@ -54,33 +54,36 @@ function preprocess(::AbstractRNG, process, method::SEQSIM, init, domain, data)
   # scale objects for numerical stability
   dom, dat, fun, neigh = _scale(domain, data, func, method.neighborhood)
 
-  # determine search method and min/max neighbors
-  path, searcher, nmin, nmax = _search(dom, neigh, method)
+  # augment domain, determine search method and min/max neighbors
+  sdom, path, searcher, nmin, nmax = _search(dom, dat, neigh, method)
 
   # determine probability model
   model, prior = _probmodel(process, fun)
 
   # transform process and data
-  sdom, sdat, cache = _transform(process, dom, dat)
+  sdat, cache = _transform(process, dat)
 
-  (; path, searcher, nmin, nmax, model, prior, sdom, sdat, cache, init)
+  # use explicit initialization
+  sinit = _initialization(sdom, sdat)
+
+  (; path, searcher, nmin, nmax, model, prior, sdom, sdat, cache, sinit)
 end
 
 function randsingle(rng::AbstractRNG, process, ::SEQSIM, domain, data, preproc)
   # retrieve preprocessing results
-  (; path, searcher, nmin, nmax, model, prior, sdom, sdat, cache, init) = preproc
+  (; path, searcher, nmin, nmax, model, prior, sdom, sdat, cache, sinit) = preproc
 
   # initialize realization and mask
-  real, mask = initialize(process, sdom, sdat, init)
+  real, mask = initialize(process, sdom, sdat, sinit)
 
   # realization in matrix form for efficient updates
-  realization = ustrip.(stack(Tables.rowtable(real)))
-
-  # save units of columns to restore later
-  units = isnothing(sdat) ? _units(process) : _units(sdat)
+  realization = ustrip.(transpose(stack(real)))
 
   # locations with all variables already simulated
   simulated = map(all, Tables.rowtable(mask))
+
+  # save units of columns to restore later
+  units = isnothing(sdat) ? _units(process) : _units(sdat)
 
   # pre-allocate memory for neighbors
   neighbors = Vector{Int}(undef, nmax)
@@ -139,8 +142,17 @@ function randsingle(rng::AbstractRNG, process, ::SEQSIM, domain, data, preproc)
     real[var] .= realization[i,:] * units[i]
   end
 
+  # discard augmented locations from realization
+  final = if isnothing(sdat)
+    real
+  else
+    nelm = nelements(domain)
+    vals = map(r -> r[1:nelm], real)
+    (; zip(vars, vals)...)
+  end
+
   # undo data transformations
-  _bwdtransform(process, real, cache)
+  _bwdtransform(process, final, cache)
 end
 
 # --------
@@ -180,7 +192,7 @@ _scalefactor(fun::GeoStatsFunction) = ustrip(range(fun))
 # SEARCHING
 # ----------
 
-function _search(dom, neigh, method)
+function _search(dom, dat, neigh, method)
   path = method.path
   nmin = method.minneighbors
   nmax = method.maxneighbors
@@ -195,34 +207,39 @@ function _search(dom, neigh, method)
     nmin = 1
   end
 
+  # build set of points for neighbor search
+  points = [centroid(dom, i) for i in 1:nelements(dom)]
+  if !isnothing(dat)
+    ddom = domain(dat) |> Proj(crs(dom))
+    append!(points, [centroid(ddom, i) for i in 1:nelements(ddom)])
+  end
+
+  # consider it as the augmented simulation domain
+  sdom = PointSet(points)
+
   # determine search method
   searcher = if isnothing(neigh)
     # nearest neighbor search with a metric
-    KNearestSearch(dom, nmax; metric=dist)
+    KNearestSearch(sdom, nmax; metric=dist)
   else
     # neighbor search with ball neighborhood
-    KBallSearch(dom, nmax, neigh)
+    KBallSearch(sdom, nmax, neigh)
   end
 
-  path, searcher, nmin, nmax
+  sdom, path, searcher, nmin, nmax
 end
 
 # ----------------
 # TRANSFORMATIONS
 # ----------------
 
-function _transform(process, dom, dat)
-  # consider point set of centroids for now
-  sdom = PointSet([centroid(dom, ind) for ind in 1:nelements(dom)])
-
+function _transform(process, dat)
   # transform data and always produce valid cache
-  sdat, cache = if isnothing(dat)
+  if isnothing(dat)
     dat, _cache(process)
   else
     _fwdtransform(process, dat)
   end
-
-  sdom, sdat, cache
 end
 
 _fwdtransform(::GaussianProcess, dat) = apply(Identity(), dat)
@@ -241,6 +258,16 @@ function _cache(process::IndicatorProcess)
   t = (field = 1:n,)
   _, c = apply(OneHot(1), t)
   c
+end
+
+# ---------------
+# INITIALIZATION
+# ---------------
+
+function _initialization(sdom, sdat)
+  n = nelements(sdom)
+  k = isnothing(sdat) ? 0 : nrow(sdat)
+  ExplicitInit(1:k, n - k + 1:n)
 end
 
 # ------------------
