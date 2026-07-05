@@ -24,15 +24,15 @@ accepts the following neighbor search options.
 
 ## References
 
-* Oliver 1995. [Moving averages for Gaussian simulation in two and three dimensions]
-  (https://link.springer.com/article/10.1007/BF02091660)
+* Oliver 1995. [Moving averages for Gaussian simulation in two and
+  three dimensions](https://link.springer.com/article/10.1007/BF02091660)
 
-* Ravalec et al. 2000. [The FFT Moving Average (FFT-MA) Generator: An Efficient
-  Numerical Method for Generating and Conditioning Gaussian Simulations]
-  (https://link.springer.com/article/10.1023/A:1007542406333)
+* Ravalec et al. 2000. [The FFT Moving Average (FFT-MA) Generator:
+  An Efficient Numerical Method for Generating and Conditioning Gaussian
+  Simulations](https://link.springer.com/article/10.1023/A:1007542406333)
 
-* Figueiredo et al. 2019. [Revisited Formulation and Applications of FFT Moving Average]
-  (https://link.springer.com/article/10.1007/s11004-019-09826-4)
+* Figueiredo et al. 2019. [Revisited Formulation and Applications of
+  FFT Moving Average](https://link.springer.com/article/10.1007/s11004-019-09826-4)
 
 ### Notes
 

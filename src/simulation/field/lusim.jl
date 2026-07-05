@@ -14,15 +14,15 @@ drawn via a lower-upper (LU) matrix factorization.
 ## References
 
 * Alabert 1987. [The practice of fast conditional simulations
-  through the LU decomposition of the covariance matrix]
-  (https://link.springer.com/article/10.1007/BF00897191)
+  through the LU decomposition of the
+  covariance matrix](https://link.springer.com/article/10.1007/BF00897191)
 
 * Davis 1987. [Production of conditional simulations via the LU
-  triangular decomposition of the covariance matrix]
-  (https://link.springer.com/article/10.1007/BF00898189)
+  triangular decomposition of the
+  covariance matrix](https://link.springer.com/article/10.1007/BF00898189)
 
-* Oliver 2003. [Gaussian cosimulation: modeling of the cross-covariance]
-  (https://link.springer.com/article/10.1023%2FB%3AMATG.0000002984.56637.ef)
+* Oliver 2003. [Gaussian cosimulation: modeling of the
+  cross-covariance](https://link.springer.com/article/10.1023%2FB%3AMATG.0000002984.56637.ef)
 
 ### Notes
 
