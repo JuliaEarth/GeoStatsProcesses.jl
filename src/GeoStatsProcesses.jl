@@ -65,7 +65,6 @@ export
   LindgrenProcess,
   QuiltingProcess,
   TuringProcess,
-  StrataProcess,
   iscontinuous,
   isanalytical,
 

@@ -296,18 +296,6 @@
     @test eltype(real.field) <: Float64
   end
 
-  @testset "StrataProcess" begin
-    rng = StableRNG(2019)
-    proc = SmoothingProcess()
-    env = Environment(rng, [proc, proc], [0.5 0.5; 0.5 0.5], ExponentialDuration(rng, 1.0))
-    grid = CartesianGrid(50, 50, 20)
-    real = rand(StrataProcess(env), grid)
-    @test size(domain(real)) == (50, 50, 20)
-    @test eltype(real.field) <: Union{Float64,Missing}
-    @test any(ismissing, real.field)
-    @test all(!isnan, skipmissing(real.field))
-  end
-
   @testset "parallel simulation" begin
     addprocs(2)
 
