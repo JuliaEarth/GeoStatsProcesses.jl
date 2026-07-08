@@ -11,7 +11,6 @@ using Test, StableRNGs
 
 import ImageQuilting
 import TuringPatterns
-using StratiGraphics: SmoothingProcess, Environment, ExponentialDuration
 
 # environment settings
 datadir = joinpath(@__DIR__, "data")
