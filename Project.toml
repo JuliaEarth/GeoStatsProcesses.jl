@@ -1,6 +1,6 @@
 name = "GeoStatsProcesses"
 uuid = "aa102bde-5a27-4b0c-b2c1-e7a7dcc4c3e7"
-version = "0.13.0"
+version = "0.13.1"
 authors = ["Júlio Hoffimann <julio.hoffimann@gmail.com> and contributors"]
 
 [deps]
@@ -39,7 +39,7 @@ Distributed = "1.10"
 Distributions = "0.25"
 FFTW = "1.7"
 GeoStatsBase = "0.49"
-GeoStatsFunctions = "0.15"
+GeoStatsFunctions = "0.16"
 GeoStatsModels = "0.13"
 GeoTables = "1.28"
 ImageQuilting = "1.3.1"
