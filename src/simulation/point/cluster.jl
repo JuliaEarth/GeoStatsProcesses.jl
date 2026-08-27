@@ -6,12 +6,20 @@ function randsingle(rng::AbstractRNG, p::ClusterProcess, g)
   # generate parents
   parents = rand(rng, p.proc, g)
 
-  # generate offsprings
-  offsprings = filter(!isnothing, p.ofun.(parents))
+  # initialize result
+  result = eltype(parents)[]
 
-  # intersect with geometry
-  intersects = filter(!isnothing, [o ∩ g for o in offsprings])
+  # append offsprings
+  for point in parents
+    pset = p.ofun(point)
+    isnothing(pset) && continue
+    pint = pset ∩ g
+    isnothing(pint) && continue
+    append!(result, _flat(pint))
+  end
 
-  # combine offsprings into single set
-  isempty(intersects) ? nothing : PointSet(mapreduce(collect, vcat, intersects))
+  isempty(result) ? nothing : PointSet(result)
 end
+
+_flat(p::Point) = [p]
+_flat(m::Multi) = parent(m)
